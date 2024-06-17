@@ -1,0 +1,5 @@
+site: https://jira.atlassian.com
+context_path: /
+project: INVALID_DEFAULT
+username: INVALID_DEFAULT
+http_debug: false

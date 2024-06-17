@@ -1,0 +1,14 @@
+*.gem
+.bundle/
+.yardoc
+Gemfile.lock
+Gemfile.gh-actions.lock
+_yardoc/
+coverage/
+doc/
+pkg/
+/spec/reports/
+/spec/examples.txt
+.rspec_status
+tmp/
+.idea/

@@ -1,0 +1,30 @@
+// https://code.visualstudio.com/docs/editor/userdefinedsnippets
+{
+  "Module Command": {
+    "prefix": "register_command",
+    "description": "Register a CAC module",
+    "scope": "ruby",
+    "body": [
+      "register_command '${module} ${command}' do",
+      "  desc      '${command_description}'",
+      "  required  '${required_option}'",
+      "  required  [ '${required1}', '${required2}' ]",
+      "  optional  [ '${optional1}', '${optional2}' ]",
+      "  exclusive [ '${exclusive}', '${options}' ]",
+      "end"
+    ]
+  },
+  "Module Option": {
+    "prefix": "register_option",
+    "description": "Register a CAC module option",
+    "scope": "ruby",
+    "body": [
+      "register_option '${1:option_name}' do",
+      "  desc           '${2:option_description}'",
+      "  default        '${3:default_value}'",
+      "  type           '${4|string,int|}'",
+      "  allowed_values '${value1}','${value2}'",
+      "end"
+    ]
+  }
+}
