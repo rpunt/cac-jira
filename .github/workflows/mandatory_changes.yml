@@ -1,0 +1,10 @@
+name: Mandatory File Changes
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  must-change-files:
+    uses: rpunt/github-actions/.github/workflows/cac-mandatory-file-changes.yml@main
+    secrets: inherit
