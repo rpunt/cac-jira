@@ -33,10 +33,11 @@ module CAC
 
         jql_fields = opts[:fields].nil? ? DEFAULT_JQL_FIELDS : opts[:fields].split(',').map(&:to_sym)
         jql = ["project = \"#{opts[:project]}\""]
-        jql << "#{opts[:jql]}" if opts[:jql_given]
+        jql << "#{opts[:jql]}" unless opts[:jql].empty?
         logger.debug "Performing JIRA search with JQL [#{jql}] and selected fields are #{jql_fields}"
+
         begin
-          jql_search = client.Issue.jql(jql.join(' and '), fields: jql_fields)
+          jql_search = client.Issue.jql(jql.join(' and '), fields: jql_fields, max_results: 5000)
         rescue JIRA::HTTPError => e
           logger.error("#{JSON.parse(e.response.body)['errorMessages'].join(';')} (#{e.code})")
         end
