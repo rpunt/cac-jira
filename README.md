@@ -25,10 +25,11 @@ cac:
 
 ## Local development
 
-Clone [cac-core](https://github.com/rpunt/cac-) locally, the configure bundler to use your local copy:
+Clone [cac-core](https://github.com/rpunt/cac-core) locally, then configure bundler to use your local copy:
 
 ```bash
 bundle config set --local.cac-core ~/path/to/cac-core
+bundle config set --local with 'development'
 bundle install
 bundle exec cac jira
 ```
