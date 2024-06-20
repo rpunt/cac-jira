@@ -1,4 +1,4 @@
-# Jira module for DC Commander
+# Jira module for CAC
 
 Interact with Jira stories. For a list of commands, run `cac jira`.
 
