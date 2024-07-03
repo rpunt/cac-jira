@@ -1,3 +1,7 @@
+## 1.0.3
+
+- show more fields for `crdb_cluster` issues
+
 ## 1.0.2
 
 - update logic for `create`

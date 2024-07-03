@@ -135,6 +135,8 @@ module CAC
             { value: wrap_string(issue.attrs['fields']['customfield_23853'], 110) }
           ]
 
+          t.add_row [ { value: '', colspan: 2 }]
+
           t.add_row [
             { value: 'Service Tag', alignment: :right },
             { value: wrap_string(issue.attrs['fields']['customfield_23856'], 110) }
@@ -174,6 +176,25 @@ module CAC
             { value: 'Tier', alignment: :right },
             { value: wrap_string(issue.attrs['fields']['customfield_23863']['value'], 110) }
           ]
+
+          t.add_row [ { value: '', colspan: 2 }]
+
+          t.add_row [
+            { value: 'Enable mode access?', alignment: :right },
+            { value: wrap_string(issue.attrs['fields']['customfield_24253']['value'], 110) }
+          ]
+
+          t.add_row [
+            { value: 'Enable snowflake S3 ETL export?', alignment: :right },
+            { value: wrap_string(issue.attrs['fields']['customfield_24254']['value'], 110) }
+          ]
+
+          t.add_row [
+            { value: 'Build on shared hardware?', alignment: :right },
+            { value: wrap_string(issue.attrs['fields']['customfield_24255']['value'], 110) }
+          ]
+
+          t.add_row [ { value: '', colspan: 2 }]
 
           t.add_row [
             { value: 'Environment', alignment: :right },
