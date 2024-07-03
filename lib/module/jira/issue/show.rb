@@ -179,20 +179,26 @@ module CAC
 
           t.add_row [ { value: '', colspan: 2 }]
 
-          t.add_row [
-            { value: 'Enable mode access?', alignment: :right },
-            { value: wrap_string(issue.attrs['fields']['customfield_24253']['value'], 110) }
-          ]
+          unless issue.attrs['fields']['customfield_24253'].nil?
+            t.add_row [
+              { value: 'Enable mode access?', alignment: :right },
+              { value: wrap_string(issue.attrs['fields']['customfield_24253']['value'], 110) }
+            ]
+          end
 
-          t.add_row [
-            { value: 'Enable snowflake S3 ETL export?', alignment: :right },
-            { value: wrap_string(issue.attrs['fields']['customfield_24254']['value'], 110) }
-          ]
+          unless issue.attrs['fields']['customfield_24254'].nil?
+            t.add_row [
+              { value: 'Enable snowflake S3 ETL export?', alignment: :right },
+              { value: wrap_string(issue.attrs['fields']['customfield_24254']['value'], 110) }
+            ]
+          end
 
-          t.add_row [
-            { value: 'Build on shared hardware?', alignment: :right },
-            { value: wrap_string(issue.attrs['fields']['customfield_24255']['value'], 110) }
-          ]
+          unless issue.attrs['fields']['customfield_24255'].nil?
+            t.add_row [
+              { value: 'Build on shared hardware?', alignment: :right },
+              { value: wrap_string(issue.attrs['fields']['customfield_24255']['value'], 110) }
+            ]
+          end
 
           t.add_row [ { value: '', colspan: 2 }]
 
