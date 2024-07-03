@@ -11,7 +11,7 @@ module CAC
       register_command 'issue create' do
         desc     'Create a new Jira issue'
         required %w[title description]
-        optional %w[type project epic epic_name browse labels sqore assign prioritize begin]
+        optional %w[type project epic epic_name browse labels assign begin]
       end
 
       register_option 'title' do
@@ -22,20 +22,14 @@ module CAC
 
       register_option 'type' do
         desc           'Issue type to create'
-        default        'issue'
+        default        'task'
         type           'string'
         short          'y'
-        allowed_values 'issue,bug,epic'
+        allowed_values 'crdb_cluster,task,epic'
       end
 
       register_option 'assign' do
         desc    'Assign the issue to yourself?'
-        type    'boolean'
-        default false
-      end
-
-      register_option 'prioritize' do
-        desc    'Prioritize the issue?'
         type    'boolean'
         default false
       end
@@ -68,11 +62,6 @@ module CAC
         type 'string'
       end
 
-      register_option 'sqore' do
-        desc   'Assign a sqore to your issue'
-        type   'float'
-      end
-
       register_option 'browse' do
         desc   'Open the issue in your browser once created'
         type   'boolean'
@@ -91,6 +80,8 @@ module CAC
           logger.error(JSON.parse(e.message)['errorMessages'].join("\n"))
         end
 
+        require 'pry'; binding.pry
+
         issuetypeid = Jira::Client.instance.getIssueTypeID(opts[:type])
 
         fieldset = {}
@@ -102,12 +93,6 @@ module CAC
         fieldset['issuetype']['id'] = issuetypeid
 
         logger.error "You're tring to link an epic to an epic" if !opts[:epic].nil? && opts[:type] == 'epic'
-
-        if opts[:sqore].nil?
-          logger.error 'A sqore is required to prioritize a issue' if opts[:prioritize]
-        else
-          logger.warn 'Issue not prioritized; sqore ignored' unless opts[:prioritize]
-        end
 
         unless opts[:labels].nil?
           logger.debug("Adding labels: #{opts[:labels]}")
@@ -146,7 +131,6 @@ module CAC
           logger.info("Created Jira #{opts[:type]}: #{issue.key}")
         end
 
-        call_module_command('jira', 'issue prioritize', id: issue.key, sqore: opts[:sqore], suppress_output: true) if opts[:prioritize]
         call_module_command('jira', 'issue assign',     id: issue.key, suppress_output: true) if opts[:assign]
         call_module_command('jira', 'issue begin',      id: issue.key, suppress_output: true) if opts[:begin]
         call_module_command('jira', 'issue browse',     id: issue.key, suppress_output: true) if opts[:browse]
@@ -154,7 +138,6 @@ module CAC
 
       def setup
         opts[:assign]     = true if opts[:begin]
-        opts[:prioritize] = true if opts[:assign]
 
         # can't gsub! -- throws cannot modify frozen string
         # Optimist or something is escaping \ so "testing\nwith\nnew lines" turns into "Testing\\nwith\\nnewlines"

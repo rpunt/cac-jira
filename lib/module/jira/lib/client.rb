@@ -25,10 +25,8 @@ module CAC
 
       def issueID(issuetype)
         types = {
-          'bug' => 1,
-          'sub-task' => 8,
           'epic' => 20,
-          'issue' => 21,
+          'task' => 20_534,
           'crdb_cluster' => 21_686
         }
         types[issuetype]
