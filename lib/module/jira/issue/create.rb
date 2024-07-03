@@ -80,8 +80,6 @@ module CAC
           logger.error(JSON.parse(e.message)['errorMessages'].join("\n"))
         end
 
-        require 'pry'; binding.pry
-
         issuetypeid = Jira::Client.instance.getIssueTypeID(opts[:type])
 
         fieldset = {}
