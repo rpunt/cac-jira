@@ -22,14 +22,12 @@ module CAC
       end
 
       def execute
-        assignee = client.options[:username]
-
-        issue.save({ 'fields' => { 'assignee' => { 'name' => assignee } } })
+        issue.save({'fields' => {'assignee' => {'accountId' => client.User.myself.accountId}}})
 
         if issue.respond_to? :errors
           logger.error("Error assigning #{issueID}: #{issue.errors['assignee']}")
         else
-          logger.info("#{issueID} assigned to #{assignee}")
+          logger.info("#{issueID} assigned to #{client.options[:username]}")
         end
       end
     end

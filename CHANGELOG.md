@@ -1,3 +1,7 @@
+## 1.0.4
+
+- fix issue assignments
+
 ## 1.0.3
 
 - show more fields for `crdb_cluster` issues
