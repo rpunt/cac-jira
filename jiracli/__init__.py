@@ -28,10 +28,12 @@ server = config.get('server', 'INVALID_DEFAULT').replace('https://', '')
 if config['server'] == 'INVALID_DEFAULT':
     log.error(f"Invalid server in {config['config_file_path']}: {server}")
     exit(1)
+
 username = config.get('username', 'INVALID_DEFAULT')
 if config['username'] == 'INVALID_DEFAULT':
     log.error(f"Invalid username in {config['config_file_path']}: {username}")
     exit(1)
+
 api_token = keyring.get_password("cac-jira", username)
 if not api_token:
     log.error(f"API token not found for {username}")
