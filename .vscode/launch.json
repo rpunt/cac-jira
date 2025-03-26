@@ -1,22 +1,23 @@
+// filepath: /Users/ryan/git/cac/.vscode/launch.json
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python Debugger: Current File with Arguments",
+      "name": "Debug JiraCLI",
       "type": "debugpy",
       "request": "launch",
-      "program": "jira",
-      "cwd": "${workspaceFolder}/venv/bin",
-      "console": "integratedTerminal",
+      "program": "${workspaceFolder}/jiracli/cli/main.py",
       "args": [
-        "-h"
-      ]
-      // "args": [
-      //   "${command:pickArgs}"
-      // ]
+        "issue",
+        "list",
+        "--verbose",
+        // "--help"
+        // "--project",
+        // "storage"
+        // "--mine"
+        // "--done"
+      ], // Replace with the subcommand and action you want to debug
+      "console": "integratedTerminal"
     }
   ]
 }
