@@ -5,9 +5,9 @@
 Main entry point for the Jira CLI tool.
 
 This script provides a command-line interface for interacting with Jira. It supports
-various subcommands, such as 'issue', and dynamically loads the appropriate modules
-and actions based on user input. The tool is designed to be extensible, allowing
-additional subcommands and actions to be added as needed.
+nested commands, such as 'jira issue list' or 'jira project create', and dynamically
+loads the appropriate modules and actions based on user input. The tool is designed to be
+extensible, allowing additional commands to be added as needed.
 """
 
 import argparse
@@ -21,68 +21,92 @@ def main():
     """
     Entry point for the Jira CLI tool.
 
-    This function sets up the argument parser, handles subcommands, and dynamically
+    This function sets up the argument parser with nested commands, and dynamically
     loads and executes the appropriate module and action based on user input.
 
-    It supports subcommands like 'issue' and allows each subcommand to define its
-    own arguments and actions. Errors during module loading or execution are logged.
+    It supports command patterns like 'jira issue list' or 'jira project create' and allows
+    each command to define its own arguments and actions. Errors during module loading
+    or execution are logged.
     """
     log = cac.logger.new(__name__)
-    parser = argparse.ArgumentParser(prog="jira", description="Jira CLI tool")
-    subparsers = parser.add_subparsers(dest="subcommand", required=True)
 
-    # Define the 'issue' subcommand
-    issue_parser = subparsers.add_parser("issue", help="Issue-related commands")
-    issue_parser.add_argument("action", help="Action to perform (e.g., list, create)")
-    issue_parser.add_argument("--verbose", help="Verbose output", action="store_true", default=False)
+    # Create parent parser for global arguments
+    parent_parser = argparse.ArgumentParser(add_help=False)
+    parent_parser.add_argument("--verbose", help="Verbose output", action="store_true", default=False)
 
-    args, remaining_args = parser.parse_known_args()
+    # Main parser that inherits from parent
+    parser = argparse.ArgumentParser(prog="jira", description="Jira CLI tool", parents=[parent_parser])
+    subparsers = parser.add_subparsers(dest="command", required=True)
 
-    if not args.subcommand:
-        parser.print_help()
-        sys.exit(1)
+    # Define top-level commands - pass parent_parser to inherit global arguments
+    issue_parser = subparsers.add_parser("issue", help="Issue-related commands", parents=[parent_parser])
+    issue_subparsers = issue_parser.add_subparsers(dest="action", required=True)
+
+    # Define issue actions with empty parsers - the actual arguments will be added by the command classes
+    issue_list_parser = issue_subparsers.add_parser("list", help="List issues", parents=[parent_parser])
+    issue_create_parser = issue_subparsers.add_parser("create", help="Create an issue", parents=[parent_parser])
+
+    # Example of another top-level command - pass parent_parser to inherit global arguments
+    project_parser = subparsers.add_parser("project", help="Project-related commands", parents=[parent_parser])
+    project_subparsers = project_parser.add_subparsers(dest="action", required=True)
+
+    # Define project actions with empty parsers - the actual arguments will be added by the command classes
+    project_list_parser = project_subparsers.add_parser("list", help="List projects", parents=[parent_parser])
+    project_create_parser = project_subparsers.add_parser("create", help="Create a project", parents=[parent_parser])
+
+    # First parse just the command and action to determine which action class to load
+    args, unknown = parser.parse_known_args()
     if args.verbose:
         log.setLevel(logging.DEBUG)
 
-    # Dynamically load the subcommand module and call the corresponding action
+    command = args.command
+    action = getattr(args, 'action', None)
 
+    if not action:
+        log.error("No action specified for '%s'", command)
+        sys.exit(1)
+
+    # Dynamically load the command module and call the corresponding action
     try:
-        module_path = f"jiracli.commands.{args.subcommand}.{args.action}"
+        module_path = f"jiracli.commands.{command}.{action}"
         log.debug("Attempting to import module: %s", module_path)
         module = importlib.import_module(module_path)
         log.debug("Successfully imported module: %s", module_path)
 
-        # Convert action to PascalCase for class name (e.g., "list" -> "IssueList")
-        class_name = f"{args.subcommand.capitalize()}{args.action.capitalize()}"
+        # Convert command and action to PascalCase for class name (e.g., "issue" "list" -> "IssueList")
+        class_name = f"{command.capitalize()}{action.capitalize()}"
         log.debug("Determined class name: %s", class_name)
 
-        # Load the subcommand class
-        log.debug("Loading subcommand class from module: %s", module_path)
-        subcommand_class = getattr(module, class_name, None)
-        if subcommand_class is None:
+        # Load the action class
+        log.debug("Loading action class from module: %s", module_path)
+        action_class = getattr(module, class_name, None)
+        if action_class is None:
             raise AttributeError(
                 f"Class '{class_name}' not found in module '{module_path}'"
             )
 
-        # Instantiate the subcommand class
-        log.debug("Instantiating subcommand class: %s", class_name)
-        subcommand_instance = subcommand_class()
+        # Instantiate the action class
+        log.debug("Instantiating action class: %s", class_name)
+        action_instance = action_class()
 
-        # Let the subcommand class define its own arguments
-        log.debug("Initializing argument parser for: %s %s", args.subcommand, args.action)
-        subcommand_parser = argparse.ArgumentParser(
-            prog=f"jira {args.subcommand} {args.action}"
-        )
-        log.debug("Calling 'define_arguments' for: %s %s", args.subcommand, args.action)
-        subcommand_instance.define_arguments(subcommand_parser)
-        log.debug("Parsing arguments for: %s %s", args.subcommand, args.action)
-        subcommand_args = subcommand_parser.parse_args(remaining_args)
-        if not isinstance(subcommand_args, argparse.Namespace):
-            raise TypeError("Parsed arguments must be an instance of argparse.Namespace")
+        # Now add the command-specific arguments to the appropriate parser
+        if command == "issue" and action == "list":
+            action_instance.define_arguments(issue_list_parser)
+        elif command == "issue" and action == "create":
+            action_instance.define_arguments(issue_create_parser)
+        elif command == "project" and action == "list":
+            action_instance.define_arguments(project_list_parser)
+        elif command == "project" and action == "create":
+            action_instance.define_arguments(project_create_parser)
 
-        # Call the execute method of the subcommand class with parsed arguments
+        # Now parse all arguments with the updated parser
+        args = parser.parse_args()
+        if args.verbose:
+            log.setLevel(logging.DEBUG)
+
+        # Execute the action with the fully parsed arguments
         log.debug("Executing action method: %s.execute", class_name)
-        subcommand_instance.execute(subcommand_args)
+        action_instance.execute(args)
     except ModuleNotFoundError:
         log.error("Error: Command module '%s' not found.", module_path)
     except AttributeError as e:

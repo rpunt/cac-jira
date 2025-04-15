@@ -1,52 +1,79 @@
-# pylint: disable=missing-docstring
+#!/usr/bin/env python
 
-import abc
-import glob
-import os
+"""
+Base module for all issue-related commands.
 
-# Dynamically find all Python files in the current directory (excluding __init__.py)
-module_files = glob.glob(os.path.join(os.path.dirname(__file__), "*.py"))
-module_names = [
-    os.path.splitext(os.path.basename(f))[0]
-    for f in module_files
-    if os.path.basename(f) != "__init__.py"
-]
+This module defines the base JiraCommand class that all issue-related
+action classes should inherit from.
+"""
 
-# Import all modules dynamically
-__all__ = module_names
+import cac_core as cac
+from jiracli.commands.command import JiraCommand
 
-class IssueCommand(abc.ABC):
+
+class JiraIssueCommand(JiraCommand):
     """
-    A base class for all issue-related commands.
+    Base class for all issue-related actions.
 
-    This class provides shared functionality and structure for all commands
-    in the 'issue' module, including default arguments.
+    This class defines common methods and properties that should be shared
+    across all issue actions, such as issue-specific arguments and utilities.
     """
 
-    @abc.abstractmethod
-    def execute(self, args):
+    def __init__(self):
         """
-        Abstract method that must be implemented by all subclasses.
+        Initialize the command with issue-specific settings.
+        """
+        super().__init__()
+        # Using the logger already initialized in the parent class (JiraCommand)
+
+    def define_common_arguments(self, parser):
+        """
+        Define arguments common to all issue actions.
 
         Args:
-            args (argparse.Namespace): Parsed command-line arguments.
-
-        Returns:
-            None
+            parser: The argument parser to add arguments to
         """
-        pass # pylint: disable=unnecessary-pass
+        # Add base common arguments
+        super().define_common_arguments(parser)
 
-    @classmethod
-    def define_arguments(cls, parser):
-        """
-        Defines default arguments for all issue-related commands.
-
-        Args:
-            parser (argparse.ArgumentParser): The argument parser to define arguments for.
-
-        Returns:
-            None
-        """
+        # Add issue-specific common arguments
         parser.add_argument(
-            "-p", "--project", help="Filter issues by project key", default="CRDBOPS"
+            "--project",
+            help="Project key for the issue",
+            default="CRDBOPS"
         )
+        return parser
+
+    def get_issue_types(self, args):
+        """
+        Get available issue types for a project.
+
+        Args:
+            args: The parsed arguments containing project information
+
+        Returns:
+            List of issue types
+        """
+        # This is a placeholder - in a real implementation, this would
+        # fetch actual issue types from the Jira API
+        self.log.debug("Getting issue types for project: %s", args.project)
+        return ["Bug", "Task", "Story", "Epic"]
+
+    def get_issue_fields(self, args):
+        """
+        Get available fields for issue creation/editing.
+
+        Args:
+            args: The parsed arguments
+
+        Returns:
+            Dictionary of field metadata
+        """
+        # Placeholder implementation
+        self.log.debug("Getting issue fields")
+        return {
+            "summary": {"required": True, "type": "string"},
+            "description": {"required": False, "type": "string"},
+            "assignee": {"required": False, "type": "user"},
+            "priority": {"required": False, "type": "option"},
+        }

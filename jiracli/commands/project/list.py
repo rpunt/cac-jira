@@ -1,44 +1,55 @@
-# # frozen_string_literal: true
+#!/usr/bin/env python
 
-# require 'terminal-table'
-# # require 'cac/core/module/command'
-# require 'module/jira/lib/client'
+"""
+Command module for listing Jira projects.
+"""
 
-# module CAC
-#   module Jira
-#     # List projects
-#     class ProjectListCommand < CAC::Jira::Core
-#       register_command 'project list' do
-#         desc     'List projects'
-#       end
+from jiracli.commands.project import JiraProjectCommand
 
-#       def execute
-#         client = Jira::Client.instance.client
+class ProjectList(JiraProjectCommand):
+    """
+    Command class for listing Jira projects.
+    """
 
-#         #####################
-#         # # list projects # #
-#         #####################
-#         logger.debug 'Listing projects'
+    def define_arguments(self, parser):
+        """
+        Define command-specific arguments.
 
-#         begin
-#           projects = client.Project.all
-#         rescue JIRA::HTTPError => e
-#           logger.error("#{JSON.parse(e.response.body)['errorMessages'].join(';')} (#{e.code})")
-#         end
+        Args:
+            parser: The argument parser to add arguments to
+        """
+        # Add common arguments first
+        super().define_arguments(parser)
 
-#         models = []
+        # Add action-specific arguments
+        parser.add_argument(
+            "--type",
+            help="Filter by project type",
+            choices=["software", "business"],
+            default=None
+        )
+        return parser
 
-#         projects.each do |project|
-#           model = Cac::Core::Model.new(
-#             Key: project.key,
-#             Name: project.name
-#           )
+    def execute(self, args):
+        """
+        Execute the command with the provided arguments.
 
-#           models << model
-#         end
+        Args:
+            args: The parsed arguments
+        """
+        self.log.info("Listing Jira projects")
 
-#         print_models models.sort_by(&:Key)
-#       end
-#     end
-#   end
-# end
+        # Build the query parameters
+        params = {}
+        if args.type:
+            params["projectTypeKey"] = args.type
+        if not args.archived:
+            params["expand"] = "description,lead"
+
+        self.log.debug("Query parameters: %s", params)
+
+        # Use self.jira_client directly instead of get_jira_client()
+        # Here you would make the actual API call to Jira
+        # For demonstration purposes, we'll just print the parameters
+        result = f"Would query Jira projects with params: {params}"
+        print(self.format_output(result, args.output))

@@ -18,6 +18,19 @@
         // "--done"
       ], // Replace with the subcommand and action you want to debug
       "console": "integratedTerminal"
+    },
+    {
+      "name": "Poetry run tests",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "-v"
+      ],
+      "python": "${command:python.interpreterPath}",
+      "console": "integratedTerminal",
+      "justMyCode": false
     }
   ]
 }
