@@ -3,7 +3,8 @@
 
 from jiracli.commands.issue import JiraIssueCommand
 
-class IssueComment(JiraIssueCommand):
+
+class IssueDelete(JiraIssueCommand):
     """
     Command class for commenting on Jira issues.
     """
@@ -24,13 +25,6 @@ class IssueComment(JiraIssueCommand):
             default=None,
             required=True,
         )
-        parser.add_argument(
-            "-c",
-            "--comment",
-            help="Comment to add",
-            default=None,
-            required=True,
-        )
         return parser
 
     def execute(self, args):
@@ -40,6 +34,6 @@ class IssueComment(JiraIssueCommand):
         Args:
             args: The parsed arguments
         """
-        self.log.debug("Commenting on Jira issue")
-        self.jira_client.add_comment(args.issue, args.comment)
-        self.log.info("Added comment to %s", args.issue)
+        self.log.debug("Deleting Jira issue")
+        self.jira_client.issue(args.issue)
+        self.log.info("Issue %s deleted", args.issue)

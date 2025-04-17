@@ -9,12 +9,8 @@ command actions.
 """
 
 import abc
-import argparse
-import os
-import cac_core as cac
-# from cac_core.logger import logger as cac_logger
 from cac_core.command import Command
-from jiracli import JIRA_CLIENT
+from jiracli import JIRA_CLIENT, CONFIG, log
 
 
 class JiraCommand(Command):
@@ -31,22 +27,22 @@ class JiraCommand(Command):
         Initialize the command with a logger and Jira client.
         """
         super().__init__()
-        self.log = cac.logger.new(self.__class__.__name__)
+        self.log = log
         self.jira_client = JIRA_CLIENT
+        self.config = CONFIG
 
+    # TODO: W0221 arguments differ
     def define_common_arguments(self, parser):
         """
-        Define arguments common to all commands.
+        Define arguments common to all Jira commands.
 
         Args:
             parser: The argument parser to add arguments to
         """
-        parser.add_argument(
-            "--output",
-            help="Output format",
-            choices=["json", "yaml", "table", "csv"],
-            default="table"
-        )
+        # Add the base common arguments
+        super().define_common_arguments(parser)
+
+        # Add Jira-specific common arguments
         return parser
 
     @abc.abstractmethod
@@ -79,6 +75,7 @@ class JiraCommand(Command):
         """
         pass
 
+    # TODO: this is unnecessary
     def format_output(self, data, output_format):
         """
         Format the data according to the specified output format.

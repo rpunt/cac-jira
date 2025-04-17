@@ -4,8 +4,6 @@
 Command module for creating Jira issues.
 """
 
-# import argparse
-# import cac_core as cac
 from jiracli.commands.issue import JiraIssueCommand
 
 class IssueCreate(JiraIssueCommand):
@@ -39,17 +37,11 @@ class IssueCreate(JiraIssueCommand):
             help="Issue type (Bug, Task, Story, etc.)",
             default="Task"
         )
-        parser.add_argument(
-            "--assignee",
-            help="Assign the issue to a user",
-            default=None
-        )
-        parser.add_argument(
-            "--priority",
-            help="Issue priority",
-            choices=["Highest", "High", "Medium", "Low", "Lowest"],
-            default="Medium"
-        )
+        # parser.add_argument(
+        #     "--assignee",
+        #     help="Assign the issue to a user",
+        #     default=None
+        # )
         return parser
 
     def execute(self, args):
@@ -59,8 +51,6 @@ class IssueCreate(JiraIssueCommand):
         Args:
             args: The parsed arguments
         """
-        self.log.info("Creating Jira issue")
-
         # Validate project is provided (required for issue creation)
         if not args.project:
             self.log.error("Project key is required for issue creation")
@@ -72,16 +62,13 @@ class IssueCreate(JiraIssueCommand):
             "summary": args.summary,
             "description": args.description,
             "issuetype": args.type,
-            "priority": args.priority
         }
 
-        if args.assignee:
-            issue_data["assignee"] = args.assignee
+        # if args.assignee:
+        #     issue_data["assignee"] = args.assignee
 
         self.log.debug("Issue data: %s", issue_data)
-
-        # Use self.jira_client directly instead of get_jira_client()
-        # Here you would make the actual API call to Jira
-        # For demonstration purposes, we'll just print the data
-        result = f"Would create Jira issue with data: {issue_data}"
-        print(self.format_output(result, args.output))
+        issue = self.jira_client.create_issue(
+            fields=issue_data
+        )
+        self.log.info("Issue %s created successfully", issue.key)

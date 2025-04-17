@@ -1,41 +1,49 @@
-# # frozen_string_literal: true
+#!/usr/bin/env python
 
-# require 'terminal-table'
-# # require 'cac/core/module/command'
-# require 'module/jira/lib/client'
+import cac_core as cac
+from jiracli.commands.project import JiraProjectCommand
+from jiracli.commands.project.list import ProjectList
 
-# module CAC
-#   module Jira
-#     # List projects
-#     class ProjectShowCommand < CAC::Jira::Core
-#       register_command 'project show' do
-#         desc     'Show project'
-#         required %w[project]
-#       end
+class ProjectShow(JiraProjectCommand):
+    """
+    Command class for showing details of a specific Jira project.
+    """
 
-#       def execute
-#         client = Jira::Client.instance.client
+    def define_arguments(self, parser):
+        """
+        Define command-specific arguments.
 
-#         ####################
-#         # # show project # #
-#         ####################
-#         project_key = opts[:project].upcase
-#         logger.debug "Showing project #{project_key}"
+        Args:
+            parser: The argument parser to add arguments to
+        """
+        super().define_arguments(parser)
+        return parser
 
-#         begin
-#           project = client.Project.find(project_key)
-#         rescue JIRA::HTTPError => e
-#           logger.error("#{JSON.parse(e.response.body)['errorMessages'].join(';')} (#{e.code})")
-#         end
+    def execute(self, args):
+        """
+        Execute the command with the provided arguments.
 
-#         models = []
-#         models << Cac::Core::Model.new(
-#           ID: project.id,
-#           Key: project.key,
-#           Name: project.name
-#         )
-#         print_models models.sort_by(&:Key)
-#       end
-#     end
-#   end
-# end
+        Args:
+            args: The parsed arguments
+        """
+        # self.log.debug("Showing Jira project %s", args.project)
+        # args.project = args.project.upper()
+
+        # Use ProjectList to get the list of projects
+        project_list = ProjectList()
+        projects = project_list.get_projects(args)
+
+        if not projects:
+            self.log.error("Projects not found")
+            return
+
+        # Find project by key (case insensitive)
+        models = []
+        for project in projects:
+            model = cac.model.Model(
+                {"ID": project.id, "Key": project.key, "Name": project.name}
+            )
+            models.append(model)
+
+        printer = cac.output.Output({"json": args.json})
+        printer.print_models(models)

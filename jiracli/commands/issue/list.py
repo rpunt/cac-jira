@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# pylint: disable=line-too-long
 
 """
 Command module for listing Jira issues.
@@ -14,12 +15,6 @@ class IssueList(JiraIssueCommand):
     """
     Command class for listing Jira issues.
     """
-
-    def __init__(self):
-        """
-        Initialize the command with a logger.
-        """
-        super().__init__()
 
     def define_arguments(self, parser):
         """
@@ -37,7 +32,7 @@ class IssueList(JiraIssueCommand):
         #     help="Filter issues by assignee",
         #     default=None
         # )
-        parser.add_argument("--status", help="Filter issues by status", default=None)
+        # parser.add_argument("--status", help="Filter issues by status", default=None)
         parser.add_argument("-m", "--mine", action="store_true", default=False, help="List issues assigned to the current user")
         parser.add_argument("-d", "--done", action="store_true", default=False, help="Include issues that are done")
 
@@ -63,42 +58,37 @@ class IssueList(JiraIssueCommand):
         if not args.done:
             jql_parts.append("status != Done")
 
-        # # Use the jira_client directly from self
-        # # Here you would make the actual API call to Jira
-        # # For demonstration purposes, we'll just print the query
-        # result = f"Would query Jira with JQL: {jql}\nLimit: {args.limit}"
-        # print(self.format_output(result, args.output))
-
         jql = " AND ".join(jql_parts) if jql_parts else ""
         self.log.debug("JQL query: %s", jql)
 
-        start_at = 0
-        max_results = 50  # Number of issues to fetch per request
-        total_issues = []
-        while True:
-            issues = self.jira_client.search_issues( # pylint: disable=no-member
-                jql,
-                startAt=start_at,
-                maxResults=max_results,
-                fields=[
-                    "key",
-                    "summary",
-                    "status",
-                    "assignee",
-                    "issuetype",
-                    "labels",
-                    "resolutiondate",
-                ],
-            )
+        # start_at = 0
+        # max_results = 50  # Number of issues to fetch per request
+        # total_issues = []
+        # while True:
+        #     issues = self.jira_client.search_issues( # pylint: disable=no-member
+        #         jql,
+        #         startAt=start_at,
+        #         maxResults=max_results,
+        #         fields=[
+        #             "key",
+        #             "summary",
+        #             "status",
+        #             "assignee",
+        #             "issuetype",
+        #             "labels",
+        #             "resolutiondate",
+        #         ],
+        #     )
 
-            total_issues.extend(issues)
+        #     total_issues.extend(issues)
 
-            # Break the loop if we've fetched all issues
-            if len(issues) < max_results:
-                break
+        #     # Break the loop if we've fetched all issues
+        #     if len(issues) < max_results:
+        #         break
 
-            # Update startAt for the next batch
-            start_at += max_results
+        #     # Update startAt for the next batch
+        #     start_at += max_results
+        total_issues = self.jira_client.search_issues(jql)
 
         models = []
         for issue in total_issues:
@@ -118,5 +108,5 @@ class IssueList(JiraIssueCommand):
             )
             models.append(model)
 
-        printer = cac.output.OutputTable({})
+        printer = cac.output.Output({"json": args.json})
         printer.print_models(models)

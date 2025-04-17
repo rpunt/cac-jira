@@ -7,7 +7,6 @@ This module defines the base JiraCommand class that all issue-related
 action classes should inherit from.
 """
 
-import cac_core as cac
 from jiracli.commands.command import JiraCommand
 
 
@@ -19,12 +18,41 @@ class JiraIssueCommand(JiraCommand):
     across all issue actions, such as issue-specific arguments and utilities.
     """
 
-    def __init__(self):
+    # def __init__(self):
+    #     """
+    #     Initialize the command.
+    #     """
+    #     super().__init__()
+    #     # Remove any duplicate handlers from the logger to prevent multiple log messages
+    #     if self.log.handlers and len(self.log.handlers) > 1:
+    #         for handler in self.log.handlers[1:]:
+    #             self.log.removeHandler(handler)
+
+    def define_arguments(self, parser):
         """
-        Initialize the command with issue-specific settings.
+        Define arguments specific to this command.
+
+        Args:
+            parser: The argument parser to add arguments to
+
+        Returns:
+            The parser with arguments added
         """
-        super().__init__()
-        # Using the logger already initialized in the parent class (JiraCommand)
+        super().define_arguments(parser)
+        self.define_common_arguments(parser)
+        return parser
+
+    def execute(self, args):
+        """
+        Execute the command with the given arguments.
+
+        Args:
+            args: The parsed arguments
+
+        Returns:
+            The result of the command execution
+        """
+        raise NotImplementedError("Subclasses must implement execute()")
 
     def define_common_arguments(self, parser):
         """
@@ -37,43 +65,58 @@ class JiraIssueCommand(JiraCommand):
         super().define_common_arguments(parser)
 
         # Add issue-specific common arguments
-        parser.add_argument(
-            "--project",
-            help="Project key for the issue",
-            default="CRDBOPS"
-        )
+        has_project = any(action.dest == "project" for action in parser._actions)
+        if not has_project:
+            parser.add_argument(
+                "--project",
+                help="Project key for the issue",
+                default=self.config.project,  # pylint: disable=no-member
+            )
+
         return parser
 
-    def get_issue_types(self, args):
-        """
-        Get available issue types for a project.
+    # def get_issue_types(self, args) -> list:
+    #     """
+    #     Get available issue types for a project.
 
-        Args:
-            args: The parsed arguments containing project information
+    #     Args:
+    #         args: The parsed arguments containing project information
 
-        Returns:
-            List of issue types
-        """
-        # This is a placeholder - in a real implementation, this would
-        # fetch actual issue types from the Jira API
-        self.log.debug("Getting issue types for project: %s", args.project)
-        return ["Bug", "Task", "Story", "Epic"]
+    #     Returns:
+    #         List of issue types
+    #     """
+    #     # This is a placeholder - in a real implementation, this would
+    #     # fetch actual issue types from the Jira API
+    #     self.log.debug("Getting issue types for project: %s", args.project)
+    #     # return ["Bug", "Task", "Story", "Epic"]
+    #     issue_types = self.jira_client.issue_types() # pylint: disable=no-member
+    #     if issue_types:
+    #         self.log.debug("Issue types found: %s", issue_types)
+    #         return issue_types
+    #     self.log.error("No issue types found for project: %s", args.project)
+    #     return []
 
-    def get_issue_fields(self, args):
-        """
-        Get available fields for issue creation/editing.
+    # def get_issue_fields(self, args) -> dict:
+    #     """
+    #     Get available fields for issue creation/editing.
 
-        Args:
-            args: The parsed arguments
+    #     Args:
+    #         args: The parsed arguments
 
-        Returns:
-            Dictionary of field metadata
-        """
-        # Placeholder implementation
-        self.log.debug("Getting issue fields")
-        return {
-            "summary": {"required": True, "type": "string"},
-            "description": {"required": False, "type": "string"},
-            "assignee": {"required": False, "type": "user"},
-            "priority": {"required": False, "type": "option"},
-        }
+    #     Returns:
+    #         Dictionary of field metadata
+    #     """
+    #     # Placeholder implementation
+    #     self.log.debug("Getting issue fields")
+    #     # return {
+    #     #     "summary": {"required": True, "type": "string"},
+    #     #     "description": {"required": False, "type": "string"},
+    #     #     "assignee": {"required": False, "type": "user"},
+    #     #     "priority": {"required": False, "type": "option"},
+    #     # }
+    #     fields = self.jira_client.issue_fields() # pylint: disable=no-member
+    #     if fields:
+    #         self.log.debug("Issue fields found: %s", fields)
+    #         return fields
+    #     self.log.error("No issue fields found")
+    #     return {}

@@ -35,45 +35,33 @@ jira <command> <action> [options]
 ### Examples
 
 List issues in a project:
+
 ```bash
 jira issue list --project PROJECT_KEY
 ```
 
 List issues with additional filtering:
+
 ```bash
 jira issue list --project PROJECT_KEY --assignee "your.name" --status "In Progress"
 ```
 
 Create a new issue:
+
 ```bash
 jira issue create --project PROJECT_KEY --summary "Issue summary" --description "Detailed description"
 ```
 
 List projects:
+
 ```bash
 jira project list
 ```
 
 Include archived projects in listing:
+
 ```bash
 jira project list --archived
-```
-
-### Authentication
-
-The CLI supports the following authentication methods:
-
-1. Command-line arguments:
-```bash
-jira issue list --server https://jira.example.com --username your_username --password your_api_token
-```
-
-2. Environment variables:
-```bash
-export JIRA_SERVER=https://jira.example.com
-export JIRA_USERNAME=your_username
-export JIRA_PASSWORD=your_api_token
-jira issue list
 ```
 
 ## Development

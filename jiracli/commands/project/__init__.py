@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-
+# pylint: disable=import-outside-toplevel
 """
+
 Base module for all project-related commands.
 
 This module defines the base ProjectCommand class that all project-related
@@ -18,14 +19,31 @@ class JiraProjectCommand(JiraCommand):
     across all project actions, such as project-specific arguments and utilities.
     """
 
-    def __init__(self):
+    def define_arguments(self, parser):
         """
-        Initialize the project command.
+        Define arguments specific to this command.
+
+        Args:
+            parser: The argument parser to add arguments to
+
+        Returns:
+            The modified parser
         """
-        super().__init__()
-        # Import here to avoid circular imports
-        from jiracli import JIRA_CLIENT
-        self.jira_client = JIRA_CLIENT
+        self.define_common_arguments(parser)
+        return parser
+
+    def execute(self, args):
+        """
+        Execute the command with the provided arguments.
+
+        Args:
+            args: The parsed command line arguments
+
+        Returns:
+            Command result
+        """
+        # This method is meant to be overridden by specific project commands
+        raise NotImplementedError("Subclasses must implement execute()")
 
     def define_common_arguments(self, parser):
         """
@@ -39,10 +57,16 @@ class JiraProjectCommand(JiraCommand):
 
         # Add project-specific common arguments
         parser.add_argument(
-            "--archived",
-            help="Include archived projects",
-            action="store_true",
-            default=False
+            "-n",
+            "--name",
+            help="Filter projects by name (case-insensitive, partial match)",
+            default=None,
+        )
+        parser.add_argument(
+            "-k",
+            "--key",
+            help="Filter projects by key (case-insensitive, partial match)",
+            default=None,
         )
         return parser
 
