@@ -1,44 +1,74 @@
-# # frozen_string_literal: true
+#!/usr/bin/env python
 
-# require 'terminal-table'
-# # require 'cac/core/module/command'
-# require 'module/jira/lib/client'
+import cac_core as cac
+from jiracli.commands.project import JiraProjectCommand
 
-# module CAC
-#   module Jira
-#     # List projects
-#     class ProjectListCommand < CAC::Jira::Core
-#       register_command 'project list' do
-#         desc     'List projects'
-#       end
 
-#       def execute
-#         client = Jira::Client.instance.client
+class ProjectList(JiraProjectCommand):
+    """
+    Command class for listing Jira projects.
+    """
 
-#         #####################
-#         # # list projects # #
-#         #####################
-#         logger.debug 'Listing projects'
+    def define_arguments(self, parser):
+        """
+        Define command-specific arguments.
 
-#         begin
-#           projects = client.Project.all
-#         rescue JIRA::HTTPError => e
-#           logger.error("#{JSON.parse(e.response.body)['errorMessages'].join(';')} (#{e.code})")
-#         end
+        Args:
+            parser: The argument parser to add arguments to
+        """
+        super().define_arguments(parser)
+        return parser
 
-#         models = []
+    def get_projects(self, args):
+        """
+        Get list of projects, optionally filtered.
 
-#         projects.each do |project|
-#           model = Cac::Core::Model.new(
-#             Key: project.key,
-#             Name: project.name
-#           )
+        Args:
+            args: The parsed arguments containing filter criteria
 
-#           models << model
-#         end
+        Returns:
+            list: List of project objects
+        """
+        self.log.debug("Getting Jira projects")
 
-#         print_models models.sort_by(&:Key)
-#       end
-#     end
-#   end
-# end
+        projects = self.jira_client.projects()  # pylint: disable=no-member
+        if not projects:
+            self.log.error("Projects not found")
+            return []
+
+        # Apply filters if provided
+        filtered_projects = projects
+
+        if getattr(args, 'name', None):
+            name_filter = args.name.lower()
+            filtered_projects = [p for p in filtered_projects if name_filter in p.name.lower()]
+
+        if getattr(args, 'key', None):
+            key_filter = args.key.lower()
+            filtered_projects = [p for p in filtered_projects if key_filter in p.key.lower()]
+
+        return filtered_projects
+
+    def execute(self, args):
+        """
+        Execute the command with the provided arguments.
+
+        Args:
+            args: The parsed arguments
+        """
+        projects = self.get_projects(args)
+
+        if not projects:
+            self.log.error("No projects found")
+            return
+
+        # Convert to models for display
+        models = []
+        for project in projects:
+            model = cac.model.Model(
+                {"ID": project.id, "Key": project.key, "Name": project.name}
+            )
+            models.append(model)
+
+        printer = cac.output.Output({"json": args.json})
+        printer.print_models(models)

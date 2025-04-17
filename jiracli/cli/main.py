@@ -5,92 +5,162 @@
 Main entry point for the Jira CLI tool.
 
 This script provides a command-line interface for interacting with Jira. It supports
-various subcommands, such as 'issue', and dynamically loads the appropriate modules
-and actions based on user input. The tool is designed to be extensible, allowing
-additional subcommands and actions to be added as needed.
+nested commands, such as 'jira issue list' or 'jira project create', and dynamically
+loads the appropriate modules and actions based on user input. The tool is designed to be
+extensible, allowing additional commands to be added as needed.
 """
 
 import argparse
 import importlib
 import sys
 import logging
+import os
+# import pkgutil
 import cac_core as cac
+
+
+def discover_commands():
+    """
+    Discover available commands by scanning the commands directory.
+
+    Returns:
+        list: A list of command names.
+    """
+    commands = []
+    commands_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "commands"))
+
+    # Check if the commands directory exists
+    if not os.path.exists(commands_dir) or not os.path.isdir(commands_dir):
+        return commands
+
+    # Get all subdirectories (which are packages) in the commands directory
+    for item in os.listdir(commands_dir):
+        item_path = os.path.join(commands_dir, item)
+        # Only consider directories that have an __init__.py file (Python packages)
+        if os.path.isdir(item_path) and os.path.exists(os.path.join(item_path, "__init__.py")) and item != "__pycache__":
+            commands.append(item)
+
+    return sorted(commands)
+
+
+def discover_actions(command):
+    """
+    Discover available actions for a given command by scanning its directory.
+
+    Args:
+        command (str): The command name.
+
+    Returns:
+        list: A list of action names.
+    """
+    actions = []
+    command_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "commands", command))
+
+    # Check if the command directory exists
+    if not os.path.exists(command_dir) or not os.path.isdir(command_dir):
+        return actions
+
+    # Get all Python modules in the command directory
+    for item in os.listdir(command_dir):
+        # Skip __init__.py, __pycache__, and non-Python files
+        if item == "__init__.py" or item == "__pycache__" or not item.endswith(".py"):
+            continue
+
+        # Extract action name (filename without .py extension)
+        action = item[:-3]
+        actions.append(action)
+
+    return sorted(actions)
 
 
 def main():
     """
     Entry point for the Jira CLI tool.
 
-    This function sets up the argument parser, handles subcommands, and dynamically
+    This function sets up the argument parser with nested commands, and dynamically
     loads and executes the appropriate module and action based on user input.
-
-    It supports subcommands like 'issue' and allows each subcommand to define its
-    own arguments and actions. Errors during module loading or execution are logged.
     """
     log = cac.logger.new(__name__)
-    parser = argparse.ArgumentParser(prog="jira", description="Jira CLI tool")
-    subparsers = parser.add_subparsers(dest="subcommand", required=True)
 
-    # Define the 'issue' subcommand
-    issue_parser = subparsers.add_parser("issue", help="Issue-related commands")
-    issue_parser.add_argument("action", help="Action to perform (e.g., list, create)")
-    issue_parser.add_argument("--verbose", help="Verbose output", action="store_true", default=False)
+    # Create parent parser for global arguments
+    parent_parser = argparse.ArgumentParser(add_help=False)
 
-    args, remaining_args = parser.parse_known_args()
+    # Main parser that inherits from parent
+    parser = argparse.ArgumentParser(prog="jira", description="Jira CLI tool", parents=[parent_parser])
+    subparsers = parser.add_subparsers(dest="command", required=True)
 
-    if not args.subcommand:
-        parser.print_help()
-        sys.exit(1)
+    # Discover available commands by scanning the commands directory
+    commands = discover_commands()
+    log.debug("Discovered commands: %s", commands)
+
+    # Dictionary to map command names to their subparsers
+    command_subparsers = {}
+
+    # Set up command structure based on discovered commands
+    for command in commands:
+        command_parser = subparsers.add_parser(command, help=f"{command.capitalize()}-related commands", parents=[parent_parser])
+        command_subparsers[command] = command_parser.add_subparsers(dest="action", required=True)
+
+    # Add all available action parsers up front by scanning directories
+    for command, subparser in command_subparsers.items():
+        actions = discover_actions(command)
+        log.debug("Discovered actions for %s: %s", command, actions)
+
+        for action in actions:
+            try:
+                # Load the module and class for this action
+                module_path = f"jiracli.commands.{command}.{action}"
+                module = importlib.import_module(module_path)
+
+                class_name = f"{command.capitalize()}{action.capitalize()}"
+                action_class = getattr(module, class_name, None)
+
+                if action_class is None:
+                    log.warning("Class '%s' not found in module '%s'", class_name, module_path)
+                    continue
+
+                # Instantiate the action class
+                action_instance = action_class()
+
+                # Create parser for this action and let the action define its arguments
+                action_parser = subparser.add_parser(action, help=f"{action} {command}", parents=[parent_parser])
+                action_instance.define_arguments(action_parser)
+
+                # Store the class for later execution
+                action_parser.set_defaults(action_class=action_class)
+
+            except ModuleNotFoundError:
+                log.warning("Command module '%s' not found", module_path)
+            except Exception as e:  # pylint: disable=broad-except
+                log.warning("Error setting up %s %s: %s", command, action, e)
+
+    # Parse arguments
+    args = parser.parse_args()
     if args.verbose:
         log.setLevel(logging.DEBUG)
 
-    # Dynamically load the subcommand module and call the corresponding action
-
+    # Execute the appropriate action
     try:
-        module_path = f"jiracli.commands.{args.subcommand}.{args.action}"
-        log.debug("Attempting to import module: %s", module_path)
-        module = importlib.import_module(module_path)
-        log.debug("Successfully imported module: %s", module_path)
+        # Get the action class from the parser defaults
+        action_class = getattr(args, 'action_class', None)
 
-        # Convert action to PascalCase for class name (e.g., "list" -> "IssueList")
-        class_name = f"{args.subcommand.capitalize()}{args.action.capitalize()}"
-        log.debug("Determined class name: %s", class_name)
+        if action_class is None:
+            log.error("No handler found for %s %s", args.command, args.action)
+            sys.exit(1)
 
-        # Load the subcommand class
-        log.debug("Loading subcommand class from module: %s", module_path)
-        subcommand_class = getattr(module, class_name, None)
-        if subcommand_class is None:
-            raise AttributeError(
-                f"Class '{class_name}' not found in module '{module_path}'"
-            )
+        # Instantiate and execute
+        if callable(action_class):
+            action_instance = action_class()
+        else:
+            log.error("Invalid action class for %s %s", args.command, args.action)
+            sys.exit(1)
 
-        # Instantiate the subcommand class
-        log.debug("Instantiating subcommand class: %s", class_name)
-        subcommand_instance = subcommand_class()
+        # parser = action_instance.define_arguments(argparse.ArgumentParser())
+        log.debug("Executing action: %s %s", args.command, args.action)
+        action_instance.execute(args)
 
-        # Let the subcommand class define its own arguments
-        log.debug("Initializing argument parser for: %s %s", args.subcommand, args.action)
-        subcommand_parser = argparse.ArgumentParser(
-            prog=f"jira {args.subcommand} {args.action}"
-        )
-        log.debug("Calling 'define_arguments' for: %s %s", args.subcommand, args.action)
-        subcommand_instance.define_arguments(subcommand_parser)
-        log.debug("Parsing arguments for: %s %s", args.subcommand, args.action)
-        subcommand_args = subcommand_parser.parse_args(remaining_args)
-        if not isinstance(subcommand_args, argparse.Namespace):
-            raise TypeError("Parsed arguments must be an instance of argparse.Namespace")
-
-        # Call the execute method of the subcommand class with parsed arguments
-        log.debug("Executing action method: %s.execute", class_name)
-        subcommand_instance.execute(subcommand_args)
-    except ModuleNotFoundError:
-        log.error("Error: Command module '%s' not found.", module_path)
-    except AttributeError as e:
-        log.error("Error: %s", e)
-    except Exception as e: # pylint: disable=broad-except
-        log.error("Unexpected error: %s", e)
-        # import traceback
-        # traceback.print_exc()
+    except Exception as e:  # pylint: disable=broad-except
+        log.error("Error executing command: %s", e)
 
 
 if __name__ == "__main__":

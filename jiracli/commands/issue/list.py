@@ -1,105 +1,112 @@
 #!/usr/bin/env python
-# pylint: disable=line-too-long, no-member
+# pylint: disable=line-too-long
 
 """
-Fetches and prints a list of issues from the specified Jira project in a tabular format.
+Command module for listing Jira issues.
 """
 
-from __future__ import annotations
+# import argparse
 from datetime import datetime
 import cac_core as cac
-from jiracli import JIRA_CLIENT
+from jiracli.commands.issue import JiraIssueCommand
 
-from . import IssueCommand
 
-class IssueList(IssueCommand):
+class IssueList(JiraIssueCommand):
     """
-    A command to list Jira issues for a specified project.
-
-    This class provides functionality to define command-line arguments for filtering issues
-    and to execute the command by fetching and displaying issues in a tabular format. It
-    supports filtering issues assigned to the current user and excluding issues marked as "Done".
+    Command class for listing Jira issues.
     """
 
-    @classmethod
-    def define_arguments(cls, parser):
+    def define_arguments(self, parser):
         """
-        Defines command-line arguments for filtering issues.
-        """
-        super().define_arguments(parser)
-        parser.add_argument("-m", "--mine", action="store_true", help="List issues assigned to the current user")
-        parser.add_argument("-d", "--done", action="store_true", help="Include issues that are done")
-
-    def execute(self, args): #, **kwargs):
-        """
-        Fetches and prints a list of issues from the specified Jira project in a tabular format.
-
-        This method constructs a JQL query based on the provided command-line arguments,
-        fetches issues from Jira using pagination, processes the issues into models, and
-        prints them in a tabular format.
+        Define command-specific arguments.
 
         Args:
-            args (argparse.Namespace): Parsed command-line arguments containing the following:
-                - project (str): The Jira project key to filter issues (default: "CRDBOPS").
-                - mine (bool): If True, filters issues assigned to the current user.
-                - done (bool): If True, includes issues that are marked as "Done".
-
-        Returns:
-            None
+            parser: The argument parser to add arguments to
         """
-        log = cac.logger.new(__name__)
-        log.debug("Executing 'jira issue listing' command...")
+        # Add common arguments first
+        super().define_arguments(parser)
 
-        jql_query = [f"project = {args.project}"]
+        # Add action-specific arguments
+        # parser.add_argument(
+        #     "--assignee",
+        #     help="Filter issues by assignee",
+        #     default=None
+        # )
+        # parser.add_argument("--status", help="Filter issues by status", default=None)
+        parser.add_argument("-m", "--mine", action="store_true", default=False, help="List issues assigned to the current user")
+        parser.add_argument("-d", "--done", action="store_true", default=False, help="Include issues that are done")
+
+        return parser
+
+    def execute(self, args):
+        """
+        Execute the command with the provided arguments.
+
+        Args:
+            args: The parsed arguments
+        """
+        self.log.debug("Listing Jira issues")
+
+        # Build JQL query based on provided filters
+        jql_parts = [f"project = {args.project}"]
+        # if args.assignee:
+        #     jql_parts.append(f"assignee = {args.assignee}")
+        # if args.status:
+        #     jql_parts.append(f"status = '{args.status}'")
         if args.mine:
-            jql_query.append('assignee = currentUser()')
+            jql_parts.append("assignee = currentUser()")
         if not args.done:
-            jql_query.append('status != Done')
-        jql_query_string = ' AND '.join(jql_query)
+            jql_parts.append("status != Done")
 
-        start_at = 0
-        max_results = 50  # Number of issues to fetch per request
-        total_issues = []
-        while True:
-            issues = JIRA_CLIENT.search_issues(
-                jql_query_string,
-                startAt=start_at,
-                maxResults=max_results,
-                fields=[
-                    "key",
-                    "summary",
-                    "status",
-                    "assignee",
-                    "issuetype",
-                    "labels",
-                    "resolutiondate",
-                ],
-            )
+        jql = " AND ".join(jql_parts) if jql_parts else ""
+        self.log.debug("JQL query: %s", jql)
 
-            total_issues.extend(issues)
+        # start_at = 0
+        # max_results = 50  # Number of issues to fetch per request
+        # total_issues = []
+        # while True:
+        #     issues = self.jira_client.search_issues( # pylint: disable=no-member
+        #         jql,
+        #         startAt=start_at,
+        #         maxResults=max_results,
+        #         fields=[
+        #             "key",
+        #             "summary",
+        #             "status",
+        #             "assignee",
+        #             "issuetype",
+        #             "labels",
+        #             "resolutiondate",
+        #         ],
+        #     )
 
-            # Break the loop if we've fetched all issues
-            if len(issues) < max_results:
-                break
+        #     total_issues.extend(issues)
 
-            # Update startAt for the next batch
-            start_at += max_results
+        #     # Break the loop if we've fetched all issues
+        #     if len(issues) < max_results:
+        #         break
+
+        #     # Update startAt for the next batch
+        #     start_at += max_results
+        total_issues = self.jira_client.search_issues(jql)
 
         models = []
         for issue in total_issues:
             assignee = issue.fields.assignee.displayName if issue.fields.assignee else 'Unassigned'
             resolution_date = datetime.strptime(issue.fields.resolutiondate, '%Y-%m-%dT%H:%M:%S.%f%z').strftime('%Y-%m-%d') if issue.fields.resolutiondate else 'N/A'
 
-            model = cac.model.Model({
-                'ID': issue.key,
-                'Summary': issue.fields.summary,
-                'Status': issue.fields.status.name,
-                'Assignee': assignee,
-                'Issue Type': issue.fields.issuetype.name,
-                'Labels': ', '.join(issue.fields.labels),
-                'Resolution Date': resolution_date
-            })
+            model = cac.model.Model(
+                {
+                    "ID": issue.key,
+                    "Summary": issue.fields.summary,
+                    "Status": issue.fields.status.name,
+                    "Assignee": assignee,
+                    "Issue Type": issue.fields.issuetype.name,
+                    "Labels": ", ".join(issue.fields.labels),
+                    "Resolution Date": resolution_date,
+                }
+            )
             models.append(model)
 
-        printer = cac.output.OutputTable({})
+        printer = cac.output.Output({"json": args.json})
         printer.print_models(models)

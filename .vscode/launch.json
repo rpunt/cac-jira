@@ -3,21 +3,93 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug JiraCLI",
+      "name": "Issue Create",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/jiracli/cli/main.py",
+      "args": [
+        "issue",
+        "create",
+        "--summary",
+        "test3",
+        "--description",
+        "test3 description",
+        // "--json",
+        // "--verbose",
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Issue List",
       "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/jiracli/cli/main.py",
       "args": [
         "issue",
         "list",
+        // "--mine",
+        // "--json",
         "--verbose",
-        // "--help"
-        // "--project",
-        // "storage"
-        // "--mine"
-        // "--done"
-      ], // Replace with the subcommand and action you want to debug
+      ],
       "console": "integratedTerminal"
+    },
+    {
+      "name": "Issue Assign",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/jiracli/cli/main.py",
+      "args": [
+        "issue",
+        "assign",
+        "-i",
+        "crdbop-3733",
+        // "--verbose",
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Issue Label",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/jiracli/cli/main.py",
+      "args": [
+        "issue",
+        "label",
+        "-i",
+        "crdbop-3842",
+        "-l",
+        "repave"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Project List",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/jiracli/cli/main.py",
+      "args": [
+        "project",
+        "list",
+        // "-k",
+        // "crdb",
+        // "--json"
+        "--verbose"
+      ],
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Poetry run tests",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "-v"
+      ],
+      "python": "${command:python.interpreterPath}",
+      "console": "integratedTerminal",
+      "justMyCode": false
     }
   ]
 }

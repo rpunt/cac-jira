@@ -1,15 +1,38 @@
-#!/usr/bin/env python
+# #!/usr/bin/env python
+# pylint: disable=no-member
 
-from __future__ import annotations
-# import tabulate
-# from datetime import datetime
-# import cac_core as cac
+from jiracli.commands.issue import JiraIssueCommand
 
-# from collections import Counter
-class IssueAssign:
-    def execute(self, *args, **kwargs):
+class IssueAssign(JiraIssueCommand):
+    """
+    Command class for commenting on Jira issues.
+    """
+
+    def define_arguments(self, parser):
         """
-        https://jira.readthedocs.io/api.html#jira.client.JIRA.assign_issue
-        client.assign_issue(args.issue, jira_username)
+        Define command-specific arguments.
+
+        Args:
+            parser: The argument parser to add arguments to
         """
-        print("Executing 'jira issue assign' command...")
+        # Add common arguments first
+        super().define_arguments(parser)
+        parser.add_argument(
+            "-i",
+            "--issue",
+            help="Issue to match",
+            default=None,
+            required=True,
+        )
+        return parser
+
+    def execute(self, args):
+        """
+        Execute the command with the provided arguments.
+
+        Args:
+            args: The parsed arguments
+        """
+        self.log.debug("Assigning Jira issue")
+        self.jira_client.assign_issue(args.issue, self.config.username)
+        self.log.info("Issue assigned")
