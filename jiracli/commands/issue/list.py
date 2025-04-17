@@ -58,6 +58,14 @@ class IssueList(JiraIssueCommand):
         if not args.done:
             jql_parts.append("status != Done")
 
+        # TODO: add start and end date filters
+        # if args.start_date:
+        #     jql_parts.append(f"resolutiondate >= '{args.start_date}'")
+        # if args.end_date:
+        #     jql_parts.append(f"resolutiondate <= '{args.end_date}'")
+        # if args.labels:
+        #     jql_parts.append(f"labels = {args.labels}")
+
         jql = " AND ".join(jql_parts) if jql_parts else ""
         self.log.debug("JQL query: %s", jql)
 
