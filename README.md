@@ -15,6 +15,15 @@ cd jiracli
 poetry install
 ```
 
+## Authentication
+
+1. [Create a Jira API token](https://id.atlassian.com/manage-profile/security/api-tokens)
+2. Create a keychain item in the following format:
+   1. Name: `jiracli`
+   2. Kind: `application password`
+   3. Account: your Jira Cloud username (probably your e-mail address)
+   4. Password: your API token
+
 ## Usage
 
 The Jira CLI follows a command-action pattern for all operations:
