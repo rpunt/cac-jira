@@ -50,10 +50,10 @@ jira <command> <action> [options]
 ### Global Options
 
 - `--verbose`: Enable debug output
-- `--output [table|json]`: Control output format
+- `--output [table|json]`: Control output format (default table)
+- `--help`: Show command help
 <!-- --suppress-output: Hide command output -->
 <!-- --version: Display version information -->
-- `--help`: Show command help
 
 ### Examples
 
@@ -95,39 +95,51 @@ Add an issue to an epic:
 jira issue create --project PROJ --type Task --title "Subtask" --epic PROJ-100
 ```
 
+Label an issue:
+
+```bash
+jira issue label --issue ISSUE_KEY --labels label1,label2
+```
+
 Transition an issue:
 
 ```bash
-jira issue begin PROJ-123   # Start work
-jira issue done PROJ-123    # Mark as complete
+jira issue begin --issue ISSUE_KEY    # Start work
+jira issue close --issue ISSUE_KEY    # Mark as complete
 ```
 
 #### Project Commands
 
-List projects:
+List all projects:
 
 ```bash
 jira project list
 ```
 
-Include archived projects in listing:
+Show a project:
 
 ```bash
-jira project list --archived
+jira project show --name PROJ-123
 ```
 
 #### Advanced Examples
 
-Update an issue's status:
+Update an issue's title or description:
 
 ```bash
-jira issue update --issue ISSUE_KEY --status "Done"
+jira issue update --issue ISSUE_KEY --title "New issue title" --description "new issue description"
 ```
 
 Add a comment to an issue:
 
 ```bash
 jira issue comment --issue ISSUE_KEY --comment "This is a comment."
+```
+
+List all issue IDs matching a label:
+
+```bash
+jira issue list --output json | jq -r '.[] | select(.Labels | contains("production")) | .ID'
 ```
 
 ## Development
@@ -141,6 +153,8 @@ poetry install
 # Run tests
 poetry run pytest
 ```
+
+Please note that tests are still WIP
 
 ### Project Structure
 
