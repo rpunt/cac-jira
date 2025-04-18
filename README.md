@@ -31,21 +31,11 @@ cd ../jiracli; poetry build; poetry install
 
 ## Configuration
 
-`jiracli` references a default config:
-
-```yaml
-server: https://jira.atlassian.com
-project: INVALID_DEFAULT
-username: INVALID_DEFAULT
-```
-
-You'll need to set correct values for each config item in `~/.config/jiracli/config.yaml`.
-
-### Example Configuration
+Create a configuration file at `~/.config/jiracli/config.yaml`:
 
 ```yaml
 server: https://your-jira-instance.atlassian.net
-project: YOUR_PROJECT_KEY
+project: YOUR_PROJECT_KEY  # Optional default project
 username: your.email@example.com
 ```
 
@@ -59,8 +49,11 @@ jira <command> <action> [options]
 
 ### Global Options
 
-- `--help`: Display help information for commands and actions.
-- `--version`: Show the current version of the CLI.
+- `--verbose`: Enable debug output
+- `--output [table|json]`: Control output format
+<!-- --suppress-output: Hide command output -->
+<!-- --version: Display version information -->
+- `--help`: Show command help
 
 ### Examples
 
@@ -69,19 +62,44 @@ jira <command> <action> [options]
 List issues in a project:
 
 ```bash
-jira issue list --project PROJECT_KEY
+jira issue list --project PROJ
 ```
 
 List issues with additional filtering:
 
 ```bash
-jira issue list --project PROJECT_KEY --assignee "your.name" --status "In Progress"
+jira issue list --project PROJ
 ```
 
 Create a new issue:
 
 ```bash
-jira issue create --project PROJECT_KEY --summary "Issue summary" --description "Detailed description"
+jira issue create --project PROJ --type Task --title "Fix login bug" --description "Users can't log in"
+```
+
+Create and assign to yourself:
+
+```bash
+jira issue create --project PROJ --type Bug --title "Server crash" --assign
+```
+
+Create and immediately start work:
+
+```bash
+jira issue create --project PROJ --type Story --title "Add login feature" --begin
+```
+
+Add an issue to an epic:
+
+```bash
+jira issue create --project PROJ --type Task --title "Subtask" --epic PROJ-100
+```
+
+Transition an issue:
+
+```bash
+jira issue begin PROJ-123   # Start work
+jira issue done PROJ-123    # Mark as complete
 ```
 
 #### Project Commands
