@@ -5,7 +5,7 @@ description = "A command-line interface for interacting with Jira"
 authors = ["Ryan Punt <ryan@mirum.org>"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://jiracli.github.io/jiracli/"
+homepage = "https://mirum.org/jiracli/"
 repository = "https://github.com/rpunt/jiracli"
 classifiers = [
     "Programming Language :: Python :: 3",
