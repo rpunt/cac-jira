@@ -1,5 +1,5 @@
 # #!/usr/bin/env python
-# pylint: disable=no-member
+# pylint: disable=broad-exception-caught
 
 from jiracli.commands.issue import JiraIssueCommand
 
@@ -35,5 +35,9 @@ class IssueDelete(JiraIssueCommand):
             args: The parsed arguments
         """
         self.log.debug("Deleting Jira issue")
-        self.jira_client.issue(args.issue)
+        try:
+            self.jira_client.delete_issue(args.issue)
+        except Exception as e:
+            self.log.error("Failed to find issue %s: %s", args.issue, e)
+            return
         self.log.info("Issue %s deleted", args.issue)

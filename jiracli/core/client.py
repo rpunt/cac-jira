@@ -200,6 +200,92 @@ class JiraClient:
         """
         return self.client.projects()
 
+    def project(self, project_id):
+        """
+        Get a project.
+
+        Args:
+            project_id: The project ID
+
+        Returns:
+            The project
+        """
+        return self.client.project(project_id)
+    def project_by_key(self, project_key):
+        """
+        Get a project by key.
+
+        Args:
+            project_key: The project key
+
+        Returns:
+            The project
+        """
+        return self.client.project_by_key(project_key)
+
+    def current_user(self):
+        """
+        Get the current user.
+
+        Returns:
+            The current user
+        """
+        return self.client.current_user()
+
+    def issue_types(self):
+        """
+        Get all issue types.
+        """
+        return self.client.issue_types()
+
+    def issue_type(self, issue_type_id):
+        """
+        Get an issue type.
+        """
+        return self.client.issue_type(issue_type_id)
+
+    def issue_type_by_name(self, name):
+        """
+        Get an issue type by name.
+        """
+        return self.client.issue_type_by_name(name)
+
+    def issue_type_by_id(self, issue_type_id):
+        """
+        Get an issue type by ID.
+        """
+        return self.client.issue_type_by_id(issue_type_id)
+
+    def issue_type_by_key(self, issue_type_key):
+        """
+        Get an issue type by key.
+        """
+        return self.client.issue_type_by_key(issue_type_key)
+
+    def issue_type_by_project(self, project_id):
+        """
+        Get issue types by project ID.
+        """
+        return self.client.issue_type_by_project(project_id)
+    def issue_type_by_project_key(self, project_key):
+        """
+        Get issue types by project key.
+        """
+        return self.client.issue_type_by_project_key(project_key)
+
+    def add_issues_to_epic(self, epic_key, issue_key):
+        """
+        Add issues to an epic.
+
+        Args:
+            epic_key: The epic issue
+            issue_key: The Jira key of the issue to add
+
+        Returns:
+            The response from the add operation
+        """
+        return self.client.add_issues_to_epic(epic_key, issue_key)
+
     # def project(self, project_id):
     #     """
     #     Get a project.

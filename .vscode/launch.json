@@ -10,12 +10,32 @@
       "args": [
         "issue",
         "create",
-        "--summary",
+        "--title",
         "test3",
         "--description",
         "test3 description",
+        "--begin",
+        "--browse",
+        "--labels",
+        "repave,crdb_tooling",
+        "--epic",
+        "crdbop-2845"
         // "--json",
         // "--verbose",
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Issue Delete",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/jiracli/cli/main.py",
+      "args": [
+        "issue",
+        "delete",
+        "--issue",
+        "crdbop-3868",
+        "--verbose",
       ],
       "console": "integratedTerminal"
     },
@@ -28,7 +48,8 @@
         "issue",
         "list",
         // "--mine",
-        // "--json",
+        // "--output",
+        // "json",
         "--verbose",
       ],
       "console": "integratedTerminal"

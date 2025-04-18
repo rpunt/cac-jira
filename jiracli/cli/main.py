@@ -73,6 +73,47 @@ def discover_actions(command):
     return sorted(actions)
 
 
+def show_command_help(command):
+    """
+    Show help for a specific command, listing all available actions.
+
+    Args:
+        command (str): The command to show help for
+    """
+    actions = discover_actions(command)
+    print(f"\nAvailable actions for '{command}':")
+    for action in sorted(actions):
+        try:
+            module_path = f"jiracli.commands.{command}.{action}"
+            module = importlib.import_module(module_path)
+            doc = module.__doc__ or "No description available"
+            doc = doc.strip().split("\n")[0]  # Get first line of docstring
+            print(f"  {action.ljust(15)} - {doc}")
+        except Exception:  # pylint: disable=broad-except
+            print(f"  {action.ljust(15)} - No description available")
+
+
+def register_autocomplete(parser):
+    """Set up command autocompletion if supported environment"""
+    try:
+        import argcomplete
+        argcomplete.autocomplete(parser)
+    except ImportError:
+        # argcomplete is not installed, skip autocomplete setup
+        pass
+
+
+def setup_logging(args):
+    """Configure logging based on command line arguments"""
+    log = cac.logger.new(__name__)
+    if args.verbose:
+        log.setLevel(logging.DEBUG)
+    # if getattr(args, 'show_log_format', False):
+    #     print(f"Log format: {cac.logger.get_formatter_string()}")
+    #     sys.exit(0)
+    return log
+
+
 def main():
     """
     Entry point for the Jira CLI tool.
@@ -134,10 +175,20 @@ def main():
             except Exception as e:  # pylint: disable=broad-except
                 log.warning("Error setting up %s %s: %s", command, action, e)
 
+    # Add autocomplete setup
+    register_autocomplete(parser)
+
     # Parse arguments
     args = parser.parse_args()
-    if args.verbose:
-        log.setLevel(logging.DEBUG)
+    log = setup_logging(args)
+
+    # Add to main function, after argument parsing but before execution
+    if args.command is None:
+        parser.print_help()
+        print("\nAvailable commands:")
+        for cmd in sorted(commands):
+            print(f"  {cmd}")
+        sys.exit(1)
 
     # Execute the appropriate action
     try:

@@ -4,11 +4,11 @@
 module docstring
 """
 
-import os
+# import os
 import sys
 from importlib import metadata
 import cac_core as cac
-import yaml
+# import yaml
 import keyring
 import jiracli.core.client as client
 
@@ -25,25 +25,18 @@ log = cac.logger.new(__name__)
 log.debug("Initializing %s version %s", __name__, __version__)
 
 CONFIG = cac.config.Config(__name__)
-default_config = {}
-default_config_dir = os.path.join(os.path.dirname(__file__), 'config')
-default_config_file = os.path.join(default_config_dir, f"{__name__}.yaml")
-if os.path.exists(default_config_file):
-    with open(default_config_file, 'r', encoding='utf-8') as f:
-        default_config.update(yaml.safe_load(f))
-config = CONFIG.load(__name__, default_config)
 
-log.debug("user config path: %s", config['config_file_path'])
+log.debug("user config path: %s", CONFIG.config_file)
 
 # TODO: prompt user for server and username if not set
-server = config.get('server', 'INVALID_DEFAULT').replace('https://', '')
-if config['server'] == 'INVALID_DEFAULT':
-    log.error("Invalid server in %s: %s", config['config_file_path'], server)
+jira_server = CONFIG.get("server", "INVALID_DEFAULT").replace("https://", "")
+if jira_server == "INVALID_DEFAULT":
+    log.error("Invalid server in %s: %s", CONFIG.config_file, jira_server)
     sys.exit(1)
 
-username = CONFIG.get('username', 'INVALID_DEFAULT')
-if username == 'INVALID_DEFAULT':
-    log.error("Invalid username in %s: %s", CONFIG.config_file, username)
+jira_username = CONFIG.get('username', 'INVALID_DEFAULT')
+if jira_username == "INVALID_DEFAULT":
+    log.error("Invalid username in %s: %s", CONFIG.config_file, jira_username)
     sys.exit(1)
 
 def read_keychain_password(username):
@@ -74,14 +67,14 @@ def read_keychain_password(username):
 
     return keychain_item_password
 
-api_token = read_keychain_password(username)
-if not api_token:
+jira_api_token = read_keychain_password(jira_username)
+if not jira_api_token:
     log.error(
         "API token not found for %s; see https://github.com/rpunt/jiracli/blob/main/README.md#authentication",
-        username,
+        jira_username,
     )
     sys.exit(1)
 
-JIRA_CLIENT = client.JiraClient(server, username, api_token)
+JIRA_CLIENT = client.JiraClient(jira_server, jira_username, jira_api_token)
 
 __all__ = ["JIRA_CLIENT", "CONFIG", "log"]

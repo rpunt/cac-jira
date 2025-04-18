@@ -68,34 +68,6 @@ class IssueList(JiraIssueCommand):
 
         jql = " AND ".join(jql_parts) if jql_parts else ""
         self.log.debug("JQL query: %s", jql)
-
-        # start_at = 0
-        # max_results = 50  # Number of issues to fetch per request
-        # total_issues = []
-        # while True:
-        #     issues = self.jira_client.search_issues( # pylint: disable=no-member
-        #         jql,
-        #         startAt=start_at,
-        #         maxResults=max_results,
-        #         fields=[
-        #             "key",
-        #             "summary",
-        #             "status",
-        #             "assignee",
-        #             "issuetype",
-        #             "labels",
-        #             "resolutiondate",
-        #         ],
-        #     )
-
-        #     total_issues.extend(issues)
-
-        #     # Break the loop if we've fetched all issues
-        #     if len(issues) < max_results:
-        #         break
-
-        #     # Update startAt for the next batch
-        #     start_at += max_results
         total_issues = self.jira_client.search_issues(jql)
 
         models = []
@@ -116,5 +88,5 @@ class IssueList(JiraIssueCommand):
             )
             models.append(model)
 
-        printer = cac.output.Output({"json": args.json})
+        printer = cac.output.Output(args)
         printer.print_models(models)
