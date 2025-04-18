@@ -56,28 +56,34 @@ class IssueCreate(JiraIssueCommand):
             action="store_true",
             default=False
         )
+
         parser.add_argument(
             "--begin",
             help="Mark issue in-progress",
             action="store_true",
             default=False
         )
+
         parser.add_argument(
             "--epic",
             help="Tie this issue to an existing Epic",
             default=None
         )
+
         parser.add_argument(
             "--labels",
             help="A comma-separated list of labels to apply to the issue",
             default=None
         )
+
         parser.add_argument(
             "--epic_name", help="Name your Epic", default=None
         )
+
         parser.add_argument(
             "--browse", help="Open the issue in your browser once created", action="store_true", default=False
         )
+
         return parser
 
     def execute(self, args):
