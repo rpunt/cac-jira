@@ -158,10 +158,10 @@ Please note that tests are still WIP
 
 ### Project Structure
 
-- `jira_cmd/commands/` - Command implementations
+- `cac_jira/commands/` - Command implementations
   - `issue/` - Issue-related commands
   - `project/` - Project-related commands
-- `jira_cmd/cli/` - CLI entry point and argument parsing
+- `cac_jira/cli/` - CLI entry point and argument parsing
 
 ### Adding New Commands
 

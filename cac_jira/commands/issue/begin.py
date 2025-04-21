@@ -1,7 +1,7 @@
 # #!/usr/bin/env python
 # pylint: disable=no-member, broad-exception-caught
 
-from jira_cmd.commands.issue import JiraIssueCommand
+from cac_jira.commands.issue import JiraIssueCommand
 
 
 class IssueBegin(JiraIssueCommand):

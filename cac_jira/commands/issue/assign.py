@@ -1,10 +1,9 @@
 # #!/usr/bin/env python
-# pylint: disable=broad-exception-caught
+# pylint: disable=no-member
 
-from jira_cmd.commands.issue import JiraIssueCommand
+from cac_jira.commands.issue import JiraIssueCommand
 
-
-class IssueDelete(JiraIssueCommand):
+class IssueAssign(JiraIssueCommand):
     """
     Command class for commenting on Jira issues.
     """
@@ -34,10 +33,6 @@ class IssueDelete(JiraIssueCommand):
         Args:
             args: The parsed arguments
         """
-        self.log.debug("Deleting Jira issue")
-        try:
-            self.jira_client.delete_issue(args.issue)
-        except Exception as e:
-            self.log.error("Failed to find issue %s: %s", args.issue, e)
-            return
-        self.log.info("Issue %s deleted", args.issue)
+        self.log.debug("Assigning Jira issue")
+        self.jira_client.assign_issue(args.issue, self.config.username)
+        self.log.info("Issue assigned")

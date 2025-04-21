@@ -5,10 +5,10 @@
 Command module for creating Jira issues.
 """
 
-from jira_cmd.commands.issue import JiraIssueCommand
+from cac_jira.commands.issue import JiraIssueCommand
 
 
-class IssueClose(JiraIssueCommand):
+class IssueAttach(JiraIssueCommand):
     """
     Command class for creating Jira issues.
     """
@@ -21,16 +21,7 @@ class IssueClose(JiraIssueCommand):
             parser: The argument parser to add arguments to
         """
         super().define_arguments(parser)
-        parser.add_argument(
-            "-i",
-            "--issue",
-            help="Issue to match",
-            default=None,
-            required=True,
-        )
         return parser
 
     def execute(self, args):
-        issue = self.jira_client.issue(args.issue)
-        issue.transition("Close")
-        self.log.info("Issue %s closed", args.issue)
+        pass

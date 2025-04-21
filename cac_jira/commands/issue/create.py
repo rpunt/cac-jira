@@ -6,7 +6,7 @@ Command module for creating Jira issues.
 """
 
 import webbrowser
-from jira_cmd.commands.issue import JiraIssueCommand
+from cac_jira.commands.issue import JiraIssueCommand
 
 class IssueCreate(JiraIssueCommand):
     """
@@ -171,7 +171,7 @@ class IssueCreate(JiraIssueCommand):
         if args.begin:
             try:
                 # Import the begin command module
-                from jira_cmd.commands.issue.begin import IssueBegin
+                from cac_jira.commands.issue.begin import IssueBegin
 
                 # Create a begin command instance
                 begin_cmd = IssueBegin()

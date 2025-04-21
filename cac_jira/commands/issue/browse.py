@@ -6,7 +6,7 @@ Command module for opening a Jira issue in a web browser.
 """
 
 import webbrowser
-from jira_cmd.commands.issue import JiraIssueCommand
+from cac_jira.commands.issue import JiraIssueCommand
 
 
 class IssueBrowse(JiraIssueCommand):

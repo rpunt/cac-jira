@@ -6,7 +6,7 @@ Command module for creating Jira issues.
 """
 
 import json
-from jira_cmd.commands.issue import JiraIssueCommand
+from cac_jira.commands.issue import JiraIssueCommand
 
 
 class IssueShow(JiraIssueCommand):

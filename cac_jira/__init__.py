@@ -10,7 +10,7 @@ from importlib import metadata
 import cac_core as cac
 # import yaml
 import keyring
-import jira_cmd.core.client as client
+import cac_jira.core.client as client
 
 if sys.version_info < (3, 8):
     print("This project requires Python 3.8 or higher.", file=sys.stderr)

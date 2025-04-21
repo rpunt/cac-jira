@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "jira-cmd"
+name = "cac-jira"
 version = "0.2.0"
 description = "A command-line interface for interacting with Jira"
 authors = ["Ryan Punt <ryan@mirum.org>"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://mirum.org/jira-cmd/"
-repository = "https://github.com/rpunt/jira-cmd"
+homepage = "https://mirum.org/cac-jira/"
+repository = "https://github.com/rpunt/cac-jira"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -17,12 +17,12 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12"
 ]
-packages = [{include = "jira_cmd"}]
-include = ["jira_cmd/config/*.yaml"]
+packages = [{include = "cac_jira"}]
+include = ["cac_jira/config/*.yaml"]
 keywords = ["jira", "cli", "atlassian", "project-management", "command-lint", "python", "cli-tool"]
 
 [tool.poetry.scripts]
-jira = "jira_cmd.cli.main:main"
+jira = "cac_jira.cli.main:main"
 
 [tool.poetry.dependencies]
 python = "^3.8"

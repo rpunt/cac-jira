@@ -1,9 +1,9 @@
 # #!/usr/bin/env python
 # pylint: disable=no-member
 
-from jira_cmd.commands.issue import JiraIssueCommand
+from cac_jira.commands.issue import JiraIssueCommand
 
-class IssueAssign(JiraIssueCommand):
+class IssueComment(JiraIssueCommand):
     """
     Command class for commenting on Jira issues.
     """
@@ -24,6 +24,13 @@ class IssueAssign(JiraIssueCommand):
             default=None,
             required=True,
         )
+        parser.add_argument(
+            "-c",
+            "--comment",
+            help="Comment to add",
+            default=None,
+            required=True,
+        )
         return parser
 
     def execute(self, args):
@@ -33,6 +40,6 @@ class IssueAssign(JiraIssueCommand):
         Args:
             args: The parsed arguments
         """
-        self.log.debug("Assigning Jira issue")
-        self.jira_client.assign_issue(args.issue, self.config.username)
-        self.log.info("Issue assigned")
+        self.log.debug("Commenting on Jira issue")
+        self.jira_client.add_comment(args.issue, args.comment)
+        self.log.info("Added comment to %s", args.issue)

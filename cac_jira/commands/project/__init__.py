@@ -8,7 +8,7 @@ This module defines the base ProjectCommand class that all project-related
 action classes should inherit from.
 """
 
-from jira_cmd.commands.command import JiraCommand
+from cac_jira.commands.command import JiraCommand
 
 
 class JiraProjectCommand(JiraCommand):
