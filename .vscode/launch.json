@@ -1,0 +1,116 @@
+// filepath: /Users/ryan/git/cac/.vscode/launch.json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Issue Create",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/jiracli/cli/main.py",
+      "args": [
+        "issue",
+        "create",
+        "--title",
+        "test3",
+        "--description",
+        "test3 description",
+        "--begin",
+        "--browse",
+        "--labels",
+        "repave,crdb_tooling",
+        "--epic",
+        "crdbop-2845"
+        // "--json",
+        // "--verbose",
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Issue Delete",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/jiracli/cli/main.py",
+      "args": [
+        "issue",
+        "delete",
+        "--issue",
+        "crdbop-3868",
+        "--verbose",
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Issue List",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/jiracli/cli/main.py",
+      "args": [
+        "issue",
+        "list",
+        // "--mine",
+        // "--output",
+        // "json",
+        "--verbose",
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Issue Assign",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/jiracli/cli/main.py",
+      "args": [
+        "issue",
+        "assign",
+        "-i",
+        "crdbop-3733",
+        // "--verbose",
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Issue Label",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/jiracli/cli/main.py",
+      "args": [
+        "issue",
+        "label",
+        "-i",
+        "crdbop-3842",
+        "-l",
+        "repave"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Project List",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/jiracli/cli/main.py",
+      "args": [
+        "project",
+        "list",
+        // "-k",
+        // "crdb",
+        // "--json"
+        "--verbose"
+      ],
+      "console": "integratedTerminal",
+      "justMyCode": false
+    },
+    {
+      "name": "Poetry run tests",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "pytest",
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "-v"
+      ],
+      "python": "${command:python.interpreterPath}",
+      "console": "integratedTerminal",
+      "justMyCode": false
+    }
+  ]
+}
