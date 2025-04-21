@@ -10,7 +10,7 @@ command actions.
 
 import abc
 from cac_core.command import Command
-from jiracli import JIRA_CLIENT, CONFIG, log
+from jira_cmd import JIRA_CLIENT, CONFIG, log
 
 
 class JiraCommand(Command):

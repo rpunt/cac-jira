@@ -7,7 +7,7 @@ This module defines the base JiraCommand class that all issue-related
 action classes should inherit from.
 """
 
-from jiracli.commands.command import JiraCommand
+from jira_cmd.commands.command import JiraCommand
 
 
 class JiraIssueCommand(JiraCommand):

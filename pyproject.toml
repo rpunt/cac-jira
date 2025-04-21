@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "jiracli"
+name = "jira-cmd"
 version = "0.2.0"
 description = "A command-line interface for interacting with Jira"
 authors = ["Ryan Punt <ryan@mirum.org>"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://mirum.org/jiracli/"
-repository = "https://github.com/rpunt/jiracli"
+homepage = "https://mirum.org/jira-cmd/"
+repository = "https://github.com/rpunt/jira-cmd"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -14,18 +14,19 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11"
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12"
 ]
-packages = [{include = "jiracli"}]
-include = ["jiracli/config/*.yaml"]
-keywords = ["jira", "cli", "atlassian", "project-management"]
+packages = [{include = "jira_cmd"}]
+include = ["jira_cmd/config/*.yaml"]
+keywords = ["jira", "cli", "atlassian", "project-management", "command-lint", "python", "cli-tool"]
 
 [tool.poetry.scripts]
-jira = "jiracli.cli.main:main"
+jira = "jira_cmd.cli.main:main"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-cac-core = "^0.2.0"
+# cac-core = "^0.2.0,<1.0.0"  # Prevent major version upgrades
 tabulate = "^0.9.0"
 jira = "^3.8.0,<4.0.0"  # Prevent major version upgrades
 pyyaml = "^6.0.2"

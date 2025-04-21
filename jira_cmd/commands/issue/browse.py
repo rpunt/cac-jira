@@ -2,13 +2,14 @@
 # pylint: disable=line-too-long, import-outside-toplevel, broad-exception-caught
 
 """
-Command module for creating Jira issues.
+Command module for opening a Jira issue in a web browser.
 """
 
-from jiracli.commands.issue import JiraIssueCommand
+import webbrowser
+from jira_cmd.commands.issue import JiraIssueCommand
 
 
-class IssueClose(JiraIssueCommand):
+class IssueBrowse(JiraIssueCommand):
     """
     Command class for creating Jira issues.
     """
@@ -32,5 +33,4 @@ class IssueClose(JiraIssueCommand):
 
     def execute(self, args):
         issue = self.jira_client.issue(args.issue)
-        issue.transition("Close")
-        self.log.info("Issue %s closed", args.issue)
+        webbrowser.open(issue.permalink())

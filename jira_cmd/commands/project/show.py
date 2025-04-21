@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import cac_core as cac
-from jiracli.commands.project import JiraProjectCommand
-from jiracli.commands.project.list import ProjectList
+from jira_cmd.commands.project import JiraProjectCommand
+from jira_cmd.commands.project.list import ProjectList
 
 class ProjectShow(JiraProjectCommand):
     """

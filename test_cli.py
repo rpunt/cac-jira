@@ -9,12 +9,12 @@ invoking different commands and actions.
 
 import sys
 import argparse
-from jiracli.cli.main import main
-from jiracli.commands.issue import JiraIssueCommand
-from jiracli.commands.issue.list import IssueList
-from jiracli.commands.issue.create import IssueCreate
-from jiracli.commands.project import JiraProjectCommand
-from jiracli.commands.project.list import ProjectList
+from jira_cmd.cli.main import main
+from jira_cmd.commands.issue import JiraIssueCommand
+from jira_cmd.commands.issue.list import IssueList
+from jira_cmd.commands.issue.create import IssueCreate
+from jira_cmd.commands.project import JiraProjectCommand
+from jira_cmd.commands.project.list import ProjectList
 
 def test_cli_direct():
     """Test the CLI by directly calling the main function with different arguments."""

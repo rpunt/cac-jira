@@ -13,25 +13,25 @@ This project uses [Poetry](https://python-poetry.org/) for dependency management
 ```bash
 # Clone the repositories
 git clone https://github.com/rpunt/cac_core.git
-git clone https://github.com/rpunt/jiracli.git
+git clone https://github.com/rpunt/jira-cmd.git
 
 # Install with Poetry
 cd cac_core; poetry build; poetry install
-cd ../jiracli; poetry build; poetry install
+cd ../jira-cmd; poetry build; poetry install
 ```
 
 ## Authentication
 
 1. [Create a Jira API token](https://id.atlassian.com/manage-profile/security/api-tokens)
 2. Create a keychain item in the following format:
-   - **Name**: `jiracli`
+   - **Name**: `jira-cmd`
    - **Kind**: `application password`
    - **Account**: your Jira Cloud username (probably your e-mail address)
    - **Password**: your API token
 
 ## Configuration
 
-Create a configuration file at `~/.config/jiracli/config.yaml`:
+Create a configuration file at `~/.config/jira-cmd/config.yaml`:
 
 ```yaml
 server: https://your-jira-instance.atlassian.net
@@ -158,10 +158,10 @@ Please note that tests are still WIP
 
 ### Project Structure
 
-- `jiracli/commands/` - Command implementations
+- `jira_cmd/commands/` - Command implementations
   - `issue/` - Issue-related commands
   - `project/` - Project-related commands
-- `jiracli/cli/` - CLI entry point and argument parsing
+- `jira_cmd/cli/` - CLI entry point and argument parsing
 
 ### Adding New Commands
 

@@ -1,10 +1,10 @@
 # #!/usr/bin/env python
-# pylint: disable=no-member
+# pylint: disable=broad-exception-caught
 
-from jiracli.commands.issue import JiraIssueCommand
+from jira_cmd.commands.issue import JiraIssueCommand
 
 
-class IssueLabel(JiraIssueCommand):
+class IssueDelete(JiraIssueCommand):
     """
     Command class for commenting on Jira issues.
     """
@@ -25,13 +25,6 @@ class IssueLabel(JiraIssueCommand):
             default=None,
             required=True,
         )
-        parser.add_argument(
-            "-l",
-            "--labels",
-            help="Labels to add",
-            default=None,
-            required=True,
-        )
         return parser
 
     def execute(self, args):
@@ -41,6 +34,10 @@ class IssueLabel(JiraIssueCommand):
         Args:
             args: The parsed arguments
         """
-        self.log.debug("Adding lables to Jira issue %s", args.issue)
-        self.jira_client.add_labels(args.issue, args.labels)
-        self.log.info("Issue %s labels updated", args.issue)
+        self.log.debug("Deleting Jira issue")
+        try:
+            self.jira_client.delete_issue(args.issue)
+        except Exception as e:
+            self.log.error("Failed to find issue %s: %s", args.issue, e)
+            return
+        self.log.info("Issue %s deleted", args.issue)

@@ -1,7 +1,7 @@
 # #!/usr/bin/env python
 # pylint: disable=no-member
 
-from jiracli.commands.issue import JiraIssueCommand
+from jira_cmd.commands.issue import JiraIssueCommand
 
 class IssueAssign(JiraIssueCommand):
     """

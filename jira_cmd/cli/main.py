@@ -84,7 +84,7 @@ def show_command_help(command):
     print(f"\nAvailable actions for '{command}':")
     for action in sorted(actions):
         try:
-            module_path = f"jiracli.commands.{command}.{action}"
+            module_path = f"jira_cmd.commands.{command}.{action}"
             module = importlib.import_module(module_path)
             doc = module.__doc__ or "No description available"
             doc = doc.strip().split("\n")[0]  # Get first line of docstring
@@ -150,7 +150,7 @@ def main():
         for action in actions:
             try:
                 # Load the module and class for this action
-                module_path = f"jiracli.commands.{command}.{action}"
+                module_path = f"jira_cmd.commands.{command}.{action}"
                 module = importlib.import_module(module_path)
 
                 class_name = f"{command.capitalize()}{action.capitalize()}"

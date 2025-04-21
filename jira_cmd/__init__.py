@@ -10,7 +10,7 @@ from importlib import metadata
 import cac_core as cac
 # import yaml
 import keyring
-import jiracli.core.client as client
+import jira_cmd.core.client as client
 
 if sys.version_info < (3, 8):
     print("This project requires Python 3.8 or higher.", file=sys.stderr)
@@ -70,7 +70,7 @@ def read_keychain_password(username):
 jira_api_token = read_keychain_password(jira_username)
 if not jira_api_token:
     log.error(
-        "API token not found for %s; see https://github.com/rpunt/jiracli/blob/main/README.md#authentication",
+        "API token not found for %s; see https://github.com/rpunt/jira-cmd/blob/main/README.md#authentication",
         jira_username,
     )
     sys.exit(1)

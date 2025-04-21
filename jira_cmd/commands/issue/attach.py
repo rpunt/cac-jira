@@ -5,11 +5,10 @@
 Command module for creating Jira issues.
 """
 
-import json
-from jiracli.commands.issue import JiraIssueCommand
+from jira_cmd.commands.issue import JiraIssueCommand
 
 
-class IssueShow(JiraIssueCommand):
+class IssueAttach(JiraIssueCommand):
     """
     Command class for creating Jira issues.
     """
@@ -22,15 +21,7 @@ class IssueShow(JiraIssueCommand):
             parser: The argument parser to add arguments to
         """
         super().define_arguments(parser)
-        parser.add_argument(
-            "-i",
-            "--issue",
-            help="Issue to match",
-            default=None,
-            required=True,
-        )
         return parser
 
     def execute(self, args):
-        issue = self.jira_client.issue(args.issue)
-        print(json.dumps(issue.raw, indent=4))
+        pass

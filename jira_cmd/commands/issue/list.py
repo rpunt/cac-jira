@@ -8,7 +8,7 @@ Command module for listing Jira issues.
 # import argparse
 from datetime import datetime
 import cac_core as cac
-from jiracli.commands.issue import JiraIssueCommand
+from jira_cmd.commands.issue import JiraIssueCommand
 
 
 class IssueList(JiraIssueCommand):
