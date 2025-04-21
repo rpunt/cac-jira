@@ -6,32 +6,32 @@ A command-line interface for interacting with Jira.
 
 This project uses [Poetry](https://python-poetry.org/) for dependency management.
 
-[cac_core](https://github.com/rpunt/cac_core) is also required.
+[cac-core](https://github.com/rpunt/cac-core) is also required.
 
 ### Steps to Install
 
 ```bash
 # Clone the repositories
-git clone https://github.com/rpunt/cac_core.git
-git clone https://github.com/rpunt/jira-cmd.git
+git clone https://github.com/rpunt/cac-core.git
+git clone https://github.com/rpunt/cac-jira.git
 
 # Install with Poetry
-cd cac_core; poetry build; poetry install
-cd ../jira-cmd; poetry build; poetry install
+cd cac-core; poetry build; poetry install
+cd ../cac-jira; poetry build; poetry install
 ```
 
 ## Authentication
 
 1. [Create a Jira API token](https://id.atlassian.com/manage-profile/security/api-tokens)
 2. Create a keychain item in the following format:
-   - **Name**: `jira-cmd`
+   - **Name**: `cac_jira`
    - **Kind**: `application password`
    - **Account**: your Jira Cloud username (probably your e-mail address)
    - **Password**: your API token
 
 ## Configuration
 
-Create a configuration file at `~/.config/jira-cmd/config.yaml`:
+Create a configuration file at `~/.config/cac_jira/config.yaml`:
 
 ```yaml
 server: https://your-jira-instance.atlassian.net
