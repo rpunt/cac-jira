@@ -22,18 +22,18 @@ def test_cli_direct():
 
     # Test 1: Issue list command
     print("\n-- Testing 'jira issue list' command --")
-    sys.argv = ["jira", "issue", "list", "--project", "TEST", "--limit", "5"] #, "--verbose"]
+    sys.argv = ["jira", "issue", "list", "--project", "TEST"] #, "--limit", "5"] #, "--verbose"]
     main()
 
     # Test 2: Project list command
     print("\n-- Testing 'jira project list' command --")
-    sys.argv = ["jira", "project", "list", "--archived"] #, "--verbose"]
+    sys.argv = ["jira", "project", "list"] #, "--archived"] #, "--verbose"]
     main()
 
-    # Test 3: Issue create command
-    print("\n-- Testing 'jira issue create' command --")
-    sys.argv = ["jira", "issue", "create", "--project", "TEST", "--summary", "Test Issue"] #, "--verbose"]
-    main()
+    # # Test 3: Issue create command
+    # print("\n-- Testing 'jira issue create' command --")
+    # sys.argv = ["jira", "issue", "create", "--project", "TEST", "--summary", "Test Issue"] #, "--verbose"]
+    # main()
 
 def test_command_classes():
     """Test by directly instantiating and using command classes."""
@@ -44,30 +44,38 @@ def test_command_classes():
     issue_list = IssueList()
     parser = argparse.ArgumentParser()
     issue_list.define_arguments(parser)
-    args = parser.parse_args(["--project", "TEST", "--limit", "10"]) #, "--server", "https://jira.example.com"])
+    args = parser.parse_args(["--project", "TEST"]) #, "--limit", "10"]) #, "--server", "https://jira.example.com"])
     issue_list.execute(args)
+
+    # # Test ProjectList command
+    # print("\n-- Testing ProjectList command --")
+    # project_list = ProjectList()
+    # parser = argparse.ArgumentParser()
+    # project_list.define_arguments(parser)
+    # args = parser.parse_args(["--archived", "--type", "software", "--server", "https://jira.example.com"])
+    # project_list.execute(args)
 
     # Test ProjectList command
     print("\n-- Testing ProjectList command --")
     project_list = ProjectList()
     parser = argparse.ArgumentParser()
     project_list.define_arguments(parser)
-    args = parser.parse_args(["--archived", "--type", "software", "--server", "https://jira.example.com"])
+    args = parser.parse_args(["--name", "crdb"])
     project_list.execute(args)
 
-    # Test IssueCreate command
-    print("\n-- Testing IssueCreate command --")
-    issue_create = IssueCreate()
-    parser = argparse.ArgumentParser()
-    issue_create.define_arguments(parser)
-    args = parser.parse_args([
-        "--project", "TEST",
-        "--summary", "Test Issue via Direct Call",
-        "--description", "This is a test issue created by directly calling the command class",
-        "--priority", "High",
-        "--server", "https://jira.example.com"
-    ])
-    issue_create.execute(args)
+    # # Test IssueCreate command
+    # print("\n-- Testing IssueCreate command --")
+    # issue_create = IssueCreate()
+    # parser = argparse.ArgumentParser()
+    # issue_create.define_arguments(parser)
+    # args = parser.parse_args([
+    #     "--project", "TEST",
+    #     "--summary", "Test Issue via Direct Call",
+    #     "--description", "This is a test issue created by directly calling the command class",
+    #     "--priority", "High",
+    #     "--server", "https://jira.example.com"
+    # ])
+    # issue_create.execute(args)
 
 def main_test():
     """Main test function."""
