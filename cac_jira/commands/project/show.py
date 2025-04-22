@@ -27,7 +27,6 @@ class ProjectShow(JiraProjectCommand):
             args: The parsed arguments
         """
         # self.log.debug("Showing Jira project %s", args.project)
-        # args.project = args.project.upper()
 
         # Use ProjectList to get the list of projects
         project_list = ProjectList()

@@ -34,7 +34,7 @@ class IssueBegin(JiraIssueCommand):
         Args:
             args: The parsed arguments
         """
-        self.log.debug("Transitioning Jira issue to In Progress")
+        self.log.debug("Transitioning Jira issue %s to In Progress", args.issue)
 
         # Get the issue
         issue = self.jira_client.issue(args.issue)

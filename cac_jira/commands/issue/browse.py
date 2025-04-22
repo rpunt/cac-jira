@@ -32,5 +32,6 @@ class IssueBrowse(JiraIssueCommand):
         return parser
 
     def execute(self, args):
+        self.log.debug("Opening Jira issue %s in a browser", args.issue)
         issue = self.jira_client.issue(args.issue)
         webbrowser.open(issue.permalink())

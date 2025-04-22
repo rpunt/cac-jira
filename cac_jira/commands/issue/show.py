@@ -2,7 +2,7 @@
 # pylint: disable=line-too-long, import-outside-toplevel, broad-exception-caught
 
 """
-Command module for creating Jira issues.
+Command module for showing Jira issues.
 """
 
 import json
@@ -33,6 +33,7 @@ class IssueShow(JiraIssueCommand):
         return parser
 
     def execute(self, args):
+        self.log.debug("Showing Jira issue %s", args.issue)
         issue = self.jira_client.issue(args.issue)
         if args.output == "json":
             # skip the model JSON output and just print the raw issue

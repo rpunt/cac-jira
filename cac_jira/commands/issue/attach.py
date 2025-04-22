@@ -2,7 +2,7 @@
 # pylint: disable=line-too-long, import-outside-toplevel, broad-exception-caught
 
 """
-Command module for creating Jira issues.
+Command module for attaching files to Jira issues.
 """
 
 from cac_jira.commands.issue import JiraIssueCommand
@@ -24,4 +24,4 @@ class IssueAttach(JiraIssueCommand):
         return parser
 
     def execute(self, args):
-        pass
+        raise NotImplementedError("This command is not implemented yet.")
