@@ -6,7 +6,7 @@
       "name": "Issue Create",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/jiracli/cli/main.py",
+      "program": "${workspaceFolder}/cac_jira/cli/main.py",
       "args": [
         "issue",
         "create",
@@ -20,7 +20,6 @@
         "repave,crdb_tooling",
         "--epic",
         "crdbop-2845"
-        // "--json",
         // "--verbose",
       ],
       "console": "integratedTerminal"
@@ -29,7 +28,7 @@
       "name": "Issue Delete",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/jiracli/cli/main.py",
+      "program": "${workspaceFolder}/cac_jira/cli/main.py",
       "args": [
         "issue",
         "delete",
@@ -43,7 +42,7 @@
       "name": "Issue List",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/jiracli/cli/main.py",
+      "program": "${workspaceFolder}/cac_jira/cli/main.py",
       "args": [
         "issue",
         "list",
@@ -58,13 +57,13 @@
       "name": "Issue Assign",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/jiracli/cli/main.py",
+      "program": "${workspaceFolder}/cac_jira/cli/main.py",
       "args": [
         "issue",
         "assign",
         "-i",
         "crdbop-3733",
-        // "--verbose",
+        "--verbose",
       ],
       "console": "integratedTerminal"
     },
@@ -72,14 +71,15 @@
       "name": "Issue Label",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/jiracli/cli/main.py",
+      "program": "${workspaceFolder}/cac_jira/cli/main.py",
       "args": [
         "issue",
         "label",
         "-i",
         "crdbop-3842",
         "-l",
-        "repave"
+        "repave",
+        "--verbose",
       ],
       "console": "integratedTerminal"
     },
@@ -87,17 +87,30 @@
       "name": "Project List",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/jiracli/cli/main.py",
+      "program": "${workspaceFolder}/cac_jira/cli/main.py",
       "args": [
         "project",
         "list",
         // "-k",
         // "crdb",
-        // "--json"
         "--verbose"
       ],
       "console": "integratedTerminal",
       "justMyCode": false
+    },
+    {
+      "name": "Project Show",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/cac_jira/cli/main.py",
+      "args": [
+        "project",
+        "show",
+        // "-k",
+        // "crdb",
+        "--verbose"
+      ],
+      "console": "integratedTerminal"
     },
     {
       "name": "Poetry run tests",
