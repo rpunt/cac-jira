@@ -44,5 +44,5 @@ class ProjectShow(JiraProjectCommand):
             )
             models.append(model)
 
-        printer = cac.output.Output({"json": args.json})
+        printer = cac.output.Output(args)
         printer.print_models(models)
