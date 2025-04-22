@@ -29,7 +29,7 @@ class ProjectList(JiraProjectCommand):
         Returns:
             list: List of project objects
         """
-        self.log.debug("Getting Jira projects")
+        self.log.debug("Listing all Jira projects")
 
         projects = self.jira_client.projects()  # pylint: disable=no-member
         if not projects:

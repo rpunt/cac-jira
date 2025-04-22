@@ -6,7 +6,7 @@ from cac_jira.commands.issue import JiraIssueCommand
 
 class IssueLabel(JiraIssueCommand):
     """
-    Command class for commenting on Jira issues.
+    Command class for labelling Jira issues.
     """
 
     def define_arguments(self, parser):

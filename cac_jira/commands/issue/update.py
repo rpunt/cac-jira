@@ -6,7 +6,7 @@ from cac_jira.commands.issue import JiraIssueCommand
 
 class IssueUpdate(JiraIssueCommand):
     """
-    Command class for commenting on Jira issues.
+    Command class for updating the title or description on Jira issues.
     """
 
     def define_arguments(self, parser):
@@ -46,7 +46,7 @@ class IssueUpdate(JiraIssueCommand):
         Args:
             args: The parsed arguments
         """
-        self.log.debug("Assigning Jira issue")
+        self.log.debug("Updating Jira issue %s", args.issue)
 
         # Assign the issue to the user
         issue = self.jira_client.issue(args.issue)

@@ -2,7 +2,7 @@
 # pylint: disable=line-too-long, import-outside-toplevel, broad-exception-caught
 
 """
-Command module for creating Jira issues.
+Command module for transitioning Jira issues to "Done".
 """
 
 from cac_jira.commands.issue import JiraIssueCommand
@@ -31,6 +31,7 @@ class IssueClose(JiraIssueCommand):
         return parser
 
     def execute(self, args):
+        self.log.debug("Closing Jira issue %s", args.issue)
         issue = self.jira_client.issue(args.issue)
         if not issue:
             self.log.error("Issue not found")

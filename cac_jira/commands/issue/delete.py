@@ -6,7 +6,7 @@ from cac_jira.commands.issue import JiraIssueCommand
 
 class IssueDelete(JiraIssueCommand):
     """
-    Command class for commenting on Jira issues.
+    Command class for deleting Jira issues.
     """
 
     def define_arguments(self, parser):
