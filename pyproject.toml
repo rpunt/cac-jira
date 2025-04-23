@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cac-jira"
-version = "0.3.2"
+version = "0.3.3"
 description = "A command-line interface for interacting with Jira"
 authors = ["Ryan Punt <ryan@mirum.org>"]
 license = "MIT"
