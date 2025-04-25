@@ -1,4 +1,22 @@
-#!/usr/bin/env python
+"""
+Command module for listing Jira projects.
+
+This module provides functionality to list projects in Jira, with optional
+filtering by name or key. It utilizes the JiraProjectCommand base class to
+handle Jira connectivity and authentication.
+
+Projects can be filtered by:
+- Project name (case-insensitive substring matching)
+- Project key (case-insensitive substring matching)
+
+The results are displayed in a table format by default, or as JSON when
+specified with the --output argument.
+
+Example:
+    jira project list
+    jira project list --name "Core"
+    jira project list --key "COR" --output json
+"""
 
 import cac_core as cac
 from cac_jira.commands.project import JiraProjectCommand
