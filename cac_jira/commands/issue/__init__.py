@@ -7,8 +7,8 @@ This module defines the base JiraCommand class that all issue-related
 action classes should inherit from.
 """
 
+import abc
 from cac_jira.commands.command import JiraCommand
-
 
 class JiraIssueCommand(JiraCommand):
     """
@@ -17,17 +17,7 @@ class JiraIssueCommand(JiraCommand):
     This class defines common methods and properties that should be shared
     across all issue actions, such as issue-specific arguments and utilities.
     """
-
-    # def __init__(self):
-    #     """
-    #     Initialize the command.
-    #     """
-    #     super().__init__()
-    #     # Remove any duplicate handlers from the logger to prevent multiple log messages
-    #     if self.log.handlers and len(self.log.handlers) > 1:
-    #         for handler in self.log.handlers[1:]:
-    #             self.log.removeHandler(handler)
-
+    @abc.abstractmethod
     def define_arguments(self, parser):
         """
         Define arguments specific to this command.
@@ -49,6 +39,7 @@ class JiraIssueCommand(JiraCommand):
             )
         return parser
 
+    @abc.abstractmethod
     def execute(self, args):
         """
         Execute the command with the given arguments.
@@ -60,27 +51,6 @@ class JiraIssueCommand(JiraCommand):
             The result of the command execution
         """
         raise NotImplementedError("Subclasses must implement execute()")
-
-    def define_common_arguments(self, parser):
-        """
-        Define arguments common to all issue actions.
-
-        Args:
-            parser: The argument parser to add arguments to
-        """
-        # Add base common arguments
-        super().define_common_arguments(parser)
-
-        # Add issue-specific common arguments
-        has_project = any(action.dest == "project" for action in parser._actions)
-        if not has_project:
-            parser.add_argument(
-                "--project",
-                help="Project key for the issue",
-                default=self.config.project,  # pylint: disable=no-member
-            )
-
-        return parser
 
     # def get_issue_types(self, args) -> list:
     #     """
