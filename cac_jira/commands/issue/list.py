@@ -25,14 +25,6 @@ class IssueList(JiraIssueCommand):
         """
         # Add common arguments first
         super().define_arguments(parser)
-
-        # Add action-specific arguments
-        # parser.add_argument(
-        #     "--assignee",
-        #     help="Filter issues by assignee",
-        #     default=None
-        # )
-        # parser.add_argument("--status", help="Filter issues by status", default=None)
         parser.add_argument("-m", "--mine", action="store_true", default=False, help="List issues assigned to the current user")
         parser.add_argument("-d", "--done", action="store_true", default=False, help="Include issues that are done")
 
@@ -88,5 +80,5 @@ class IssueList(JiraIssueCommand):
             )
             models.append(model)
 
-        printer = cac.output.Output(args)
+        printer = cac.output.Output({"output": "table"})
         printer.print_models(models)
