@@ -128,21 +128,22 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "cac-core"
-version = "0.2.0"
+version = "0.3.2"
 description = ""
 optional = false
-python-versions = "<4.0,>=3.8"
+python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "cac_core-0.2.0-py3-none-any.whl", hash = "sha256:215d6e7f48fba0011f18749deee47ed7671cd6107acbf836ae980fa7a40ae4ab"},
-    {file = "cac_core-0.2.0.tar.gz", hash = "sha256:2cf2603c56ecd971d7ba8d5efbda6bcf4db39b2c36511911efef1cba32e27090"},
+    {file = "cac_core-0.3.2-py3-none-any.whl", hash = "sha256:97707c9f87061601850bd73bfb691460d5ce444f7e2bc7cae07b1c68d95fa586"},
+    {file = "cac_core-0.3.2.tar.gz", hash = "sha256:ffb6e860112b115807c518c49187bf89e3e6a7031ab954dda9b24f79931128fd"},
 ]
 
 [package.dependencies]
-logger = ">=1.4,<2.0"
-pyyaml = ">=6.0.2,<7.0.0"
-requests = ">=2.32.3,<3.0.0"
-tabulate = ">=0.9.0,<0.10.0"
+keyring = ">=25.6.0"
+logger = ">=1.4"
+pyyaml = ">=6.0.2"
+requests = ">=2.32.3"
+tabulate = ">=0.9.0"
 
 [[package]]
 name = "certifi"
@@ -1787,5 +1788,5 @@ type = ["pytest-mypy"]
 
 [metadata]
 lock-version = "2.1"
-python-versions = "^3.9"
-content-hash = "f0ba84b02a24266c9f310e841dc3c701f85a7b6add825610997cc36a028a0638"
+python-versions = ">=3.9,<4.0"
+content-hash = "396c670a8f0cbbeb4b7c45eb757b55bf10b3126de8baaf20ffb3cbab914d110f"
