@@ -31,20 +31,6 @@ class JiraCommand(Command):
         self.jira_client = JIRA_CLIENT
         self.config = CONFIG
 
-    # TODO: W0221 arguments differ
-    def define_common_arguments(self, parser):
-        """
-        Define arguments common to all Jira commands.
-
-        Args:
-            parser: The argument parser to add arguments to
-        """
-        # Add the base common arguments
-        super().define_common_arguments(parser)
-
-        # Add Jira-specific common arguments
-        return parser
-
     @abc.abstractmethod
     def define_arguments(self, parser):
         """
@@ -59,8 +45,7 @@ class JiraCommand(Command):
         Returns:
             The updated argument parser
         """
-        # Add common arguments first
-        self.define_common_arguments(parser)
+        super().define_arguments(parser)
         return parser
 
     @abc.abstractmethod
@@ -73,20 +58,4 @@ class JiraCommand(Command):
         Args:
             args: The parsed arguments
         """
-        pass
-
-    # TODO: this is unnecessary
-    def format_output(self, data, output_format):
-        """
-        Format the data according to the specified output format.
-
-        Args:
-            data: The data to format
-            output_format: The format to use (json, yaml, table, csv)
-
-        Returns:
-            Formatted data as a string
-        """
-        # Placeholder implementation
-        self.log.debug("Formatting output as: %s", output_format)
-        return f"Data formatted as {output_format}: {data}"
+        raise NotImplementedError("Command subclasses must implement execute()")

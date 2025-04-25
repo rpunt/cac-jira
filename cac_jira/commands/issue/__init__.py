@@ -39,7 +39,14 @@ class JiraIssueCommand(JiraCommand):
             The parser with arguments added
         """
         super().define_arguments(parser)
-        self.define_common_arguments(parser)
+        # Add issue-specific common arguments
+        has_project = any(action.dest == "project" for action in parser._actions)
+        if not has_project:
+            parser.add_argument(
+                "--project",
+                help="Project key for the issue",
+                default=self.config.project,  # pylint: disable=no-member
+            )
         return parser
 
     def execute(self, args):

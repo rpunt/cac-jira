@@ -8,6 +8,7 @@ This module defines the base ProjectCommand class that all project-related
 action classes should inherit from.
 """
 
+import abc
 from cac_jira.commands.command import JiraCommand
 
 
@@ -18,7 +19,7 @@ class JiraProjectCommand(JiraCommand):
     This class defines common methods and properties that should be shared
     across all project actions, such as project-specific arguments and utilities.
     """
-
+    @abc.abstractmethod
     def define_arguments(self, parser):
         """
         Define arguments specific to this command.
@@ -29,32 +30,7 @@ class JiraProjectCommand(JiraCommand):
         Returns:
             The modified parser
         """
-        self.define_common_arguments(parser)
-        return parser
-
-    def execute(self, args):
-        """
-        Execute the command with the provided arguments.
-
-        Args:
-            args: The parsed command line arguments
-
-        Returns:
-            Command result
-        """
-        # This method is meant to be overridden by specific project commands
-        raise NotImplementedError("Subclasses must implement execute()")
-
-    def define_common_arguments(self, parser):
-        """
-        Define arguments common to all project actions.
-
-        Args:
-            parser: The argument parser to add arguments to
-        """
-        # Add base common arguments
-        super().define_common_arguments(parser)
-
+        super().define_arguments(parser)
         # Add project-specific common arguments
         parser.add_argument(
             "-n",
@@ -69,6 +45,20 @@ class JiraProjectCommand(JiraCommand):
             default=None,
         )
         return parser
+
+    @abc.abstractmethod
+    def execute(self, args):
+        """
+        Execute the command with the provided arguments.
+
+        Args:
+            args: The parsed command line arguments
+
+        Returns:
+            Command result
+        """
+        # This method is meant to be overridden by specific project commands
+        raise NotImplementedError("Subclasses must implement execute()")
 
     def get_project_types(self):
         """
