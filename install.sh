@@ -1,3 +1,3 @@
 #!/bin/bash
 
-pip3 install -e .
+uv pip install -e .
