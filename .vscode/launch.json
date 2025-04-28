@@ -22,7 +22,11 @@
         "crdbop-2845"
         // "--verbose",
       ],
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
     },
     {
       "name": "Issue Delete",
@@ -36,7 +40,11 @@
         "crdbop-3868",
         "--verbose",
       ],
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
     },
     {
       "name": "Issue List",
@@ -51,7 +59,11 @@
         // "json",
         "--verbose",
       ],
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
     },
     {
       "name": "Issue Assign",
@@ -65,7 +77,11 @@
         "crdbop-3733",
         "--verbose",
       ],
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
     },
     {
       "name": "Issue Label",
@@ -81,7 +97,11 @@
         "repave",
         "--verbose",
       ],
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
     },
     {
       "name": "Project List",
@@ -96,7 +116,10 @@
         "--verbose"
       ],
       "console": "integratedTerminal",
-      "justMyCode": false
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
     },
     {
       "name": "Project Show",
@@ -110,10 +133,14 @@
         // "crdb",
         "--verbose"
       ],
-      "console": "integratedTerminal"
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
     },
     {
-      "name": "Poetry run tests",
+      "name": "Python: pytest",
       "type": "debugpy",
       "request": "launch",
       "module": "pytest",
@@ -121,7 +148,7 @@
       "args": [
         "-v"
       ],
-      "python": "${command:python.interpreterPath}",
+      "python": "${workspaceFolder}/.venv/bin/python",
       "console": "integratedTerminal",
       "justMyCode": false
     }
