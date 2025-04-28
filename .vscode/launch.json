@@ -140,7 +140,7 @@
       }
     },
     {
-      "name": "Run tests",
+      "name": "Python: pytest",
       "type": "debugpy",
       "request": "launch",
       "module": "pytest",

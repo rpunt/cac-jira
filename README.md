@@ -2,11 +2,9 @@
 
 A command-line interface for interacting with Jira.
 
-## Installation
-
 This project uses [UV](https://github.com/astral-sh/uv) for dependency management.
 
-### Steps to Install
+## Installation
 
 ```bash
 pip install cac-jira
