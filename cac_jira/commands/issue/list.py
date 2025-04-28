@@ -80,7 +80,5 @@ class IssueList(JiraIssueCommand):
             )
             models.append(model)
 
-        # TODO: test this also
-        # printer = cac.output.Output(args)
-        printer = cac.output.Output({"output": "table"})
+        printer = cac.output.Output(args)
         printer.print_models(models)
