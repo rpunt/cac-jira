@@ -38,6 +38,7 @@ jira_username = CONFIG.get('username', 'INVALID_DEFAULT')
 if jira_username == "INVALID_DEFAULT":
     log.error("Invalid username in %s: %s", CONFIG.config_file, jira_username)
     sys.exit(1)
+
 credentialmanager = cac.credentialmanager.CredentialManager(__name__)
 jira_api_token = credentialmanager.get_credential(
     jira_username,
