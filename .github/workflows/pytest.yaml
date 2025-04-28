@@ -20,6 +20,10 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           python -m pip install -e .
+          mkdir -p .config/cac_jira
+          echo "username: $GITHUB_ACTOR" >> ~/.config/cac_jira/config.yaml
+          echo "server: https://cockroachlabs.atlassian.net" >> ~/.config/cac_jira/config.yaml
+          echo "project: test" >> ~/.config/cac_jira/config.yaml
       # - name: Lint with Ruff
       #   run: |
       #     pip install ruff
