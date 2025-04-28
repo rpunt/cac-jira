@@ -2,19 +2,21 @@
 
 A command-line interface for interacting with Jira.
 
+This project uses [UV](https://github.com/astral-sh/uv) for dependency management.
+
 ## Installation
-
-This project uses [Poetry](https://python-poetry.org/) for dependency management.
-
-### Steps to Install
 
 ```bash
 pip install cac-jira
 ```
 
+## Authentication
+
+On first-run, you'll be prompted for a Jira API token; generate one [here](https://id.atlassian.com/manage-profile/security/api-tokens). This will be stored in your system credential store (e.g. Keychain on Mac OS) in an items called `cac-jira`.
+
 ## Configuration
 
-Create a configuration file at `~/.config/cac_jira/config.yaml`:
+On first-run, a configuration file will be generated at `~/.config/cac_jira/config.yaml`. In this file you'll need to replace the values of `server` and `username` with appropriate values.
 
 ```yaml
 server: https://your-jira-instance.atlassian.net
