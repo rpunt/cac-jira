@@ -84,7 +84,7 @@ def show_command_help(command):
     print(f"\nAvailable actions for '{command}':")
     for action in sorted(actions):
         try:
-            module_path = f"cac_jira.commands.{command}.{action}"
+            module_path = f"{__name__}.commands.{command}.{action}"
             module = importlib.import_module(module_path)
             doc = module.__doc__ or "No description available"
             doc = doc.strip().split("\n")[0]  # Get first line of docstring
