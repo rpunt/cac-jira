@@ -3,34 +3,6 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Issue Create (Poetry)",
-      "type": "debugpy",
-      "request": "launch",
-      "program": "${workspaceFolder}/.venv/bin/python",
-      "args": [
-        "-m",
-        "cac_jira.cli.main",
-        "issue",
-        "create",
-        "--title",
-        "test3",
-        "--description",
-        "test3 description",
-        "--begin",
-        "--browse",
-        "--labels",
-        "repave,crdb_tooling",
-        "--epic",
-        "crdbop-2845"
-      ],
-      "console": "integratedTerminal",
-      "cwd": "${workspaceFolder}",
-      "env": {
-        "PYTHONPATH": "${workspaceFolder}"
-      },
-      "justMyCode": false
-    },
-    {
       "name": "Issue Create",
       "type": "debugpy",
       "request": "launch",
@@ -75,29 +47,6 @@
       }
     },
     {
-      "name": "Issue List (Poetry)",
-      "type": "debugpy",
-      "request": "launch",
-      "module": "cac_jira.cli.main", // Use module path instead of file path
-      "args": [
-        // "-m",
-        // "cac_jira.cli.main",
-        "issue",
-        "list",
-        "--mine",
-        "--output",
-        "json",
-        "--verbose",
-      ],
-      "console": "integratedTerminal",
-      "python": "${command:python.interpreterPath}", // Use Poetry's Python
-      "cwd": "${workspaceFolder}",
-      "justMyCode": false,
-      "env": {
-        "PYTHONPATH": "${workspaceFolder}"
-      }
-    },
-    {
       "name": "Issue List",
       "type": "debugpy",
       "request": "launch",
@@ -105,10 +54,10 @@
       "args": [
         "issue",
         "list",
-        // "--mine",
-        // "--output",
-        // "json",
-        // "--verbose",
+        "--mine",
+        "--output",
+        "json",
+        "--verbose",
       ],
       "console": "integratedTerminal",
       "justMyCode": false,
