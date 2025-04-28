@@ -84,7 +84,7 @@ def show_command_help(command):
     print(f"\nAvailable actions for '{command}':")
     for action in sorted(actions):
         try:
-            module_path = f"cac_jira.commands.{command}.{action}"
+            module_path = f"{__name__}.commands.{command}.{action}"
             module = importlib.import_module(module_path)
             doc = module.__doc__ or "No description available"
             doc = doc.strip().split("\n")[0]  # Get first line of docstring
@@ -93,20 +93,20 @@ def show_command_help(command):
             print(f"  {action.ljust(15)} - No description available")
 
 
-def register_autocomplete(parser):
-    """Set up command autocompletion if supported environment"""
-    try:
-        import argcomplete
-        argcomplete.autocomplete(parser)
-    except ImportError:
-        # argcomplete is not installed, skip autocomplete setup
-        pass
+# def register_autocomplete(parser):
+#     """Set up command autocompletion if supported environment"""
+#     try:
+#         import argcomplete
+#         argcomplete.autocomplete(parser)
+#     except ImportError:
+#         # argcomplete is not installed, skip autocomplete setup
+#         pass
 
 
-def setup_logging(args):
+def setup_logging(verbose: bool) -> logging.Logger:
     """Configure logging based on command line arguments"""
     log = cac.logger.new(__name__)
-    if args.verbose:
+    if verbose:
         log.setLevel(logging.DEBUG)
     # if getattr(args, 'show_log_format', False):
     #     print(f"Log format: {cac.logger.get_formatter_string()}")
@@ -175,12 +175,15 @@ def main():
             except Exception as e:  # pylint: disable=broad-except
                 log.warning("Error setting up %s %s: %s", command, action, e)
 
-    # Add autocomplete setup
-    register_autocomplete(parser)
+    # # Add autocomplete setup
+    # register_autocomplete(parser)
 
     # Parse arguments
     args = parser.parse_args()
-    log = setup_logging(args)
+
+    log = setup_logging(args.verbose)
+    # log = setup_logging(False)
+    log.debug("Parsed arguments: %s", args)
 
     # Add to main function, after argument parsing but before execution
     if args.command is None:
@@ -206,7 +209,6 @@ def main():
             log.error("Invalid action class for %s %s", args.command, args.action)
             sys.exit(1)
 
-        # parser = action_instance.define_arguments(argparse.ArgumentParser())
         log.debug("Executing action: %s %s", args.command, args.action)
         action_instance.execute(args)
 

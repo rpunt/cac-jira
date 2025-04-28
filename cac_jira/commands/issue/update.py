@@ -1,8 +1,26 @@
 # #!/usr/bin/env python
 # pylint: disable=no-member
 
-from cac_jira.commands.issue import JiraIssueCommand
+"""
+Command module for updating Jira issues.
 
+This module provides functionality to update existing issues in Jira,
+allowing modification of the title (summary) and description fields.
+It leverages the JiraIssueCommand base class to handle Jira connectivity
+and authentication.
+
+Key features:
+- Update issue titles/summaries
+- Update issue descriptions
+- Support for updating both fields simultaneously
+
+Example usage:
+    jira issue update --issue PROJECT-123 --title "New title"
+    jira issue update --issue PROJECT-123 --description "New description"
+    jira issue update --issue PROJECT-123 --title "New title" --description "New description"
+"""
+
+from cac_jira.commands.issue import JiraIssueCommand
 
 class IssueUpdate(JiraIssueCommand):
     """

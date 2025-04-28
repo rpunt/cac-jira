@@ -54,9 +54,9 @@
       "args": [
         "issue",
         "list",
-        // "--mine",
-        // "--output",
-        // "json",
+        "--mine",
+        "--output",
+        "json",
         "--verbose",
       ],
       "console": "integratedTerminal",

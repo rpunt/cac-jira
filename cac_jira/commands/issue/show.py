@@ -9,7 +9,6 @@ import json
 import cac_core as cac
 from cac_jira.commands.issue import JiraIssueCommand
 
-
 class IssueShow(JiraIssueCommand):
     """
     Command class for creating Jira issues.

@@ -9,7 +9,7 @@ import sys
 from importlib import metadata
 import cac_core as cac
 # import yaml
-import keyring
+# import keyring
 import cac_jira.core.client as client
 
 if sys.version_info < (3, 8):
@@ -39,39 +39,17 @@ if jira_username == "INVALID_DEFAULT":
     log.error("Invalid username in %s: %s", CONFIG.config_file, jira_username)
     sys.exit(1)
 
-def read_keychain_password(username):
-    """
-    Get the Jira API token from the system keychain.
-    If not found, prompt user to enter it.
+credentialmanager = cac.credentialmanager.CredentialManager(__name__)
+jira_api_token = credentialmanager.get_credential(
+    jira_username,
+    "Jira API key",
+)
 
-    Args:
-        username: The username to get the API token for
-
-    Returns:
-        The API token as a string
-    """
-    # Check if API token exists in keychain
-    keychain_item_password = keyring.get_password(__name__, username)
-
-    # If API token not found, prompt user to enter it
-    if not keychain_item_password:
-        import getpass # pylint: disable=import-outside-toplevel
-        log.info(
-            "API token not found for %s; please enter it now", username
-        )
-        print('Enter your Jira API key:')
-        keychain_item_password = getpass.getpass()
-
-        # Store in keychain
-        keyring.set_password(__name__, username, keychain_item_password)
-
-    return keychain_item_password
-
-jira_api_token = read_keychain_password(jira_username)
 if not jira_api_token:
     log.error(
-        "API token not found for %s; see https://github.com/rpunt/jira-cmd/blob/main/README.md#authentication",
+        "API token not found for %s; see https://github.com/rpunt/%s/blob/main/README.md#authentication",
         jira_username,
+        __name__.replace("_", "-"),
     )
     sys.exit(1)
 
