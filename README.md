@@ -62,6 +62,18 @@ Create a new issue:
 jira issue create --project PROJ --type Task --title "Fix login bug" --description "Users can't log in"
 ```
 
+Create a new issue of a type that requires custom fields:
+
+```bash
+#
+# This assumes the name of the custom fields is "Custom Field One" and "Custom Field Two";
+# the field name will be swapped to lower-case, and spaces replaced with underscores
+#
+jira issue create --project PROJ --type Custom\ Issue\ Type --title "Issue Title" --description "Issue description" \
+  --field custom_field_one custom_field_value \
+  --field custom_field_two custom_field_value
+```
+
 Create and assign to yourself:
 
 ```bash
