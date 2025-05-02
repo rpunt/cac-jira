@@ -215,15 +215,28 @@ class IssueCreate(JiraIssueCommand):
 
         mandatory_fields = self.get_mandatory_fields(args.project, matching_issuetype["name"])
 
+        # Create a mapping from field names to field IDs (both lowercase for case-insensitive matching)
+        field_name_to_id = {}
+        for field_id, field_info in mandatory_fields.items():
+            field_name_to_id[field_info['name'].lower().replace(" ", "_")] = field_id
+
         # Print the mandatory fields
         if mandatory_fields:
             self.log.debug(f"Mandatory fields for {matching_issuetype['name']} in {args.project}:")
             for field_id, field_info in mandatory_fields.items():
-                self.log.debug(f"  {field_info['name']} ({field_id})")
+                self.log.debug(f"  {field_info['name'].lower().replace(" ", "_")} ({field_id})")
 
         # Apply individual field arguments
         if args.custom_fields:
-            for field_id, value in args.custom_fields:
+            for field_name_or_id, value in args.custom_fields:
+                # First check if this is a field name
+                field_id = field_name_or_id
+
+                # Try to match the field name (case-insensitive)
+                if field_name_or_id.lower() in field_name_to_id:
+                    field_id = field_name_to_id[field_name_or_id.lower()]
+                    self.log.debug(f"Mapped field name '{field_name_or_id}' to ID '{field_id}'")
+
                 # Handle special field types
                 if field_id.startswith("customfield_"):
                     # Try to determine field type from schema
@@ -250,7 +263,7 @@ class IssueCreate(JiraIssueCommand):
 
             # Check if this mandatory field is missing
             if field_id not in fieldset:
-                missing_fields.append(f"{field_info['name']} ({field_id})")
+                missing_fields.append(f"{field_info['name'].lower().replace(" ", "_")} ({field_id})")
 
         # If there are missing mandatory fields, warn the user
         if missing_fields:
