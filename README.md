@@ -145,10 +145,13 @@ jira issue list --output json | jq -r '.[] | select(.Labels | contains("producti
 
 ```bash
 # Install dependencies including dev dependencies
-poetry install
+uv sync
+
+# Activate the venv
+source .venv/bin/activate
 
 # Run tests
-poetry run pytest
+uv run pytest
 ```
 
 Please note that tests are still WIP
