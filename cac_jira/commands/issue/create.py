@@ -84,7 +84,60 @@ class IssueCreate(JiraIssueCommand):
             "--browse", help="Open the issue in your browser once created", action="store_true", default=False
         )
 
+        # Add a custom argument for additional fields
+        parser.add_argument(
+            "--field",
+            action="append",
+            nargs=2,
+            metavar=("FIELD_ID", "VALUE"),
+            help="Specify custom field values in the format: --field fieldId value",
+            dest="custom_fields"
+        )
+
         return parser
+
+    def get_mandatory_fields(self, project_key, issuetype_name):
+        """
+        Get mandatory fields for a specific issue type in a project.
+
+        Args:
+            project_key (str): Project key (e.g., 'TEST')
+            issuetype_name (str): Issue type name (e.g., 'Bug', 'Task')
+
+        Returns:
+            dict: Dictionary of field_id -> field_name for mandatory fields
+        """
+        self.log.debug(f"Getting mandatory fields for {issuetype_name} in {project_key}")
+
+        # Get the create metadata for this project and issue type
+        metadata = self.jira_client.createmeta(
+            projectKeys=project_key,
+            issuetypeNames=issuetype_name,
+            expand='projects.issuetypes.fields'
+        )
+
+        # Extract the fields from the metadata
+        mandatory_fields = {}
+
+        try:
+            # Navigate the nested structure to get to the fields
+            project_meta = metadata['projects'][0]
+            issuetype_meta = project_meta['issuetypes'][0]
+            fields = issuetype_meta['fields']
+
+            # Identify mandatory fields (required=True)
+            for field_id, field_info in fields.items():
+                if field_info.get('required', False):
+                    mandatory_fields[field_id] = {
+                        'name': field_info['name'],
+                        'schema': field_info.get('schema', {}),
+                        'allowed_values': field_info.get('allowedValues', []),
+                    }
+
+            return mandatory_fields
+        except (IndexError, KeyError) as e:
+            self.log.error(f"Error parsing metadata: {e}")
+            return {}
 
     def execute(self, args):
         """
@@ -159,6 +212,49 @@ class IssueCreate(JiraIssueCommand):
         #     else:
         #         epic_name_field = self.jira_client.Field.all().select(lambda f: f.name == 'Epic Name').first().id
         #         fieldset[epic_name_field] = args.epic_name
+
+        mandatory_fields = self.get_mandatory_fields(args.project, matching_issuetype["name"])
+
+        # Print the mandatory fields
+        if mandatory_fields:
+            self.log.debug(f"Mandatory fields for {matching_issuetype['name']} in {args.project}:")
+            for field_id, field_info in mandatory_fields.items():
+                self.log.debug(f"  {field_info['name']} ({field_id})")
+
+        # Apply individual field arguments
+        if args.custom_fields:
+            for field_id, value in args.custom_fields:
+                # Handle special field types
+                if field_id.startswith("customfield_"):
+                    # Try to determine field type from schema
+                    field_schema = mandatory_fields.get(field_id, {}).get('schema', {})
+                    field_type = field_schema.get('type')
+
+                    if field_type == 'array':
+                        # Handle array fields by splitting on comma
+                        fieldset[field_id] = value.split(',')
+                    elif field_type == 'option':
+                        # Handle option fields
+                        fieldset[field_id] = {'value': value}
+                    else:
+                        fieldset[field_id] = value
+                else:
+                    fieldset[field_id] = value
+
+        # Check if we have all mandatory fields
+        missing_fields = []
+        for field_id, field_info in mandatory_fields.items():
+            # Skip fields that we already handle (summary, description, project, issuetype)
+            if field_id in ['summary', 'description', 'project', 'issuetype']:
+                continue
+
+            # Check if this mandatory field is missing
+            if field_id not in fieldset:
+                missing_fields.append(f"{field_info['name']} ({field_id})")
+
+        # If there are missing mandatory fields, warn the user
+        if missing_fields:
+            raise ValueError(f"Missing mandatory fields: {', '.join(missing_fields)}")
 
         self.log.debug("Issue data: %s", fieldset)
         issue = self.jira_client.create_issue(fields=fieldset)

@@ -286,6 +286,20 @@ class JiraClient:
         """
         return self.client.add_issues_to_epic(epic_key, issue_key)
 
+    def createmeta(self, projectKeys=None, issuetypeNames=None, expand=None):
+        """
+        Get create metadata for a project and issue type.
+        Args:
+            projectKeys: The project key (e.g., 'TEST')
+            issuetypeNames: The issue type name (e.g., 'Bug', 'Task')
+        Returns:
+            The create metadata
+        """
+        return self.client.createmeta(
+            projectKeys=projectKeys,
+            issuetypeNames=issuetypeNames,
+            expand=expand or 'projects.issuetypes.fields'
+        )
     # def project(self, project_id):
     #     """
     #     Get a project.
