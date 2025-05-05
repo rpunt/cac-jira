@@ -16,6 +16,8 @@ if sys.version_info < (3, 8):
     print("This project requires Python 3.8 or higher.", file=sys.stderr)
     sys.exit(1)
 
+cac.updatechecker.check_package_for_updates(__name__)
+
 try:
     __version__ = metadata.version(__package__)
 except Exception:
