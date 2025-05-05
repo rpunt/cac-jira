@@ -113,7 +113,7 @@ wheels = [
 
 [[package]]
 name = "cac-core"
-version = "0.3.2"
+version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "keyring" },
@@ -122,9 +122,9 @@ dependencies = [
     { name = "requests" },
     { name = "tabulate" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1d/b2/100de33939b811ed59f4c94ff38d6e08460afe73f469c482d2a6d6001150/cac_core-0.3.2.tar.gz", hash = "sha256:ffb6e860112b115807c518c49187bf89e3e6a7031ab954dda9b24f79931128fd", size = 13446, upload_time = "2025-04-25T20:06:18.391Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/57/e9/3efa4b5c557ecfa2c7e9c268b118e2abe5bd6987402beb4fddc5b1c63980/cac_core-0.4.0.tar.gz", hash = "sha256:a13a8109fd060a0c93b6bbe4bd1f205f2139fb9ed4946d0b9ccc1b68b65aeae3", size = 19224, upload_time = "2025-05-05T20:41:43.445Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/73/17/43c0afc8919f3fd417146311b8cbd171ae855b3eb8558ae88cdb73cf05aa/cac_core-0.3.2-py3-none-any.whl", hash = "sha256:97707c9f87061601850bd73bfb691460d5ce444f7e2bc7cae07b1c68d95fa586", size = 15754, upload_time = "2025-04-25T20:06:16.525Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/9f/e13bedffb56ec8bca9308a4f2e1493f0d952685e4045090c35c8030de92b/cac_core-0.4.0-py3-none-any.whl", hash = "sha256:054fc88e280fbee3c57462cd1bf201d9c974b82f71aba2cf3bc14d86690fa625", size = 20716, upload_time = "2025-05-05T20:41:41.929Z" },
 ]
 
 [[package]]
@@ -179,7 +179,7 @@ requires-dist = [
     { name = "argcomplete", specifier = ">=3.6.2" },
     { name = "black", marker = "extra == 'all'", specifier = ">=23.3,<25.0" },
     { name = "black", marker = "extra == 'lint'", specifier = ">=23.3,<25.0" },
-    { name = "cac-core", specifier = ">=0.3.2,<1.0.0" },
+    { name = "cac-core", specifier = ">=0.4.0,<1.0.0" },
     { name = "isort", marker = "extra == 'all'", specifier = ">=5.12.0" },
     { name = "isort", marker = "extra == 'lint'", specifier = ">=5.12.0" },
     { name = "jira", specifier = ">=3.8.0,<4.0.0" },

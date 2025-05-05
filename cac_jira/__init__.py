@@ -12,9 +12,11 @@ import cac_core as cac
 # import keyring
 import cac_jira.core.client as client
 
-if sys.version_info < (3, 8):
-    print("This project requires Python 3.8 or higher.", file=sys.stderr)
+if sys.version_info < (3, 9):
+    print("This project requires Python 3.9 or higher.", file=sys.stderr)
     sys.exit(1)
+
+cac.updatechecker.check_package_for_updates(__name__)
 
 try:
     __version__ = metadata.version(__package__)
