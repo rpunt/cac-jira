@@ -189,6 +189,7 @@ class IssueCreate(JiraIssueCommand):
             "summary": args.title,
             "description": args.description,
             "issuetype": matching_issuetype,
+            "reporter": {"accountId": self.jira_client.current_user()},
         }
 
         if args.labels:
@@ -257,8 +258,8 @@ class IssueCreate(JiraIssueCommand):
         # Check if we have all mandatory fields
         missing_fields = []
         for field_id, field_info in mandatory_fields.items():
-            # Skip fields that we already handle (summary, description, project, issuetype)
-            if field_id in ['summary', 'description', 'project', 'issuetype']:
+            # Skip fields that we already handle (summary, description, project, issuetype, reporter)
+            if field_id in ['summary', 'description', 'project', 'issuetype', 'reporter']:
                 continue
 
             # Check if this mandatory field is missing
