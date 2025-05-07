@@ -223,9 +223,9 @@ class IssueCreate(JiraIssueCommand):
 
         # Print the mandatory fields
         if mandatory_fields:
-            self.log.error(f"Mandatory fields for {matching_issuetype['name']} in {args.project}:")
+            self.log.debug(f"Mandatory fields for {matching_issuetype['name']} in {args.project}:")
             for field_id, field_info in mandatory_fields.items():
-                self.log.error(f"  {field_info['name'].lower().replace(" ", "_")} ({field_id})")
+                self.log.debug(f"  {field_info['name'].lower().replace(" ", "_")} ({field_id})")
 
         # Apply individual field arguments
         if args.custom_fields:
