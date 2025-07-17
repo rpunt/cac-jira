@@ -28,6 +28,13 @@ class IssueClose(JiraIssueCommand):
             default=None,
             required=True,
         )
+        parser.add_argument(
+            "-c",
+            "--comment",
+            help="Comment to add when transitioning to Blocked",
+            default=None,
+            required=False,
+        )
         return parser
 
     def execute(self, args):
@@ -40,16 +47,20 @@ class IssueClose(JiraIssueCommand):
         # Get all available transitions for the issue
         transitions = self.jira_client.transitions(issue)
 
-        # Find the transition ID where name is "In Progress"
-        closed_id = None
+        # Find the transition ID where name is "Done"
+        transition_id = None
+        transition_name = None
         desired_transition = "Done"
         for transition in transitions:
-            if transition['name'] == desired_transition:
-                closed_id = transition['id']
-                self.log.debug("Found '%s' transition with ID: %s", desired_transition, closed_id)
+            if transition["name"].upper() == desired_transition.upper():
+                transition_id = transition['id']
+                transition_name = transition['name']
+                self.log.debug(
+                    "Found '%s' transition with ID: %s", transition_name, transition_id
+                )
                 break
 
-        if not closed_id:
+        if not transition_id:
             self.log.error("No '%s' transition found for this issue", desired_transition)
             # List all available transitions
             self.log.info("Available transitions:")
@@ -57,8 +68,12 @@ class IssueClose(JiraIssueCommand):
                 self.log.info("  - %s (ID: %s)", transition['name'], transition['id'])
             return
 
+        # Transition the issue to "Done"
         try:
-            self.jira_client.transition_issue(issue, closed_id)
-            self.log.info("Issue %s closed", issue.key)
+            self.jira_client.transition_issue(issue, transition_id)
+            if args.comment:
+                self.jira_client.add_comment(issue, args.comment)
+                self.log.info('Added comment: "%s"', args.comment)
+            self.log.info('Issue %s transitioned to "%s"', issue.key, transition_name)
         except Exception as e:
             self.log.error("Failed to transition issue: %s", str(e))
