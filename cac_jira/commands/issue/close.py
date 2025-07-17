@@ -31,7 +31,7 @@ class IssueClose(JiraIssueCommand):
         parser.add_argument(
             "-c",
             "--comment",
-            help="Comment to add when transitioning to Blocked",
+            help="Comment to add when transitioning to Done",
             default=None,
             required=False,
         )
