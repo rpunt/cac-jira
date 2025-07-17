@@ -1,5 +1,12 @@
-# #!/usr/bin/env python
-# pylint: disable=no-member, broad-exception-caught
+"""
+Module for handling the start of work on Jira issues.
+
+This module provides functionality to transition Jira issues to an "In Progress" state,
+indicating that work has begun on the issue. This allows teams to track which issues
+are actively being worked on and by whom.
+"""
+
+# pylint: disable=broad-exception-caught
 
 from cac_jira.commands.issue import JiraIssueCommand
 
@@ -46,15 +53,20 @@ class IssueBegin(JiraIssueCommand):
         transitions = self.jira_client.transitions(issue)
 
         # Find the transition ID where name is "In Progress"
-        in_progress_id = None
+        transition_id = None
+        transition_name = None
+        desired_transition = "In Progress"
         for transition in transitions:
-            if transition['name'] == "In Progress":
-                in_progress_id = transition['id']
-                self.log.debug("Found 'In Progress' transition with ID: %s", in_progress_id)
+            if transition['name'].upper() == desired_transition.upper():
+                transition_id = transition['id']
+                transition_name = transition['name']
+                self.log.debug(
+                    "Found '%s' transition with ID: %s", transition_name, transition_id
+                )
                 break
 
-        if not in_progress_id:
-            self.log.error("No 'In Progress' transition found for this issue")
+        if not transition_id:
+            self.log.error("No '%s' transition found for this issue", desired_transition)
             # List all available transitions
             self.log.info("Available transitions:")
             for transition in transitions:
@@ -63,7 +75,7 @@ class IssueBegin(JiraIssueCommand):
 
         # Transition the issue to "In Progress"
         try:
-            self.jira_client.transition_issue(issue, in_progress_id)
-            self.log.info("Issue %s transitioned to In Progress", issue.key)
+            self.jira_client.transition_issue(issue, transition_id)
+            self.log.info('Issue %s transitioned to "%s"', issue.key, transition_name)
         except Exception as e:
             self.log.error("Failed to transition issue: %s", str(e))

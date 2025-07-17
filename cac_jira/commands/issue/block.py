@@ -1,9 +1,9 @@
 """
-Module for handling the closure of Jira issues.
+Module for handling the blocking of Jira issues.
 
-This module provides functionality to transition Jira issues to a "Done" state,
-marking them as complete. Users can optionally add a closing comment to provide
-context about the resolution of the issue.
+This module provides functionality to transition Jira issues to a "Blocked" state,
+allowing users to mark issues that cannot proceed due to dependencies or other obstacles.
+Users can optionally add a comment explaining why the issue is being blocked.
 """
 
 # pylint: disable=broad-exception-caught
@@ -11,9 +11,9 @@ context about the resolution of the issue.
 from cac_jira.commands.issue import JiraIssueCommand
 
 
-class IssueClose(JiraIssueCommand):
+class IssueBlock(JiraIssueCommand):
     """
-    Command class for transitioning Jira issues to "Done".
+    Command class for transitioning Jira issues to "Blocked".
     """
 
     def define_arguments(self, parser):
@@ -23,25 +23,34 @@ class IssueClose(JiraIssueCommand):
         Args:
             parser: The argument parser to add arguments to
         """
+        # Add common arguments first
         super().define_arguments(parser)
         parser.add_argument(
             "-i",
             "--issue",
-            help="Issue to match",
+            help="Issue to transition to Blocked",
             default=None,
             required=True,
         )
         parser.add_argument(
             "-c",
             "--comment",
-            help="Comment to add when transitioning to Done",
+            help="Comment to add when transitioning to Blocked",
             default=None,
             required=False,
         )
         return parser
 
     def execute(self, args):
-        self.log.debug("Closing Jira issue %s", args.issue)
+        """
+        Execute the command with the provided arguments.
+
+        Args:
+            args: The parsed arguments
+        """
+        self.log.debug("Transitioning Jira issue %s to Blocked", args.issue)
+
+        # Get the issue
         issue = self.jira_client.issue(args.issue)
         if not issue:
             self.log.error("Issue not found")
@@ -50,10 +59,10 @@ class IssueClose(JiraIssueCommand):
         # Get all available transitions for the issue
         transitions = self.jira_client.transitions(issue)
 
-        # Find the transition ID where name is "Done"
+        # Find the transition ID where name is "Blocked" (case-insensitive)
         transition_id = None
         transition_name = None
-        desired_transition = "Done"
+        desired_transition = "Blocked"
         for transition in transitions:
             if transition["name"].upper() == desired_transition.upper():
                 transition_id = transition['id']
@@ -71,7 +80,7 @@ class IssueClose(JiraIssueCommand):
                 self.log.info("  - %s (ID: %s)", transition['name'], transition['id'])
             return
 
-        # Transition the issue to "Done"
+        # Transition the issue to "Blocked"
         try:
             self.jira_client.transition_issue(issue, transition_id)
             if args.comment:
