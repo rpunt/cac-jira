@@ -80,5 +80,9 @@ class IssueBlock(JiraIssueCommand):
                 self.jira_client.add_comment(issue, args.comment)
                 self.log.info('Added comment: "%s"', args.comment)
             self.log.info('Issue %s transitioned to "%s"', issue.key, transition_name)
+        except self.jira_client.exceptions.JiraError as e:
+            self.log.error("Jira API error occurred: %s", str(e))
+        except requests.exceptions.RequestException as e:
+            self.log.error("Network error occurred: %s", str(e))
         except Exception as e:
-            self.log.error("Failed to transition issue: %s", str(e))
+            self.log.error("An unexpected error occurred: %s", str(e))
