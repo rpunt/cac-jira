@@ -1,5 +1,12 @@
-# #!/usr/bin/env python
-# pylint: disable=no-member, broad-exception-caught
+"""
+Module for handling the start of work on Jira issues.
+
+This module provides functionality to transition Jira issues to an "In Progress" state,
+indicating that work has begun on the issue. This allows teams to track which issues
+are actively being worked on and by whom.
+"""
+
+# pylint: disable=broad-exception-caught
 
 from cac_jira.commands.issue import JiraIssueCommand
 

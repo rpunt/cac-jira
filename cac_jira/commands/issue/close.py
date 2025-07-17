@@ -1,16 +1,19 @@
-#!/usr/bin/env python
-# pylint: disable=line-too-long, import-outside-toplevel, broad-exception-caught
+"""
+Module for handling the closure of Jira issues.
 
+This module provides functionality to transition Jira issues to a "Done" state,
+marking them as complete. Users can optionally add a closing comment to provide
+context about the resolution of the issue.
 """
-Command module for transitioning Jira issues to "Done".
-"""
+
+# pylint: disable=broad-exception-caught
 
 from cac_jira.commands.issue import JiraIssueCommand
 
 
 class IssueClose(JiraIssueCommand):
     """
-    Command class for creating Jira issues.
+    Command class for transitioning Jira issues to "Done".
     """
 
     def define_arguments(self, parser):
