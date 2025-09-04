@@ -144,7 +144,6 @@ class JiraClient:
             The list of issues
         """
         max_results = False  # set to an int to cap the return count, or False to paginate them all
-        # all_issues = []
         issues = self.client.enhanced_search_issues(
             jql_str=jql,
             maxResults=max_results,
