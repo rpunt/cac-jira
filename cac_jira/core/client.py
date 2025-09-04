@@ -143,37 +143,23 @@ class JiraClient:
         Returns:
             The list of issues
         """
-        # return self.client.search_issues(jql)
-        start_at = 0
-        max_results = 50  # Number of issues to fetch per request
-        all_issues = []
-        while True:
-            issues = self.client.search_issues(
-                jql,
-                startAt=start_at,
-                maxResults=max_results,
-                fields=[
-                    "key",
-                    "summary",
-                    "status",
-                    "assignee",
-                    "issuetype",
-                    "labels",
-                    "resolutiondate",
-                ],
-            )
+        max_results = False  # set to an int to cap the return count, or False to paginate them all
+        # all_issues = []
+        issues = self.client.enhanced_search_issues(
+            jql_str=jql,
+            maxResults=max_results,
+            fields=[
+                "key",
+                "summary",
+                "status",
+                "assignee",
+                "issuetype",
+                "labels",
+                "resolutiondate",
+            ],
+        )
 
-            all_issues.extend(issues)
-
-            # Break the loop if we've fetched all issues
-            if len(issues) < max_results:
-                break
-
-            # Update startAt for the next batch
-            start_at += max_results
-            # TODO: this doesn't actually log, maybe the wrong logger?
-            log.debug("Fetched %d issues", len(all_issues))
-        return all_issues
+        return issues
 
     def delete_issue(self, issue_id):
         """
