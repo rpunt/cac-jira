@@ -39,13 +39,6 @@ if jira_server == "INVALID_DEFAULT":
     CONFIG.server = jira_server
     CONFIG.save()
 
-jira_username = CONFIG.get('username', 'INVALID_DEFAULT')
-if jira_username == "INVALID_DEFAULT":
-    jira_username = input("Enter your Jira username (email): ").strip()
-    CONFIG.set("username", jira_username)
-    CONFIG.username = jira_username
-    CONFIG.save()
-
 jira_project = CONFIG.get('project', 'INVALID_DEFAULT')
 if jira_project == "INVALID_DEFAULT":
     jira_project = input("Enter your default Jira project key (optional): ").strip()
@@ -71,8 +64,10 @@ if auth_method == "pat":
 else:
     jira_username = CONFIG.get('username', 'INVALID_DEFAULT')
     if jira_username == "INVALID_DEFAULT":
-        log.error("Invalid username in %s: %s", CONFIG.config_file, jira_username)
-        sys.exit(1)
+        jira_username = input("Enter your Jira username (email): ").strip()
+        CONFIG.set("username", jira_username)
+        CONFIG.username = jira_username
+        CONFIG.save()
     jira_api_token = credentialmanager.get_credential(
         jira_username,
         "Jira API key",

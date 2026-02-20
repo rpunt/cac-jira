@@ -31,6 +31,7 @@ def _cleanup_cac_jira():
 
 def _make_config_mock(config_dict):
     """Create a mock Config that returns values from the given dict."""
+    config_dict.setdefault("project", "TEST")
     mock_config = MagicMock()
     mock_config.get.side_effect = lambda key, default=None: config_dict.get(key, default)
     mock_config.config_file = "/mock/config"
@@ -114,21 +115,28 @@ class TestBasicAuthInit:
             basic_auth=("user@example.com", "api-token-123"),
         )
 
+    @patch("builtins.input", return_value="prompted@example.com")
+    @patch("jira.JIRA")
     @patch("cac_core.credentialmanager.CredentialManager")
     @patch("cac_core.config.Config")
     @patch("cac_core.updatechecker.check_package_for_updates")
-    def test_basic_auth_exits_on_missing_username(
-        self, mock_update, mock_config_class, mock_cred_class
+    def test_basic_auth_prompts_on_missing_username(
+        self, mock_update, mock_config_class, mock_cred_class, mock_jira, mock_input
     ):
-        """Test that basic auth exits when username is INVALID_DEFAULT."""
-        mock_config_class.return_value = _make_config_mock({
+        """Test that basic auth prompts when username is INVALID_DEFAULT."""
+        mock_config = _make_config_mock({
             "server": "jira.example.com",
             "auth_method": "basic",
             "username": "INVALID_DEFAULT",
         })
+        mock_config_class.return_value = mock_config
+        mock_cred_class.return_value = _make_cred_mock("api-token-123")
 
-        with pytest.raises(SystemExit):
-            _reimport_cac_jira()
+        cac_jira = _reimport_cac_jira()
+
+        mock_input.assert_called_once_with("Enter your Jira username (email): ")
+        mock_config.set.assert_any_call("username", "prompted@example.com")
+        mock_config.save.assert_called()
 
     @patch("cac_core.credentialmanager.CredentialManager")
     @patch("cac_core.config.Config")
