@@ -30,16 +30,27 @@ CONFIG = cac.config.Config(__name__)
 
 log.debug("user config path: %s", CONFIG.config_file)
 
-# TODO: prompt user for server and username if not set
 jira_server = CONFIG.get("server", "INVALID_DEFAULT").replace("https://", "")
 if jira_server == "INVALID_DEFAULT":
-    log.error("Invalid server in %s: %s", CONFIG.config_file, jira_server)
-    sys.exit(1)
+    jira_server = input("Enter your Jira server URL: ").strip().replace("https://", "")
+    CONFIG.set("server", jira_server)
+    CONFIG.server = jira_server
+    CONFIG.save()
 
 jira_username = CONFIG.get('username', 'INVALID_DEFAULT')
 if jira_username == "INVALID_DEFAULT":
-    log.error("Invalid username in %s: %s", CONFIG.config_file, jira_username)
-    sys.exit(1)
+    jira_username = input("Enter your Jira username (email): ").strip()
+    CONFIG.set("username", jira_username)
+    CONFIG.username = jira_username
+    CONFIG.save()
+
+jira_project = CONFIG.get('project', 'INVALID_DEFAULT')
+if jira_project == "INVALID_DEFAULT":
+    jira_project = input("Enter your default Jira project key (optional): ").strip()
+    if jira_project:
+        CONFIG.set("project", jira_project)
+        CONFIG.project = jira_project
+        CONFIG.save()
 
 credentialmanager = cac.credentialmanager.CredentialManager(__name__)
 jira_api_token = credentialmanager.get_credential(
