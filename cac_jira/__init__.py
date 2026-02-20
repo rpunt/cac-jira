@@ -37,13 +37,6 @@ if jira_server == "INVALID_DEFAULT":
     CONFIG.server = jira_server
     CONFIG.save()
 
-jira_username = CONFIG.get("username", "INVALID_DEFAULT")
-if jira_username == "INVALID_DEFAULT":
-    jira_username = input("Enter your Jira username (email): ").strip()
-    CONFIG.set("username", jira_username)
-    CONFIG.username = jira_username
-    CONFIG.save()
-
 jira_project = CONFIG.get("project", "INVALID_DEFAULT")
 if jira_project == "INVALID_DEFAULT":
     jira_project = input("Enter your default Jira project key (optional): ").strip()
