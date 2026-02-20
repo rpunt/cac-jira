@@ -112,15 +112,10 @@ def show_command_help(command):
 #         pass
 
 
-def setup_logging(verbose: bool) -> logging.Logger:
+def setup_logging(log: logging.Logger, verbose: bool) -> None:
     """Configure logging based on command line arguments"""
-    log = cac.logger.new(__name__)
     if verbose:
         log.setLevel(logging.DEBUG)
-    # if getattr(args, 'show_log_format', False):
-    #     print(f"Log format: {cac.logger.get_formatter_string()}")
-    #     sys.exit(0)
-    return log
 
 
 def main():
@@ -131,6 +126,7 @@ def main():
     loads and executes the appropriate module and action based on user input.
     """
     log = cac.logger.new(__name__)
+    log.propagate = False
 
     # Create parent parser for global arguments
     parent_parser = argparse.ArgumentParser(add_help=False)
@@ -202,8 +198,7 @@ def main():
     # Parse arguments
     args = parser.parse_args()
 
-    log = setup_logging(args.verbose)
-    # log = setup_logging(False)
+    setup_logging(log, args.verbose)
     log.debug("Parsed arguments: %s", args)
 
     # Add to main function, after argument parsing but before execution
