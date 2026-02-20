@@ -12,7 +12,7 @@ pip install cac-jira
 
 ## Authentication
 
-On first-run, you'll be prompted for a Jira API token; generate one [here](https://id.atlassian.com/manage-profile/security/api-tokens). This will be stored in your system credential store (e.g. Keychain on Mac OS) in an items called `cac-jira`.
+On first-run, you'll be prompted for a Jira API token; generate one [here](https://id.atlassian.com/manage-profile/security/api-tokens). This will be stored in your system credential store (e.g. Keychain on Mac OS) in an item called `cac-jira`.
 
 ## Configuration
 
