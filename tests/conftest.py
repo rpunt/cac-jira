@@ -6,7 +6,7 @@ are collected and trigger cac_jira package imports.
 """
 
 import os
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 # Set config values via environment variables so cac_jira.__init__
 # doesn't prompt for input. The Config class reads env vars prefixed

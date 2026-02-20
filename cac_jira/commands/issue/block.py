@@ -65,19 +65,21 @@ class IssueBlock(JiraIssueCommand):
         desired_transition = "Blocked"
         for transition in transitions:
             if transition["name"].upper() == desired_transition.upper():
-                transition_id = transition['id']
-                transition_name = transition['name']
+                transition_id = transition["id"]
+                transition_name = transition["name"]
                 self.log.debug(
                     "Found '%s' transition with ID: %s", transition_name, transition_id
                 )
                 break
 
         if not transition_id:
-            self.log.error("No '%s' transition found for this issue", desired_transition)
+            self.log.error(
+                "No '%s' transition found for this issue", desired_transition
+            )
             # List all available transitions
             self.log.info("Available transitions:")
             for transition in transitions:
-                self.log.info("  - %s (ID: %s)", transition['name'], transition['id'])
+                self.log.info("  - %s (ID: %s)", transition["name"], transition["id"])
             return
 
         # Transition the issue to "Blocked"

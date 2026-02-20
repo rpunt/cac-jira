@@ -8,7 +8,9 @@ action classes should inherit from.
 """
 
 import abc
+
 from cac_jira.commands.command import JiraCommand
+
 
 class JiraIssueCommand(JiraCommand):
     """
@@ -17,6 +19,7 @@ class JiraIssueCommand(JiraCommand):
     This class defines common methods and properties that should be shared
     across all issue actions, such as issue-specific arguments and utilities.
     """
+
     @abc.abstractmethod
     def define_arguments(self, parser):
         """

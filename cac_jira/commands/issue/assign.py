@@ -3,6 +3,7 @@
 
 from cac_jira.commands.issue import JiraIssueCommand
 
+
 class IssueAssign(JiraIssueCommand):
     """
     Command class for assigning Jira issues.
@@ -33,6 +34,8 @@ class IssueAssign(JiraIssueCommand):
         Args:
             args: The parsed arguments
         """
-        self.log.debug("Assigning Jira issue %s to %s", args.issue, self.config.username)
+        self.log.debug(
+            "Assigning Jira issue %s to %s", args.issue, self.config.username
+        )
         self.jira_client.assign_issue(args.issue, self.config.username)
         self.log.info("Issue assigned")

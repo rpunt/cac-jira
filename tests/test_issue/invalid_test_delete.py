@@ -8,8 +8,9 @@ This module tests the functionality of the IssueDelete command, including:
 """
 
 import argparse
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from cac_jira.commands.issue.delete import IssueDelete
 

@@ -7,14 +7,13 @@ This script provides examples of how to use the Jira CLI by directly
 invoking different commands and actions.
 """
 
-import sys
 import argparse
+import sys
+
 from cac_jira.cli.main import main
-from cac_jira.commands.issue import JiraIssueCommand
 from cac_jira.commands.issue.list import IssueList
-from cac_jira.commands.issue.create import IssueCreate
-from cac_jira.commands.project import JiraProjectCommand
 from cac_jira.commands.project.list import ProjectList
+
 
 def test_cli_direct():
     """Test the CLI by directly calling the main function with different arguments."""
@@ -22,18 +21,25 @@ def test_cli_direct():
 
     # Test 1: Issue list command
     print("\n-- Testing 'jira issue list' command --")
-    sys.argv = ["jira", "issue", "list", "--project", "TEST"] #, "--limit", "5"] #, "--verbose"]
+    sys.argv = [
+        "jira",
+        "issue",
+        "list",
+        "--project",
+        "TEST",
+    ]  # , "--limit", "5"] #, "--verbose"]
     main()
 
     # Test 2: Project list command
     print("\n-- Testing 'jira project list' command --")
-    sys.argv = ["jira", "project", "list"] #, "--archived"] #, "--verbose"]
+    sys.argv = ["jira", "project", "list"]  # , "--archived"] #, "--verbose"]
     main()
 
     # # Test 3: Issue create command
     # print("\n-- Testing 'jira issue create' command --")
     # sys.argv = ["jira", "issue", "create", "--project", "TEST", "--summary", "Test Issue"] #, "--verbose"]
     # main()
+
 
 def test_command_classes():
     """Test by directly instantiating and using command classes."""
@@ -44,7 +50,9 @@ def test_command_classes():
     issue_list = IssueList()
     parser = argparse.ArgumentParser()
     issue_list.define_arguments(parser)
-    args = parser.parse_args(["--project", "TEST"]) #, "--limit", "10"]) #, "--server", "https://jira.example.com"])
+    args = parser.parse_args(
+        ["--project", "TEST"]
+    )  # , "--limit", "10"]) #, "--server", "https://jira.example.com"])
     issue_list.execute(args)
 
     # # Test ProjectList command
@@ -77,6 +85,7 @@ def test_command_classes():
     # ])
     # issue_create.execute(args)
 
+
 def main_test():
     """Main test function."""
     print("Starting Jira CLI tests...")
@@ -94,6 +103,7 @@ def main_test():
         print(f"Error testing via direct class instantiation: {e}")
 
     print("\nTest completed.")
+
 
 if __name__ == "__main__":
     main_test()

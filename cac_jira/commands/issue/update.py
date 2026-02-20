@@ -22,6 +22,7 @@ Example usage:
 
 from cac_jira.commands.issue import JiraIssueCommand
 
+
 class IssueUpdate(JiraIssueCommand):
     """
     Command class for updating the title or description on Jira issues.
