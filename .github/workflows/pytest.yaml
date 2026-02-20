@@ -33,4 +33,4 @@ jobs:
       - name: Test with pytest
         run: |
           pip install pytest pytest-cov
-          pytest --doctest-modules --cov=cac_core --cov-report=term-missing
+          pytest --cov=cac_jira --cov-report=term-missing
