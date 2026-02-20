@@ -6,7 +6,9 @@ Command module for creating Jira issues.
 """
 
 import webbrowser
+
 from cac_jira.commands.issue import JiraIssueCommand
+
 
 class IssueCreate(JiraIssueCommand):
     """
@@ -24,24 +26,14 @@ class IssueCreate(JiraIssueCommand):
         super().define_arguments(parser)
 
         # Add action-specific arguments
+        parser.add_argument("-t", "--title", help="Issue title", required=True)
         parser.add_argument(
-            "-t",
-            "--title",
-            help="Issue title",
-            required=True
-        )
-        parser.add_argument(
-            "-d",
-            "--description",
-            help="Issue description",
-            required=True
+            "-d", "--description", help="Issue description", required=True
         )
 
         # TODO: get list of valid types from Jira
         parser.add_argument(
-            "--type",
-            help="Issue type (Bug, Task, Story, etc.)",
-            default="Task"
+            "--type", help="Issue type (Bug, Task, Story, etc.)", default="Task"
         )
 
         # parser.add_argument(
@@ -54,34 +46,30 @@ class IssueCreate(JiraIssueCommand):
             "--assign",
             help="'Assign the issue to yourself?",
             action="store_true",
-            default=False
+            default=False,
         )
 
         parser.add_argument(
-            "--begin",
-            help="Mark issue in-progress",
-            action="store_true",
-            default=False
+            "--begin", help="Mark issue in-progress", action="store_true", default=False
         )
 
         parser.add_argument(
-            "--epic",
-            help="Tie this issue to an existing Epic",
-            default=None
+            "--epic", help="Tie this issue to an existing Epic", default=None
         )
 
         parser.add_argument(
             "--labels",
             help="A comma-separated list of labels to apply to the issue",
-            default=None
+            default=None,
         )
 
-        parser.add_argument(
-            "--epic_name", help="Name your Epic", default=None
-        )
+        parser.add_argument("--epic_name", help="Name your Epic", default=None)
 
         parser.add_argument(
-            "--browse", help="Open the issue in your browser once created", action="store_true", default=False
+            "--browse",
+            help="Open the issue in your browser once created",
+            action="store_true",
+            default=False,
         )
 
         # Add a custom argument for additional fields
@@ -91,7 +79,7 @@ class IssueCreate(JiraIssueCommand):
             nargs=2,
             metavar=("FIELD_ID", "VALUE"),
             help="Specify custom field values in the format: --field fieldId value",
-            dest="custom_fields"
+            dest="custom_fields",
         )
 
         return parser
@@ -107,13 +95,15 @@ class IssueCreate(JiraIssueCommand):
         Returns:
             dict: Dictionary of field_id -> field_name for mandatory fields
         """
-        self.log.debug(f"Getting mandatory fields for {issuetype_name} in {project_key}")
+        self.log.debug(
+            f"Getting mandatory fields for {issuetype_name} in {project_key}"
+        )
 
         # Get the create metadata for this project and issue type
         metadata = self.jira_client.createmeta(
             projectKeys=project_key,
             issuetypeNames=issuetype_name,
-            expand='projects.issuetypes.fields'
+            expand="projects.issuetypes.fields",
         )
 
         # Extract the fields from the metadata
@@ -121,17 +111,17 @@ class IssueCreate(JiraIssueCommand):
 
         try:
             # Navigate the nested structure to get to the fields
-            project_meta = metadata['projects'][0]
-            issuetype_meta = project_meta['issuetypes'][0]
-            fields = issuetype_meta['fields']
+            project_meta = metadata["projects"][0]
+            issuetype_meta = project_meta["issuetypes"][0]
+            fields = issuetype_meta["fields"]
 
             # Identify mandatory fields (required=True)
             for field_id, field_info in fields.items():
-                if field_info.get('required', False):
+                if field_info.get("required", False):
                     mandatory_fields[field_id] = {
-                        'name': field_info['name'],
-                        'schema': field_info.get('schema', {}),
-                        'allowed_values': field_info.get('allowedValues', []),
+                        "name": field_info["name"],
+                        "schema": field_info.get("schema", {}),
+                        "allowed_values": field_info.get("allowedValues", []),
                     }
 
             return mandatory_fields
@@ -177,7 +167,9 @@ class IssueCreate(JiraIssueCommand):
                     break
 
             if matching_issuetype is None:
-                raise ValueError(f"Invalid issue type '{args.type}' for project '{args.project}'\nValid issue types are: {', '.join(valid_types)}")
+                raise ValueError(
+                    f"Invalid issue type '{args.type}' for project '{args.project}'\nValid issue types are: {', '.join(valid_types)}"
+                )
 
         except Exception as e:
             print(f"Error: {e}")
@@ -194,7 +186,7 @@ class IssueCreate(JiraIssueCommand):
 
         if args.labels:
             self.log.debug("Adding labels: %s", args.labels)
-            fieldset['labels'] = args.labels.split(',')
+            fieldset["labels"] = args.labels.split(",")
 
         if args.epic:
             epic = self.jira_client.issue(args.epic).key
@@ -214,18 +206,23 @@ class IssueCreate(JiraIssueCommand):
         #         epic_name_field = self.jira_client.Field.all().select(lambda f: f.name == 'Epic Name').first().id
         #         fieldset[epic_name_field] = args.epic_name
 
-        mandatory_fields = self.get_mandatory_fields(args.project, matching_issuetype["name"])
+        mandatory_fields = self.get_mandatory_fields(
+            args.project, matching_issuetype["name"]
+        )
 
         # Create a mapping from field names to field IDs (both lowercase for case-insensitive matching)
         field_name_to_id = {}
         for field_id, field_info in mandatory_fields.items():
-            field_name_to_id[field_info['name'].lower().replace(" ", "_")] = field_id
+            field_name_to_id[field_info["name"].lower().replace(" ", "_")] = field_id
 
         # Print the mandatory fields
         if mandatory_fields:
-            self.log.debug(f"Mandatory fields for {matching_issuetype['name']} in {args.project}:")
+            self.log.debug(
+                f"Mandatory fields for {matching_issuetype['name']} in {args.project}:"
+            )
             for field_id, field_info in mandatory_fields.items():
-                self.log.debug(f"  {field_info['name'].lower().replace(" ", "_")} ({field_id})")
+                field_label = field_info["name"].lower().replace(" ", "_")
+                self.log.debug(f"  {field_label} ({field_id})")
 
         # Apply individual field arguments
         if args.custom_fields:
@@ -236,20 +233,22 @@ class IssueCreate(JiraIssueCommand):
                 # Try to match the field name (case-insensitive)
                 if field_name_or_id.lower() in field_name_to_id:
                     field_id = field_name_to_id[field_name_or_id.lower()]
-                    self.log.debug(f"Mapped field name '{field_name_or_id}' to ID '{field_id}'")
+                    self.log.debug(
+                        f"Mapped field name '{field_name_or_id}' to ID '{field_id}'"
+                    )
 
                 # Handle special field types
                 if field_id.startswith("customfield_"):
                     # Try to determine field type from schema
-                    field_schema = mandatory_fields.get(field_id, {}).get('schema', {})
-                    field_type = field_schema.get('type')
+                    field_schema = mandatory_fields.get(field_id, {}).get("schema", {})
+                    field_type = field_schema.get("type")
 
-                    if field_type == 'array':
+                    if field_type == "array":
                         # Handle array fields by splitting on comma
-                        fieldset[field_id] = value.split(',')
-                    elif field_type == 'option':
+                        fieldset[field_id] = value.split(",")
+                    elif field_type == "option":
                         # Handle option fields
-                        fieldset[field_id] = {'value': value}
+                        fieldset[field_id] = {"value": value}
                     else:
                         fieldset[field_id] = value
                 else:
@@ -259,12 +258,19 @@ class IssueCreate(JiraIssueCommand):
         missing_fields = []
         for field_id, field_info in mandatory_fields.items():
             # Skip fields that we already handle (summary, description, project, issuetype, reporter)
-            if field_id in ['summary', 'description', 'project', 'issuetype', 'reporter']:
+            if field_id in [
+                "summary",
+                "description",
+                "project",
+                "issuetype",
+                "reporter",
+            ]:
                 continue
 
             # Check if this mandatory field is missing
             if field_id not in fieldset:
-                missing_fields.append(f"{field_info['name'].lower().replace(" ", "_")} ({field_id})")
+                field_label = field_info["name"].lower().replace(" ", "_")
+                missing_fields.append(f"{field_label} ({field_id})")
 
         # If there are missing mandatory fields, warn the user
         if missing_fields:
@@ -289,6 +295,7 @@ class IssueCreate(JiraIssueCommand):
                 # Prepare args for the begin command
                 # We need to simulate args with an 'issue' attribute containing the new issue key
                 from argparse import Namespace
+
                 begin_args = Namespace(issue=issue.key)
 
                 # Execute the begin command with our constructed args

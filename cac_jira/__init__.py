@@ -7,14 +7,12 @@ module docstring
 # import os
 import sys
 from importlib import metadata
+
 import cac_core as cac
+
 # import yaml
 # import keyring
-import cac_jira.core.client as client
-
-if sys.version_info < (3, 9):
-    print("This project requires Python 3.9 or higher.", file=sys.stderr)
-    sys.exit(1)
+from cac_jira.core import client
 
 cac.updatechecker.check_package_for_updates(__name__)
 
@@ -39,7 +37,14 @@ if jira_server == "INVALID_DEFAULT":
     CONFIG.server = jira_server
     CONFIG.save()
 
-jira_project = CONFIG.get('project', 'INVALID_DEFAULT')
+jira_username = CONFIG.get("username", "INVALID_DEFAULT")
+if jira_username == "INVALID_DEFAULT":
+    jira_username = input("Enter your Jira username (email): ").strip()
+    CONFIG.set("username", jira_username)
+    CONFIG.username = jira_username
+    CONFIG.save()
+
+jira_project = CONFIG.get("project", "INVALID_DEFAULT")
 if jira_project == "INVALID_DEFAULT":
     jira_project = input("Enter your default Jira project key (optional): ").strip()
     if jira_project:

@@ -9,8 +9,10 @@ command actions.
 """
 
 import abc
+
 from cac_core.command import Command
-from cac_jira import JIRA_CLIENT, CONFIG, log
+
+from cac_jira import CONFIG, JIRA_CLIENT, log
 
 
 class JiraCommand(Command):

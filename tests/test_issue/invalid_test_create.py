@@ -9,8 +9,9 @@ This module tests the functionality of the IssueCreate command, including:
 """
 
 import argparse
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from cac_jira.commands.issue.create import IssueCreate
 

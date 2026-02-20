@@ -7,7 +7,9 @@ Command module for listing Jira issues.
 
 # import argparse
 from datetime import datetime
+
 import cac_core as cac
+
 from cac_jira.commands.issue import JiraIssueCommand
 
 
@@ -25,8 +27,20 @@ class IssueList(JiraIssueCommand):
         """
         # Add common arguments first
         super().define_arguments(parser)
-        parser.add_argument("-m", "--mine", action="store_true", default=False, help="List issues assigned to the current user")
-        parser.add_argument("-d", "--done", action="store_true", default=False, help="Include issues that are done")
+        parser.add_argument(
+            "-m",
+            "--mine",
+            action="store_true",
+            default=False,
+            help="List issues assigned to the current user",
+        )
+        parser.add_argument(
+            "-d",
+            "--done",
+            action="store_true",
+            default=False,
+            help="Include issues that are done",
+        )
 
         return parser
 
@@ -64,8 +78,18 @@ class IssueList(JiraIssueCommand):
 
         models = []
         for issue in total_issues:
-            assignee = issue.fields.assignee.displayName if issue.fields.assignee else 'Unassigned'
-            resolution_date = datetime.strptime(issue.fields.resolutiondate, '%Y-%m-%dT%H:%M:%S.%f%z').strftime('%Y-%m-%d') if issue.fields.resolutiondate else 'N/A'
+            assignee = (
+                issue.fields.assignee.displayName
+                if issue.fields.assignee
+                else "Unassigned"
+            )
+            resolution_date = (
+                datetime.strptime(
+                    issue.fields.resolutiondate, "%Y-%m-%dT%H:%M:%S.%f%z"
+                ).strftime("%Y-%m-%d")
+                if issue.fields.resolutiondate
+                else "N/A"
+            )
 
             model = cac.model.Model(
                 {

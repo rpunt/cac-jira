@@ -6,8 +6,11 @@ Command module for showing Jira issues.
 """
 
 import json
+
 import cac_core as cac
+
 from cac_jira.commands.issue import JiraIssueCommand
+
 
 class IssueShow(JiraIssueCommand):
     """
@@ -40,14 +43,16 @@ class IssueShow(JiraIssueCommand):
             return
         else:
             models = []
-            model = cac.model.Model({
-                "ID": issue.id,
-                "Key": issue.key,
-                "Summary": issue.fields.summary,
-                "Status": issue.fields.status.name,
-                "Type": issue.fields.issuetype.name,
-                "Priority": issue.fields.priority.name
-            })
+            model = cac.model.Model(
+                {
+                    "ID": issue.id,
+                    "Key": issue.key,
+                    "Summary": issue.fields.summary,
+                    "Status": issue.fields.status.name,
+                    "Type": issue.fields.issuetype.name,
+                    "Priority": issue.fields.priority.name,
+                }
+            )
             models.append(model)
             printer = cac.output.Output(args)
             printer.print_models(models)

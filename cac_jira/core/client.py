@@ -5,8 +5,8 @@
 Jira client module.
 """
 
-import jira
 import cac_core as cac
+import jira
 
 log = cac.logger.new(__name__)
 
@@ -204,6 +204,7 @@ class JiraClient:
             The project
         """
         return self.client.project(project_id)
+
     def project_by_key(self, project_key):
         """
         Get a project by key.
@@ -260,6 +261,7 @@ class JiraClient:
         Get issue types by project ID.
         """
         return self.client.issue_type_by_project(project_id)
+
     def issue_type_by_project_key(self, project_key):
         """
         Get issue types by project key.
@@ -291,8 +293,9 @@ class JiraClient:
         return self.client.createmeta(
             projectKeys=projectKeys,
             issuetypeNames=issuetypeNames,
-            expand=expand or 'projects.issuetypes.fields'
+            expand=expand or "projects.issuetypes.fields",
         )
+
     # def project(self, project_id):
     #     """
     #     Get a project.

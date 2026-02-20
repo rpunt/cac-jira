@@ -12,9 +12,10 @@ extensible, allowing additional commands to be added as needed.
 
 import argparse
 import importlib
-import sys
 import logging
 import os
+import sys
+
 # import pkgutil
 import cac_core as cac
 
@@ -27,7 +28,9 @@ def discover_commands():
         list: A list of command names.
     """
     commands = []
-    commands_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "commands"))
+    commands_dir = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "commands")
+    )
 
     # Check if the commands directory exists
     if not os.path.exists(commands_dir) or not os.path.isdir(commands_dir):
@@ -37,7 +40,11 @@ def discover_commands():
     for item in os.listdir(commands_dir):
         item_path = os.path.join(commands_dir, item)
         # Only consider directories that have an __init__.py file (Python packages)
-        if os.path.isdir(item_path) and os.path.exists(os.path.join(item_path, "__init__.py")) and item != "__pycache__":
+        if (
+            os.path.isdir(item_path)
+            and os.path.exists(os.path.join(item_path, "__init__.py"))
+            and item != "__pycache__"
+        ):
             commands.append(item)
 
     return sorted(commands)
@@ -54,7 +61,9 @@ def discover_actions(command):
         list: A list of action names.
     """
     actions = []
-    command_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "commands", command))
+    command_dir = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "..", "commands", command)
+    )
 
     # Check if the command directory exists
     if not os.path.exists(command_dir) or not os.path.isdir(command_dir):
@@ -103,15 +112,10 @@ def show_command_help(command):
 #         pass
 
 
-def setup_logging(verbose: bool) -> logging.Logger:
+def setup_logging(log: logging.Logger, verbose: bool) -> None:
     """Configure logging based on command line arguments"""
-    log = cac.logger.new(__name__)
     if verbose:
         log.setLevel(logging.DEBUG)
-    # if getattr(args, 'show_log_format', False):
-    #     print(f"Log format: {cac.logger.get_formatter_string()}")
-    #     sys.exit(0)
-    return log
 
 
 def main():
@@ -122,12 +126,15 @@ def main():
     loads and executes the appropriate module and action based on user input.
     """
     log = cac.logger.new(__name__)
+    log.propagate = False
 
     # Create parent parser for global arguments
     parent_parser = argparse.ArgumentParser(add_help=False)
 
     # Main parser that inherits from parent
-    parser = argparse.ArgumentParser(prog="jira", description="Jira CLI tool", parents=[parent_parser])
+    parser = argparse.ArgumentParser(
+        prog="jira", description="Jira CLI tool", parents=[parent_parser]
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     # Discover available commands by scanning the commands directory
@@ -139,8 +146,14 @@ def main():
 
     # Set up command structure based on discovered commands
     for command in commands:
-        command_parser = subparsers.add_parser(command, help=f"{command.capitalize()}-related commands", parents=[parent_parser])
-        command_subparsers[command] = command_parser.add_subparsers(dest="action", required=True)
+        command_parser = subparsers.add_parser(
+            command,
+            help=f"{command.capitalize()}-related commands",
+            parents=[parent_parser],
+        )
+        command_subparsers[command] = command_parser.add_subparsers(
+            dest="action", required=True
+        )
 
     # Add all available action parsers up front by scanning directories
     for command, subparser in command_subparsers.items():
@@ -157,14 +170,18 @@ def main():
                 action_class = getattr(module, class_name, None)
 
                 if action_class is None:
-                    log.warning("Class '%s' not found in module '%s'", class_name, module_path)
+                    log.warning(
+                        "Class '%s' not found in module '%s'", class_name, module_path
+                    )
                     continue
 
                 # Instantiate the action class
                 action_instance = action_class()
 
                 # Create parser for this action and let the action define its arguments
-                action_parser = subparser.add_parser(action, help=f"{action} {command}", parents=[parent_parser])
+                action_parser = subparser.add_parser(
+                    action, help=f"{action} {command}", parents=[parent_parser]
+                )
                 action_instance.define_arguments(action_parser)
 
                 # Store the class for later execution
@@ -181,8 +198,7 @@ def main():
     # Parse arguments
     args = parser.parse_args()
 
-    log = setup_logging(args.verbose)
-    # log = setup_logging(False)
+    setup_logging(log, args.verbose)
     log.debug("Parsed arguments: %s", args)
 
     # Add to main function, after argument parsing but before execution
@@ -196,7 +212,7 @@ def main():
     # Execute the appropriate action
     try:
         # Get the action class from the parser defaults
-        action_class = getattr(args, 'action_class', None)
+        action_class = getattr(args, "action_class", None)
 
         if action_class is None:
             log.error("No handler found for %s %s", args.command, args.action)

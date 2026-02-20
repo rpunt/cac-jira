@@ -9,8 +9,9 @@ This module tests the functionality of the IssueList command, including:
 """
 
 import argparse
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from cac_jira.commands.issue.list import IssueList
 
@@ -21,7 +22,7 @@ class TestIssueList:
     @pytest.fixture
     def issue_list_command(self):
         """Create an IssueList command instance."""
-        with patch("cac_jira.JIRA_CLIENT") as mock_client:
+        with patch("cac_jira.JIRA_CLIENT"):
             command = IssueList()
             command.log = MagicMock()
             return command
@@ -60,7 +61,9 @@ class TestIssueList:
         mock_client.search_issues.return_value = []
 
         # Basic query
-        args = argparse.Namespace(project="TEST", mine=False, done=False, output="table")
+        args = argparse.Namespace(
+            project="TEST", mine=False, done=False, output="table"
+        )
         issue_list_command.execute(args)
 
         # Verify search_issues was called
