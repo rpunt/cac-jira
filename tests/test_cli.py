@@ -11,10 +11,7 @@ import argparse
 import sys
 
 from cac_jira.cli.main import main
-from cac_jira.commands.issue import JiraIssueCommand
-from cac_jira.commands.issue.create import IssueCreate
 from cac_jira.commands.issue.list import IssueList
-from cac_jira.commands.project import JiraProjectCommand
 from cac_jira.commands.project.list import ProjectList
 
 

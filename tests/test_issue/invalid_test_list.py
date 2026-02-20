@@ -22,7 +22,7 @@ class TestIssueList:
     @pytest.fixture
     def issue_list_command(self):
         """Create an IssueList command instance."""
-        with patch("cac_jira.JIRA_CLIENT") as mock_client:
+        with patch("cac_jira.JIRA_CLIENT"):
             command = IssueList()
             command.log = MagicMock()
             return command
