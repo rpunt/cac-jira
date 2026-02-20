@@ -16,7 +16,7 @@ class JiraClient:
     Jira client class.
     """
 
-    def __init__(self, server, username, api_token=None):
+    def __init__(self, server, username, api_token=None, auth_method="basic"):
         """
         Initialize the Jira client.
 
@@ -24,10 +24,12 @@ class JiraClient:
             server: The Jira server
             username: The Jira username
             api_token: The Jira API token
+            auth_method: Authentication method ('basic' or 'pat')
         """
         self.server = server
         self.username = username
         self.api_token = api_token
+        self.auth_method = auth_method
         self.client = None
         self.connect()
 
@@ -37,10 +39,16 @@ class JiraClient:
         """
         log.debug("Connecting to Jira server %s", self.server)
         try:
-            self.client = jira.JIRA(
-                f"https://{self.server}",
-                basic_auth=(self.username, self.api_token),
-            )
+            if self.auth_method == "pat":
+                self.client = jira.JIRA(
+                    f"https://{self.server}",
+                    token_auth=self.api_token,
+                )
+            else:
+                self.client = jira.JIRA(
+                    f"https://{self.server}",
+                    basic_auth=(self.username, self.api_token),
+                )
         except Exception as e:
             log.error("Failed to connect to Jira server: %s", e)
             raise

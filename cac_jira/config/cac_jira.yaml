@@ -1,3 +1,4 @@
 server: https://jira.atlassian.com
 project: INVALID_DEFAULT
 username: INVALID_DEFAULT
+auth_method: basic

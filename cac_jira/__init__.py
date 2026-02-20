@@ -36,25 +36,39 @@ if jira_server == "INVALID_DEFAULT":
     log.error("Invalid server in %s: %s", CONFIG.config_file, jira_server)
     sys.exit(1)
 
-jira_username = CONFIG.get('username', 'INVALID_DEFAULT')
-if jira_username == "INVALID_DEFAULT":
-    log.error("Invalid username in %s: %s", CONFIG.config_file, jira_username)
-    sys.exit(1)
+auth_method = CONFIG.get("auth_method", "basic")
 
 credentialmanager = cac.credentialmanager.CredentialManager(__name__)
-jira_api_token = credentialmanager.get_credential(
-    jira_username,
-    "Jira API key",
-)
 
-if not jira_api_token:
-    log.error(
-        "API token not found for %s; see https://github.com/rpunt/%s/blob/main/README.md#authentication",
-        jira_username,
-        __name__.replace("_", "-"),
+if auth_method == "pat":
+    jira_username = CONFIG.get('username', None)
+    jira_api_token = credentialmanager.get_credential(
+        "_pat_token",
+        "Jira Personal Access Token",
     )
-    sys.exit(1)
+    if not jira_api_token:
+        log.error(
+            "Personal Access Token not found; see https://github.com/rpunt/%s/blob/main/README.md#authentication",
+            __name__.replace("_", "-"),
+        )
+        sys.exit(1)
+else:
+    jira_username = CONFIG.get('username', 'INVALID_DEFAULT')
+    if jira_username == "INVALID_DEFAULT":
+        log.error("Invalid username in %s: %s", CONFIG.config_file, jira_username)
+        sys.exit(1)
+    jira_api_token = credentialmanager.get_credential(
+        jira_username,
+        "Jira API key",
+    )
+    if not jira_api_token:
+        log.error(
+            "API token not found for %s; see https://github.com/rpunt/%s/blob/main/README.md#authentication",
+            jira_username,
+            __name__.replace("_", "-"),
+        )
+        sys.exit(1)
 
-JIRA_CLIENT = client.JiraClient(jira_server, jira_username, jira_api_token)
+JIRA_CLIENT = client.JiraClient(jira_server, jira_username, jira_api_token, auth_method=auth_method)
 
 __all__ = ["JIRA_CLIENT", "CONFIG", "log"]

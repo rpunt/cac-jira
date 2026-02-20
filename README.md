@@ -12,7 +12,27 @@ pip install cac-jira
 
 ## Authentication
 
-On first-run, you'll be prompted for a Jira API token; generate one [here](https://id.atlassian.com/manage-profile/security/api-tokens). This will be stored in your system credential store (e.g. Keychain on Mac OS) in an items called `cac-jira`.
+cac-jira supports two authentication methods: **Basic Auth** (default) and **Personal Access Tokens (PAT)**.
+
+### Basic Auth (default)
+
+On first-run, you'll be prompted for a Jira API token; generate one [here](https://id.atlassian.com/manage-profile/security/api-tokens). This will be stored in your system credential store (e.g. Keychain on Mac OS) in an item called `cac-jira`.
+
+### Personal Access Token (PAT)
+
+Some Jira Server/Data Center instances have disabled HTTP Basic Authentication. These instances require Personal Access Tokens, which use `Bearer` token authentication.
+
+> **Note:** PAT authentication is only supported on Jira Server/Data Center. Jira Cloud does not support PATs — use Basic Auth with an API token instead.
+
+To use PAT authentication, set `auth_method: pat` in your config file. On next run you'll be prompted for your PAT, which will be stored in your system credential store.
+
+```yaml
+server: https://your-jira-instance.example.com
+project: YOUR_PROJECT_KEY
+auth_method: pat
+```
+
+Note: `username` is optional when using PAT authentication.
 
 ## Configuration
 
@@ -22,6 +42,7 @@ On first-run, a configuration file will be generated at `~/.config/cac_jira/conf
 server: https://your-jira-instance.atlassian.net
 project: YOUR_PROJECT_KEY  # Optional default project
 username: your.email@example.com
+auth_method: basic  # or 'pat' for Personal Access Token
 ```
 
 ## Usage
