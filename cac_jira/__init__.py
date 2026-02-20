@@ -34,12 +34,14 @@ jira_server = CONFIG.get("server", "INVALID_DEFAULT").replace("https://", "")
 if jira_server == "INVALID_DEFAULT":
     jira_server = input("Enter your Jira server URL: ").strip().replace("https://", "")
     CONFIG.set("server", jira_server)
+    CONFIG.server = jira_server
     CONFIG.save()
 
 jira_username = CONFIG.get('username', 'INVALID_DEFAULT')
 if jira_username == "INVALID_DEFAULT":
     jira_username = input("Enter your Jira username (email): ").strip()
     CONFIG.set("username", jira_username)
+    CONFIG.username = jira_username
     CONFIG.save()
 
 jira_project = CONFIG.get('project', 'INVALID_DEFAULT')
@@ -47,6 +49,7 @@ if jira_project == "INVALID_DEFAULT":
     jira_project = input("Enter your default Jira project key (optional): ").strip()
     if jira_project:
         CONFIG.set("project", jira_project)
+        CONFIG.project = jira_project
         CONFIG.save()
 
 credentialmanager = cac.credentialmanager.CredentialManager(__name__)
