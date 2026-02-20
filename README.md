@@ -36,7 +36,7 @@ Note: `username` is optional when using PAT authentication.
 
 ## Configuration
 
-On first-run, a configuration file will be generated at `~/.config/cac_jira/config.yaml`. In this file you'll need to replace the values of `server` and `username` with appropriate values.
+On first-run, you'll be prompted for your `server`, `username`, and default `project`, and a configuration file will be generated at `~/.config/cac_jira/config.yaml`.
 
 ```yaml
 server: https://your-jira-instance.atlassian.net
