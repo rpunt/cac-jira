@@ -225,7 +225,8 @@ class IssueCreate(JiraIssueCommand):
         if mandatory_fields:
             self.log.debug(f"Mandatory fields for {matching_issuetype['name']} in {args.project}:")
             for field_id, field_info in mandatory_fields.items():
-                self.log.debug(f"  {field_info['name'].lower().replace(" ", "_")} ({field_id})")
+                field_label = field_info['name'].lower().replace(" ", "_")
+                self.log.debug(f"  {field_label} ({field_id})")
 
         # Apply individual field arguments
         if args.custom_fields:
@@ -264,7 +265,8 @@ class IssueCreate(JiraIssueCommand):
 
             # Check if this mandatory field is missing
             if field_id not in fieldset:
-                missing_fields.append(f"{field_info['name'].lower().replace(" ", "_")} ({field_id})")
+                field_label = field_info['name'].lower().replace(" ", "_")
+                missing_fields.append(f"{field_label} ({field_id})")
 
         # If there are missing mandatory fields, warn the user
         if missing_fields:
