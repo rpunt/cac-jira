@@ -19,6 +19,7 @@ Example:
 """
 
 import cac_core as cac
+
 from cac_jira.commands.project import JiraProjectCommand
 
 
@@ -57,13 +58,17 @@ class ProjectList(JiraProjectCommand):
         # Apply filters if provided
         filtered_projects = projects
 
-        if getattr(args, 'name', None):
+        if getattr(args, "name", None):
             name_filter = args.name.lower()
-            filtered_projects = [p for p in filtered_projects if name_filter in p.name.lower()]
+            filtered_projects = [
+                p for p in filtered_projects if name_filter in p.name.lower()
+            ]
 
-        if getattr(args, 'key', None):
+        if getattr(args, "key", None):
             key_filter = args.key.lower()
-            filtered_projects = [p for p in filtered_projects if key_filter in p.key.lower()]
+            filtered_projects = [
+                p for p in filtered_projects if key_filter in p.key.lower()
+            ]
 
         return filtered_projects
 

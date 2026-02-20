@@ -3,6 +3,7 @@
 
 from cac_jira.commands.issue import JiraIssueCommand
 
+
 class IssueComment(JiraIssueCommand):
     """
     Command class for commenting on Jira issues.

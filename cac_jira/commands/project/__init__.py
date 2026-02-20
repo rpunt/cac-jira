@@ -9,6 +9,7 @@ action classes should inherit from.
 """
 
 import abc
+
 from cac_jira.commands.command import JiraCommand
 
 
@@ -19,6 +20,7 @@ class JiraProjectCommand(JiraCommand):
     This class defines common methods and properties that should be shared
     across all project actions, such as project-specific arguments and utilities.
     """
+
     @abc.abstractmethod
     def define_arguments(self, parser):
         """
@@ -84,5 +86,5 @@ class JiraProjectCommand(JiraCommand):
         return {
             "scrum": "Template for Scrum projects",
             "kanban": "Template for Kanban projects",
-            "basic": "Basic project with no specific methodology"
+            "basic": "Basic project with no specific methodology",
         }
