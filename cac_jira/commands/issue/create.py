@@ -143,17 +143,10 @@ class IssueCreate(JiraIssueCommand):
             self.log.error("Project key is required for issue creation")
             return 1
 
-        # validate project
+        # validate project and issue type
         try:
             project = self.jira_client.project(args.project)
             self.log.debug("Project %s found", project.key)
-        except Exception as e:
-            self.log.error("Failed to find project %s: %s", args.project, e)
-            return 1
-
-        # validate issue type
-        try:
-            project = self.jira_client.project(args.project)
             # Get all issue types for the project
             issuetypes = project.issueTypes
 
