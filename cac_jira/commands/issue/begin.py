@@ -42,42 +42,8 @@ class IssueBegin(JiraIssueCommand):
             args: The parsed arguments
         """
         self.log.debug("Transitioning Jira issue %s to In Progress", args.issue)
-
-        # Get the issue
         issue = self.jira_client.issue(args.issue)
         if not issue:
             self.log.error("Issue not found")
             return
-
-        # Get all available transitions for the issue
-        transitions = self.jira_client.transitions(issue)
-
-        # Find the transition ID where name is "In Progress"
-        transition_id = None
-        transition_name = None
-        desired_transition = "In Progress"
-        for transition in transitions:
-            if transition["name"].upper() == desired_transition.upper():
-                transition_id = transition["id"]
-                transition_name = transition["name"]
-                self.log.debug(
-                    "Found '%s' transition with ID: %s", transition_name, transition_id
-                )
-                break
-
-        if not transition_id:
-            self.log.error(
-                "No '%s' transition found for this issue", desired_transition
-            )
-            # List all available transitions
-            self.log.info("Available transitions:")
-            for transition in transitions:
-                self.log.info("  - %s (ID: %s)", transition["name"], transition["id"])
-            return
-
-        # Transition the issue to "In Progress"
-        try:
-            self.jira_client.transition_issue(issue, transition_id)
-            self.log.info('Issue %s transitioned to "%s"', issue.key, transition_name)
-        except Exception as e:
-            self.log.error("Failed to transition issue: %s", str(e))
+        self._transition_to(issue, "In Progress")
