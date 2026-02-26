@@ -143,30 +143,29 @@ class IssueCreate(JiraIssueCommand):
             self.log.error("Project key is required for issue creation")
             return 1
 
-        # validate project and issue type
+        # validate project
         try:
             project = self.jira_client.project(args.project)
             self.log.debug("Project %s found", project.key)
-            # Get all issue types for the project
-            issuetypes = project.issueTypes
-
-            # Find the matching issue type
-            matching_issuetype = None
-            valid_types = []
-            for issuetype in issuetypes:
-                valid_types.append(issuetype.name)
-                if issuetype.name.lower() == args.type.lower():
-                    matching_issuetype = {"name": issuetype.name}
-                    break
-
-            if matching_issuetype is None:
-                raise ValueError(
-                    f"Invalid issue type '{args.type}' for project '{args.project}'\nValid issue types are: {', '.join(valid_types)}"
-                )
-
         except Exception as e:
-            print(f"Error: {e}")
-            return
+            self.log.error("Failed to find project %s: %s", args.project, e)
+            return 1
+
+        # validate issue type
+        matching_issuetype = None
+        valid_types = []
+        for issuetype in project.issueTypes:
+            valid_types.append(issuetype.name)
+            if issuetype.name.lower() == args.type.lower():
+                matching_issuetype = {"name": issuetype.name}
+                break
+
+        if matching_issuetype is None:
+            self.log.error(
+                "Invalid issue type '%s' for project '%s'. Valid types: %s",
+                args.type, args.project, ", ".join(valid_types)
+            )
+            return 1
 
         # Prepare the issue data
         fieldset = {
