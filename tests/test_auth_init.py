@@ -14,11 +14,12 @@ from unittest.mock import patch, MagicMock
 
 
 def _reimport_cac_jira():
-    """Remove all cac_jira modules from sys.modules and reimport."""
+    """Remove all cac_jira modules from sys.modules, reimport, and initialize."""
     modules_to_remove = [k for k in sys.modules if k.startswith("cac_jira")]
     for mod in modules_to_remove:
         del sys.modules[mod]
     import cac_jira
+    cac_jira._initialize()
     return cac_jira
 
 

@@ -14,7 +14,7 @@ from cac_jira.commands.issue import JiraIssueCommand
 
 class IssueShow(JiraIssueCommand):
     """
-    Command class for creating Jira issues.
+    Command class for showing Jira issues.
     """
 
     def define_arguments(self, parser):
