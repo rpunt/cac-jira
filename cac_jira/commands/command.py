@@ -12,7 +12,8 @@ import abc
 
 from cac_core.command import Command
 
-from cac_jira import CONFIG, JIRA_CLIENT, log
+import cac_jira
+from cac_jira import log
 
 
 class JiraCommand(Command):
@@ -29,9 +30,10 @@ class JiraCommand(Command):
         Initialize the command with a logger and Jira client.
         """
         super().__init__()
+        cac_jira._initialize()
         self.log = log
-        self.jira_client = JIRA_CLIENT
-        self.config = CONFIG
+        self.jira_client = cac_jira.JIRA_CLIENT
+        self.config = cac_jira.CONFIG
 
     @abc.abstractmethod
     def define_arguments(self, parser):
