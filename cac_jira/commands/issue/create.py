@@ -152,28 +152,20 @@ class IssueCreate(JiraIssueCommand):
             return 1
 
         # validate issue type
-        try:
-            project = self.jira_client.project(args.project)
-            # Get all issue types for the project
-            issuetypes = project.issueTypes
+        matching_issuetype = None
+        valid_types = []
+        for issuetype in project.issueTypes:
+            valid_types.append(issuetype.name)
+            if issuetype.name.lower() == args.type.lower():
+                matching_issuetype = {"name": issuetype.name}
+                break
 
-            # Find the matching issue type
-            matching_issuetype = None
-            valid_types = []
-            for issuetype in issuetypes:
-                valid_types.append(issuetype.name)
-                if issuetype.name.lower() == args.type.lower():
-                    matching_issuetype = {"name": issuetype.name}
-                    break
-
-            if matching_issuetype is None:
-                raise ValueError(
-                    f"Invalid issue type '{args.type}' for project '{args.project}'\nValid issue types are: {', '.join(valid_types)}"
-                )
-
-        except Exception as e:
-            print(f"Error: {e}")
-            return
+        if matching_issuetype is None:
+            self.log.error(
+                "Invalid issue type '%s' for project '%s'. Valid types: %s",
+                args.type, args.project, ", ".join(valid_types)
+            )
+            return 1
 
         # Prepare the issue data
         fieldset = {

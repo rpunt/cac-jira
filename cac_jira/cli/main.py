@@ -82,25 +82,6 @@ def discover_actions(command):
     return sorted(actions)
 
 
-def show_command_help(command):
-    """
-    Show help for a specific command, listing all available actions.
-
-    Args:
-        command (str): The command to show help for
-    """
-    actions = discover_actions(command)
-    print(f"\nAvailable actions for '{command}':")
-    for action in sorted(actions):
-        try:
-            module_path = f"{__name__}.commands.{command}.{action}"
-            module = importlib.import_module(module_path)
-            doc = module.__doc__ or "No description available"
-            doc = doc.strip().split("\n")[0]  # Get first line of docstring
-            print(f"  {action.ljust(15)} - {doc}")
-        except Exception:  # pylint: disable=broad-except
-            print(f"  {action.ljust(15)} - No description available")
-
 
 # def register_autocomplete(parser):
 #     """Set up command autocompletion if supported environment"""

@@ -55,6 +55,49 @@ class JiraIssueCommand(JiraCommand):
         """
         raise NotImplementedError("Subclasses must implement execute()")
 
+    def _transition_to(self, issue, transition_name, comment=None):
+        """
+        Transition an issue to the named state.
+
+        Args:
+            issue: The Jira issue object
+            transition_name: The target transition name (case-insensitive)
+            comment: Optional comment to add after transitioning
+
+        Returns:
+            True on success, False if the transition was not found or failed
+        """
+        transitions = self.jira_client.transitions(issue)
+
+        transition_id = None
+        matched_name = None
+        for transition in transitions:
+            if transition["name"].upper() == transition_name.upper():
+                transition_id = transition["id"]
+                matched_name = transition["name"]
+                self.log.debug(
+                    "Found '%s' transition with ID: %s", matched_name, transition_id
+                )
+                break
+
+        if not transition_id:
+            self.log.error("No '%s' transition found for this issue", transition_name)
+            self.log.info("Available transitions:")
+            for transition in transitions:
+                self.log.info("  - %s (ID: %s)", transition["name"], transition["id"])
+            return False
+
+        try:
+            self.jira_client.transition_issue(issue, transition_id)
+            if comment:
+                self.jira_client.add_comment(issue, comment)
+                self.log.info('Added comment: "%s"', comment)
+            self.log.info('Issue %s transitioned to "%s"', issue.key, matched_name)
+            return True
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.log.error("Failed to transition issue: %s", str(e))
+            return False
+
     # def get_issue_types(self, args) -> list:
     #     """
     #     Get available issue types for a project.
