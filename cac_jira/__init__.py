@@ -18,13 +18,12 @@ except Exception:
 
 log = cac.logger.new(__name__)
 
-CONFIG = None
-JIRA_CLIENT = None
 _initialized = False
+_module_state = {}
 
 
 def _initialize():
-    global CONFIG, JIRA_CLIENT, _initialized  # pylint: disable=global-statement
+    global _initialized  # pylint: disable=global-statement
     if _initialized:
         return
 
@@ -36,7 +35,9 @@ def _initialize():
 
     jira_server = config.get("server", "INVALID_DEFAULT").replace("https://", "")
     if jira_server == "INVALID_DEFAULT":
-        jira_server = input("Enter your Jira server URL: ").strip().replace("https://", "")
+        jira_server = (
+            input("Enter your Jira server URL: ").strip().replace("https://", "")
+        )
         config.set("server", jira_server)
         config.server = jira_server
         config.save()
@@ -80,9 +81,19 @@ def _initialize():
             )
             sys.exit(1)
 
-    CONFIG = config
-    JIRA_CLIENT = client.JiraClient(jira_server, jira_username, jira_api_token, auth_method=auth_method)
+    _module_state["CONFIG"] = config
+    _module_state["JIRA_CLIENT"] = client.JiraClient(
+        jira_server, jira_username, jira_api_token
+    )
     _initialized = True
+
+
+def __getattr__(name):
+    """Lazy initialization when accessing module-level attributes."""
+    if name in ("JIRA_CLIENT", "CONFIG"):
+        _initialize()
+        return _module_state[name]
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 __all__ = ["JIRA_CLIENT", "CONFIG", "log", "_initialize"]

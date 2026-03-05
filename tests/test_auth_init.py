@@ -19,6 +19,7 @@ def _reimport_cac_jira():
     for mod in modules_to_remove:
         del sys.modules[mod]
     import cac_jira
+
     cac_jira._initialize()
     return cac_jira
 
@@ -34,7 +35,9 @@ def _make_config_mock(config_dict):
     """Create a mock Config that returns values from the given dict."""
     config_dict.setdefault("project", "TEST")
     mock_config = MagicMock()
-    mock_config.get.side_effect = lambda key, default=None: config_dict.get(key, default)
+    mock_config.get.side_effect = lambda key, default=None: config_dict.get(
+        key, default
+    )
     mock_config.config_file = "/mock/config"
     return mock_config
 
@@ -60,11 +63,13 @@ class TestBasicAuthInit:
         self, mock_update, mock_config_class, mock_cred_class, mock_jira
     ):
         """Test that basic auth uses username to retrieve the API token."""
-        mock_config_class.return_value = _make_config_mock({
-            "server": "jira.example.com",
-            "auth_method": "basic",
-            "username": "user@example.com",
-        })
+        mock_config_class.return_value = _make_config_mock(
+            {
+                "server": "jira.example.com",
+                "auth_method": "basic",
+                "username": "user@example.com",
+            }
+        )
         mock_cred = _make_cred_mock("api-token-123")
         mock_cred_class.return_value = mock_cred
 
@@ -82,11 +87,13 @@ class TestBasicAuthInit:
         self, mock_update, mock_config_class, mock_cred_class, mock_jira
     ):
         """Test that basic auth creates JiraClient with auth_method='basic'."""
-        mock_config_class.return_value = _make_config_mock({
-            "server": "jira.example.com",
-            "auth_method": "basic",
-            "username": "user@example.com",
-        })
+        mock_config_class.return_value = _make_config_mock(
+            {
+                "server": "jira.example.com",
+                "auth_method": "basic",
+                "username": "user@example.com",
+            }
+        )
         mock_cred_class.return_value = _make_cred_mock("api-token-123")
 
         cac_jira = _reimport_cac_jira()
@@ -102,11 +109,13 @@ class TestBasicAuthInit:
         self, mock_update, mock_config_class, mock_cred_class, mock_jira
     ):
         """Test that basic auth passes basic_auth tuple to jira.JIRA."""
-        mock_config_class.return_value = _make_config_mock({
-            "server": "jira.example.com",
-            "auth_method": "basic",
-            "username": "user@example.com",
-        })
+        mock_config_class.return_value = _make_config_mock(
+            {
+                "server": "jira.example.com",
+                "auth_method": "basic",
+                "username": "user@example.com",
+            }
+        )
         mock_cred_class.return_value = _make_cred_mock("api-token-123")
 
         _reimport_cac_jira()
@@ -125,11 +134,13 @@ class TestBasicAuthInit:
         self, mock_update, mock_config_class, mock_cred_class, mock_jira, mock_input
     ):
         """Test that basic auth prompts when username is INVALID_DEFAULT."""
-        mock_config = _make_config_mock({
-            "server": "jira.example.com",
-            "auth_method": "basic",
-            "username": "INVALID_DEFAULT",
-        })
+        mock_config = _make_config_mock(
+            {
+                "server": "jira.example.com",
+                "auth_method": "basic",
+                "username": "INVALID_DEFAULT",
+            }
+        )
         mock_config_class.return_value = mock_config
         mock_cred_class.return_value = _make_cred_mock("api-token-123")
 
@@ -146,11 +157,13 @@ class TestBasicAuthInit:
         self, mock_update, mock_config_class, mock_cred_class
     ):
         """Test that basic auth exits when API token is not found."""
-        mock_config_class.return_value = _make_config_mock({
-            "server": "jira.example.com",
-            "auth_method": "basic",
-            "username": "user@example.com",
-        })
+        mock_config_class.return_value = _make_config_mock(
+            {
+                "server": "jira.example.com",
+                "auth_method": "basic",
+                "username": "user@example.com",
+            }
+        )
         mock_cred_class.return_value = _make_cred_mock(None)
 
         with pytest.raises(SystemExit):
@@ -171,11 +184,13 @@ class TestPATAuthInit:
         self, mock_update, mock_config_class, mock_cred_class, mock_jira
     ):
         """Test that PAT auth uses '_pat_token' key to retrieve the token."""
-        mock_config_class.return_value = _make_config_mock({
-            "server": "jira.example.com",
-            "auth_method": "pat",
-            "username": None,
-        })
+        mock_config_class.return_value = _make_config_mock(
+            {
+                "server": "jira.example.com",
+                "auth_method": "pat",
+                "username": None,
+            }
+        )
         mock_cred = _make_cred_mock("pat-token-456")
         mock_cred_class.return_value = mock_cred
 
@@ -193,11 +208,13 @@ class TestPATAuthInit:
         self, mock_update, mock_config_class, mock_cred_class, mock_jira
     ):
         """Test that PAT auth creates JiraClient with auth_method='pat'."""
-        mock_config_class.return_value = _make_config_mock({
-            "server": "jira.example.com",
-            "auth_method": "pat",
-            "username": None,
-        })
+        mock_config_class.return_value = _make_config_mock(
+            {
+                "server": "jira.example.com",
+                "auth_method": "pat",
+                "username": None,
+            }
+        )
         mock_cred_class.return_value = _make_cred_mock("pat-token-456")
 
         cac_jira = _reimport_cac_jira()
@@ -212,11 +229,13 @@ class TestPATAuthInit:
         self, mock_update, mock_config_class, mock_cred_class, mock_jira
     ):
         """Test that PAT auth passes token_auth to jira.JIRA."""
-        mock_config_class.return_value = _make_config_mock({
-            "server": "jira.example.com",
-            "auth_method": "pat",
-            "username": None,
-        })
+        mock_config_class.return_value = _make_config_mock(
+            {
+                "server": "jira.example.com",
+                "auth_method": "pat",
+                "username": None,
+            }
+        )
         mock_cred_class.return_value = _make_cred_mock("pat-token-456")
 
         _reimport_cac_jira()
@@ -234,10 +253,12 @@ class TestPATAuthInit:
         self, mock_update, mock_config_class, mock_cred_class, mock_jira
     ):
         """Test that PAT auth works without a username configured."""
-        mock_config_class.return_value = _make_config_mock({
-            "server": "jira.example.com",
-            "auth_method": "pat",
-        })
+        mock_config_class.return_value = _make_config_mock(
+            {
+                "server": "jira.example.com",
+                "auth_method": "pat",
+            }
+        )
         mock_cred_class.return_value = _make_cred_mock("pat-token-456")
 
         cac_jira = _reimport_cac_jira()
@@ -252,11 +273,13 @@ class TestPATAuthInit:
         self, mock_update, mock_config_class, mock_cred_class
     ):
         """Test that PAT auth exits when token is not found."""
-        mock_config_class.return_value = _make_config_mock({
-            "server": "jira.example.com",
-            "auth_method": "pat",
-            "username": None,
-        })
+        mock_config_class.return_value = _make_config_mock(
+            {
+                "server": "jira.example.com",
+                "auth_method": "pat",
+                "username": None,
+            }
+        )
         mock_cred_class.return_value = _make_cred_mock(None)
 
         with pytest.raises(SystemExit):
@@ -277,10 +300,12 @@ class TestDefaultAuthMethod:
         self, mock_update, mock_config_class, mock_cred_class, mock_jira
     ):
         """Test that omitting auth_method from config defaults to basic auth."""
-        mock_config_class.return_value = _make_config_mock({
-            "server": "jira.example.com",
-            "username": "user@example.com",
-        })
+        mock_config_class.return_value = _make_config_mock(
+            {
+                "server": "jira.example.com",
+                "username": "user@example.com",
+            }
+        )
         mock_cred_class.return_value = _make_cred_mock("api-token-123")
 
         cac_jira = _reimport_cac_jira()
