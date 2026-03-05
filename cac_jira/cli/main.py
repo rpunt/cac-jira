@@ -82,7 +82,6 @@ def discover_actions(command):
     return sorted(actions)
 
 
-
 # def register_autocomplete(parser):
 #     """Set up command autocompletion if supported environment"""
 #     try:
