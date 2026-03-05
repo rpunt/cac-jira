@@ -163,7 +163,9 @@ class IssueCreate(JiraIssueCommand):
         if matching_issuetype is None:
             self.log.error(
                 "Invalid issue type '%s' for project '%s'. Valid types: %s",
-                args.type, args.project, ", ".join(valid_types)
+                args.type,
+                args.project,
+                ", ".join(valid_types),
             )
             return 1
 
