@@ -72,4 +72,12 @@ def _initialize():
     _initialized = True
 
 
+def __getattr__(name):
+    """Lazy initialization when accessing module-level attributes."""
+    if name in ("JIRA_CLIENT", "CONFIG"):
+        _initialize()
+        return globals()[name]
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
 __all__ = ["JIRA_CLIENT", "CONFIG", "log", "_initialize"]
