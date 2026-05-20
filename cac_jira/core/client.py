@@ -7,6 +7,7 @@ Jira client module.
 
 import cac_core as cac
 import jira
+from jira.exceptions import JIRAError
 
 log = cac.logger.new(__name__)
 
@@ -41,6 +42,21 @@ class JiraClient:
                 f"https://{self.server}",
                 basic_auth=(self.username, self.api_token),
             )
+            self.client.myself()
+        except JIRAError as e:
+            response = getattr(e, "response", None)
+            login_reason = (
+                getattr(response, "headers", {}).get("X-Seraph-Loginreason", "")
+                if response is not None
+                else ""
+            )
+            if login_reason == "AUTHENTICATED_FAILED":
+                raise RuntimeError(
+                    "Authentication failed — your API token may be invalid or expired. "
+                    "Regenerate it at https://id.atlassian.com/manage-profile/security/api-tokens"
+                ) from e
+            log.error("Failed to connect to Jira server: %s", e)
+            raise
         except Exception as e:
             log.error("Failed to connect to Jira server: %s", e)
             raise
