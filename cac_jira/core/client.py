@@ -12,6 +12,10 @@ from jira.exceptions import JIRAError
 log = cac.logger.new(__name__)
 
 
+class JiraAuthenticationError(Exception):
+    pass
+
+
 class JiraClient:
     """
     Jira client class.
@@ -51,7 +55,7 @@ class JiraClient:
                 else ""
             )
             if login_reason == "AUTHENTICATED_FAILED":
-                raise RuntimeError(
+                raise JiraAuthenticationError(
                     "Authentication failed — your API token may be invalid or expired. "
                     "Regenerate it at https://id.atlassian.com/manage-profile/security/api-tokens"
                 ) from e

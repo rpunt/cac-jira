@@ -73,7 +73,7 @@ def _initialize():
         _module_state["JIRA_CLIENT"] = client.JiraClient(
             jira_server, jira_username, jira_api_token
         )
-    except RuntimeError as e:
+    except client.JiraAuthenticationError as e:
         log.error("%s", e)
         sys.exit(1)
     _initialized = True
