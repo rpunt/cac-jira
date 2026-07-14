@@ -18,7 +18,7 @@ uv run pytest                  # Run all tests
 uv run pytest tests/test_cli.py  # Run a single test file
 
 # Linting & Formatting
-ruff check --target-version=py39 .   # Lint
+ruff check --target-version=py310 .   # Lint
 ruff format --diff .                  # Check formatting
 
 # Type checking
@@ -72,13 +72,13 @@ Each action must implement two abstract methods: `define_arguments(parser)` and 
 
 ## Code Style
 
-- Python >=3.10 required (CI tests 3.9–3.12)
+- Python >=3.10 required (CI tests 3.10–3.12)
 - Black formatting with 88-char line length
 - isort with black-compatible profile
 - Output formatting uses `cac_core.output.Output` (supports table and JSON formats)
 
 ## CI/CD
 
-- PRs require a version bump in `pyproject.toml` (enforced by `version-check.yaml`)
-- Tests run on push and PR across Python 3.9–3.12
-- Releases triggered by version tags (v*), published to PyPI
+- Version is derived from git tags via `setuptools-scm` (no static version in `pyproject.toml`); no per-PR version bump is required
+- Tests run on push and PR across Python 3.10–3.12 (`pytest.yaml`)
+- Releases triggered by version tags (v*), published to PyPI (`create_artifacts_and_publish.yaml`)
