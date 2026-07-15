@@ -301,7 +301,7 @@ class IssueCreate(JiraIssueCommand):
 
                 # Execute the begin command with our constructed args (through
                 # the error-handling wrapper).
-                begin_cmd._execute(begin_args)
+                begin_cmd.run(begin_args)
             except Exception as e:
                 self.log.error("Failed to transition issue to In Progress: %s", str(e))
 

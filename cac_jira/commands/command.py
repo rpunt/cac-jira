@@ -68,7 +68,7 @@ class JiraCommand(Command):
         super().define_arguments(parser)
         return parser
 
-    def _execute(self, args):
+    def run(self, args):
         """
         Run the command and map failures to an exit code.
 
@@ -106,7 +106,7 @@ class JiraCommand(Command):
         Perform the command's work.
 
         Subclasses implement this as straight-line logic. Errors raised by the
-        Jira client propagate to ``_execute()``, which logs them and returns a
+        Jira client propagate to ``run()``, which logs them and returns a
         non-zero exit code, so ``execute()`` does not need to wrap client calls
         in try/except. Return ``None``/``0`` on success, or a non-zero int for
         command-specific validation failures.

@@ -37,7 +37,7 @@ class TestIssueShow:
     def test_show_table(self, mock_output, cmd):
         cmd.jira_client.issue.return_value = make_issue()
 
-        result = cmd._execute(argparse.Namespace(issue="TEST-1", output="table"))
+        result = cmd.run(argparse.Namespace(issue="TEST-1", output="table"))
 
         assert result == 0
         models = mock_output.return_value.print_models.call_args[0][0]
@@ -49,7 +49,7 @@ class TestIssueShow:
     def test_show_table_without_priority(self, mock_output, cmd):
         cmd.jira_client.issue.return_value = make_issue(priority=None)
 
-        result = cmd._execute(argparse.Namespace(issue="TEST-1", output="table"))
+        result = cmd.run(argparse.Namespace(issue="TEST-1", output="table"))
 
         assert result == 0
         models = mock_output.return_value.print_models.call_args[0][0]
@@ -58,7 +58,7 @@ class TestIssueShow:
     def test_show_json(self, cmd, capsys):
         cmd.jira_client.issue.return_value = make_issue()
 
-        result = cmd._execute(argparse.Namespace(issue="TEST-1", output="json"))
+        result = cmd.run(argparse.Namespace(issue="TEST-1", output="json"))
 
         assert result == 0
         out = capsys.readouterr().out
@@ -67,7 +67,7 @@ class TestIssueShow:
     def test_show_not_found(self, cmd):
         cmd.jira_client.issue.side_effect = Exception("does not exist")
 
-        result = cmd._execute(argparse.Namespace(issue="NOPE-1", output="table"))
+        result = cmd.run(argparse.Namespace(issue="NOPE-1", output="table"))
 
         assert result == 1
         cmd.log.error.assert_called()
@@ -76,7 +76,7 @@ class TestIssueShow:
         """A falsy issue is handled without an AttributeError."""
         cmd.jira_client.issue.return_value = None
 
-        result = cmd._execute(argparse.Namespace(issue="NOPE-1", output="table"))
+        result = cmd.run(argparse.Namespace(issue="NOPE-1", output="table"))
 
         assert result == 1
         cmd.log.error.assert_called()

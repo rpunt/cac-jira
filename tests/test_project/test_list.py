@@ -33,7 +33,7 @@ class TestProjectList:
             make_project("2", "BBB", "Beta"),
         ]
 
-        result = cmd._execute(argparse.Namespace(name=None, key=None, output="table"))
+        result = cmd.run(argparse.Namespace(name=None, key=None, output="table"))
 
         assert result == 0
         models = mock_output.return_value.print_models.call_args[0][0]
@@ -46,7 +46,7 @@ class TestProjectList:
             make_project("2", "BBB", "Beta"),
         ]
 
-        result = cmd._execute(argparse.Namespace(name="alph", key=None, output="table"))
+        result = cmd.run(argparse.Namespace(name="alph", key=None, output="table"))
 
         assert result == 0
         models = mock_output.return_value.print_models.call_args[0][0]
@@ -56,7 +56,7 @@ class TestProjectList:
     def test_no_projects_returns_error(self, cmd):
         cmd.jira_client.projects.return_value = []
 
-        result = cmd._execute(argparse.Namespace(name=None, key=None, output="table"))
+        result = cmd.run(argparse.Namespace(name=None, key=None, output="table"))
 
         assert result == 1
         cmd.log.error.assert_called()
@@ -65,7 +65,7 @@ class TestProjectList:
         """A client failure is reported and returns a non-zero exit code."""
         cmd.jira_client.projects.side_effect = Exception("boom")
 
-        result = cmd._execute(argparse.Namespace(name=None, key=None, output="table"))
+        result = cmd.run(argparse.Namespace(name=None, key=None, output="table"))
 
         assert result == 1
         cmd.log.error.assert_called()
