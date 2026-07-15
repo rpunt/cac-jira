@@ -68,16 +68,17 @@ class JiraCommand(Command):
         super().define_arguments(parser)
         return parser
 
-    def execute(self, args):
+    def _execute(self, args):
         """
         Run the command and map failures to an exit code.
 
-        This is a template method: it invokes the subclass's ``_execute()`` and
-        turns any error raised by the Jira client into a logged, non-zero exit
-        code. Centralizing the error handling here means individual commands do
-        not need their own try/except around client calls -- they implement
-        ``_execute()`` as straight-line logic and may raise freely (or return an
-        explicit non-zero code for their own validation failures).
+        This is the template method invoked by the CLI entry point. It calls the
+        subclass's ``execute()`` and turns any error raised by the Jira client
+        into a logged, non-zero exit code. Centralizing the error handling here
+        means individual commands do not need their own try/except around client
+        calls -- they implement ``execute()`` as straight-line logic and may
+        raise freely (or return an explicit non-zero code for their own
+        validation failures).
 
         Args:
             args: The parsed arguments
@@ -86,7 +87,7 @@ class JiraCommand(Command):
             int: The exit code (0 on success, non-zero on failure).
         """
         try:
-            result = self._execute(args)
+            result = self.execute(args)
         except JIRAError as e:
             # python-jira raises this for not-found/auth/permission/JQL errors;
             # its ``text`` is the human-readable Jira message.
@@ -100,13 +101,13 @@ class JiraCommand(Command):
         return 0 if result is None else result
 
     @abc.abstractmethod
-    def _execute(self, args):
+    def execute(self, args):
         """
         Perform the command's work.
 
         Subclasses implement this as straight-line logic. Errors raised by the
-        Jira client propagate to ``execute()``, which logs them and returns a
-        non-zero exit code, so ``_execute()`` does not need to wrap client calls
+        Jira client propagate to ``_execute()``, which logs them and returns a
+        non-zero exit code, so ``execute()`` does not need to wrap client calls
         in try/except. Return ``None``/``0`` on success, or a non-zero int for
         command-specific validation failures.
 
@@ -116,4 +117,4 @@ class JiraCommand(Command):
         Returns:
             Optional[int]: ``None``/``0`` on success, non-zero on failure.
         """
-        raise NotImplementedError("Command subclasses must implement _execute()")
+        raise NotImplementedError("Command subclasses must implement execute()")

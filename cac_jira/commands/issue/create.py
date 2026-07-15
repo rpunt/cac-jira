@@ -129,7 +129,7 @@ class IssueCreate(JiraIssueCommand):
             self.log.error(f"Error parsing metadata: {e}")
             return {}
 
-    def _execute(self, args):
+    def execute(self, args):
         """
         Execute the command with the provided arguments.
 
@@ -299,8 +299,9 @@ class IssueCreate(JiraIssueCommand):
 
                 begin_args = Namespace(issue=issue.key)
 
-                # Execute the begin command with our constructed args
-                begin_cmd.execute(begin_args)
+                # Execute the begin command with our constructed args (through
+                # the error-handling wrapper).
+                begin_cmd._execute(begin_args)
             except Exception as e:
                 self.log.error("Failed to transition issue to In Progress: %s", str(e))
 

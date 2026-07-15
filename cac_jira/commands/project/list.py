@@ -84,7 +84,7 @@ class ProjectList(JiraProjectCommand):
 
         return filtered_projects
 
-    def _execute(self, args):
+    def execute(self, args):
         """
         Execute the command with the provided arguments.
 

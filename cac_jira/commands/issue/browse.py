@@ -32,7 +32,7 @@ class IssueBrowse(JiraIssueCommand):
         )
         return parser
 
-    def _execute(self, args):
+    def execute(self, args):
         self.log.debug("Opening Jira issue %s in a browser", args.issue)
         issue = self.jira_client.issue(args.issue)
         if not issue:

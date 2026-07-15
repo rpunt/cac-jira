@@ -41,7 +41,7 @@ class TestIssueBegin:
             {"id": "41", "name": "Done"},
         ]
 
-        result = cmd.execute(argparse.Namespace(issue="TEST-1"))
+        result = cmd._execute(argparse.Namespace(issue="TEST-1"))
 
         assert result == 0
         cmd.jira_client.transition_issue.assert_called_once_with(issue, "31")
@@ -50,7 +50,7 @@ class TestIssueBegin:
         cmd.jira_client.issue.return_value = make_issue()
         cmd.jira_client.transitions.return_value = [{"id": "41", "name": "Done"}]
 
-        result = cmd.execute(argparse.Namespace(issue="TEST-1"))
+        result = cmd._execute(argparse.Namespace(issue="TEST-1"))
 
         assert result == 1
         cmd.jira_client.transition_issue.assert_not_called()
@@ -58,7 +58,7 @@ class TestIssueBegin:
     def test_begin_issue_not_found(self, cmd):
         cmd.jira_client.issue.return_value = None
 
-        result = cmd.execute(argparse.Namespace(issue="TEST-1"))
+        result = cmd._execute(argparse.Namespace(issue="TEST-1"))
 
         assert result == 1
         cmd.jira_client.transitions.assert_not_called()
@@ -66,7 +66,7 @@ class TestIssueBegin:
     def test_begin_lookup_error(self, cmd):
         cmd.jira_client.issue.side_effect = Exception("boom")
 
-        result = cmd.execute(argparse.Namespace(issue="TEST-1"))
+        result = cmd._execute(argparse.Namespace(issue="TEST-1"))
 
         assert result == 1
         cmd.jira_client.transitions.assert_not_called()
@@ -83,7 +83,7 @@ class TestIssueClose:
         cmd.jira_client.issue.return_value = issue
         cmd.jira_client.transitions.return_value = [{"id": "41", "name": "Done"}]
 
-        result = cmd.execute(argparse.Namespace(issue="TEST-1", comment="all fixed"))
+        result = cmd._execute(argparse.Namespace(issue="TEST-1", comment="all fixed"))
 
         assert result == 0
         cmd.jira_client.transition_issue.assert_called_once_with(issue, "41")
@@ -94,7 +94,7 @@ class TestIssueClose:
         cmd.jira_client.issue.return_value = issue
         cmd.jira_client.transitions.return_value = [{"id": "41", "name": "Done"}]
 
-        result = cmd.execute(argparse.Namespace(issue="TEST-1", comment=None))
+        result = cmd._execute(argparse.Namespace(issue="TEST-1", comment=None))
 
         assert result == 0
         cmd.jira_client.add_comment.assert_not_called()
@@ -103,7 +103,7 @@ class TestIssueClose:
         cmd.jira_client.issue.return_value = make_issue()
         cmd.jira_client.transitions.return_value = [{"id": "31", "name": "In Progress"}]
 
-        result = cmd.execute(argparse.Namespace(issue="TEST-1", comment=None))
+        result = cmd._execute(argparse.Namespace(issue="TEST-1", comment=None))
 
         assert result == 1
 
@@ -118,7 +118,7 @@ class TestIssueBlock:
         cmd.jira_client.issue.return_value = issue
         cmd.jira_client.transitions.return_value = [{"id": "51", "name": "Blocked"}]
 
-        result = cmd.execute(argparse.Namespace(issue="TEST-1", comment=None))
+        result = cmd._execute(argparse.Namespace(issue="TEST-1", comment=None))
 
         assert result == 0
         cmd.jira_client.transition_issue.assert_called_once_with(issue, "51")
@@ -128,7 +128,7 @@ class TestIssueBlock:
         cmd.jira_client.issue.return_value = issue
         cmd.jira_client.transitions.return_value = [{"id": "51", "name": "BLOCKED"}]
 
-        result = cmd.execute(argparse.Namespace(issue="TEST-1", comment=None))
+        result = cmd._execute(argparse.Namespace(issue="TEST-1", comment=None))
 
         assert result == 0
         cmd.jira_client.transition_issue.assert_called_once_with(issue, "51")

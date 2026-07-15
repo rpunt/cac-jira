@@ -206,7 +206,7 @@ def main():
             sys.exit(1)
 
         log.debug("Executing action: %s %s", args.command, args.action)
-        exit_code = action_instance.execute(args)
+        exit_code = action_instance._execute(args)  # noqa: SLF001
 
     except Exception as e:  # pylint: disable=broad-except
         log.error("Error executing command: %s", e)

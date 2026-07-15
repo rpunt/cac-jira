@@ -34,7 +34,7 @@ class IssueShow(JiraIssueCommand):
         )
         return parser
 
-    def _execute(self, args):
+    def execute(self, args):
         self.log.debug("Showing Jira issue %s", args.issue)
         issue = self.jira_client.issue(args.issue)
         if not issue:

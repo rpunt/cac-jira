@@ -80,7 +80,7 @@ class TestIssueUpdate:
             issue="TEST-123", title="New Title", description=None, output="table"
         )
 
-        issue_update_command.execute(args)
+        issue_update_command._execute(args)
 
         # Verify issue was updated with correct fields
         mock_issue.update.assert_called_once()
@@ -100,7 +100,7 @@ class TestIssueUpdate:
             issue="TEST-123", title=None, description="New Description", output="table"
         )
 
-        issue_update_command.execute(args)
+        issue_update_command._execute(args)
 
         # Verify issue was updated with correct fields
         mock_issue.update.assert_called_once()
@@ -121,7 +121,7 @@ class TestIssueUpdate:
             output="table",
         )
 
-        issue_update_command.execute(args)
+        issue_update_command._execute(args)
 
         # Verify issue was updated with correct fields
         mock_issue.update.assert_called_once()
@@ -138,7 +138,7 @@ class TestIssueUpdate:
             issue="TEST-123", title=None, description=None, output="table"
         )
 
-        issue_update_command.execute(args)
+        issue_update_command._execute(args)
 
         # Verify issue was not updated
         mock_client.issue.return_value.update.assert_not_called()
@@ -154,7 +154,7 @@ class TestIssueUpdate:
             issue="TEST-123", title="New Title", description=None, output="table"
         )
 
-        result = issue_update_command.execute(args)
+        result = issue_update_command._execute(args)
 
         assert result == 1
         issue_update_command.log.error.assert_called()

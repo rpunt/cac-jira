@@ -43,7 +43,7 @@ class TestProjectShow:
         project_show_command.jira_client.project.return_value = mock_project
 
         args = argparse.Namespace(project="TEST", output="table")
-        result = project_show_command.execute(args)
+        result = project_show_command._execute(args)
 
         assert result == 0
         project_show_command.jira_client.project.assert_called_once_with("TEST")
@@ -58,7 +58,7 @@ class TestProjectShow:
         project_show_command.jira_client.project.side_effect = Exception("Not found")
 
         args = argparse.Namespace(project="NOPE", output="table")
-        result = project_show_command.execute(args)
+        result = project_show_command._execute(args)
 
         assert result == 1
         project_show_command.log.error.assert_called()
@@ -69,7 +69,7 @@ class TestProjectShow:
         project_show_command.jira_client.project.return_value = None
 
         args = argparse.Namespace(project="NOPE", output="table")
-        result = project_show_command.execute(args)
+        result = project_show_command._execute(args)
 
         assert result == 1
         project_show_command.log.error.assert_called()

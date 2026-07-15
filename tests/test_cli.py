@@ -53,7 +53,7 @@ def test_command_classes():
     args = parser.parse_args(
         ["--project", "TEST"]
     )  # , "--limit", "10"]) #, "--server", "https://jira.example.com"])
-    issue_list.execute(args)
+    issue_list._execute(args)
 
     # # Test ProjectList command
     # print("\n-- Testing ProjectList command --")
@@ -61,7 +61,7 @@ def test_command_classes():
     # parser = argparse.ArgumentParser()
     # project_list.define_arguments(parser)
     # args = parser.parse_args(["--archived", "--type", "software", "--server", "https://jira.example.com"])
-    # project_list.execute(args)
+    # project_list._execute(args)
 
     # Test ProjectList command
     print("\n-- Testing ProjectList command --")
@@ -69,7 +69,7 @@ def test_command_classes():
     parser = argparse.ArgumentParser()
     project_list.define_arguments(parser)
     args = parser.parse_args(["--name", "crdb"])
-    project_list.execute(args)
+    project_list._execute(args)
 
     # # Test IssueCreate command
     # print("\n-- Testing IssueCreate command --")
@@ -83,7 +83,7 @@ def test_command_classes():
     #     "--priority", "High",
     #     "--server", "https://jira.example.com"
     # ])
-    # issue_create.execute(args)
+    # issue_create._execute(args)
 
 
 def main_test():

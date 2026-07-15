@@ -77,7 +77,7 @@ class TestIssueList:
         args = argparse.Namespace(
             project="TEST", mine=False, done=False, output="table"
         )
-        issue_list_command.execute(args)
+        issue_list_command._execute(args)
 
         # Verify search_issues was called
         mock_client.search_issues.assert_called()
@@ -96,7 +96,7 @@ class TestIssueList:
 
         # Mine filter
         args = argparse.Namespace(project="TEST", mine=True, done=False, output="table")
-        issue_list_command.execute(args)
+        issue_list_command._execute(args)
 
         # Verify and safely extract JQL
         mock_client.search_issues.assert_called()
@@ -109,7 +109,7 @@ class TestIssueList:
 
         # Done filter
         args = argparse.Namespace(project="TEST", mine=False, done=True, output="table")
-        issue_list_command.execute(args)
+        issue_list_command._execute(args)
 
         # Verify and safely extract JQL
         mock_client.search_issues.assert_called()
@@ -129,7 +129,7 @@ class TestIssueList:
         args = argparse.Namespace(
             project="TEST", mine=False, done=False, output="table"
         )
-        issue_list_command.execute(args)
+        issue_list_command._execute(args)
 
         # Verify Output class was initialized with correct format
         mock_output.assert_called_once()
@@ -151,7 +151,7 @@ class TestIssueList:
         args = argparse.Namespace(
             project="TEST", mine=False, done=False, output="table"
         )
-        result = issue_list_command.execute(args)
+        result = issue_list_command._execute(args)
 
         assert result == 1
         issue_list_command.log.error.assert_called()

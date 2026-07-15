@@ -44,7 +44,7 @@ class IssueList(JiraIssueCommand):
 
         return parser
 
-    def _execute(self, args):
+    def execute(self, args):
         """
         Execute the command with the provided arguments.
 

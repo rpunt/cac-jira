@@ -49,9 +49,9 @@ class JiraIssueCommand(JiraCommand):
         return parser
 
     @abc.abstractmethod
-    def _execute(self, args):
+    def execute(self, args):
         """
-        Perform the command's work (see JiraCommand._execute).
+        Perform the command's work (see JiraCommand.execute).
 
         Args:
             args: The parsed arguments
@@ -59,7 +59,7 @@ class JiraIssueCommand(JiraCommand):
         Returns:
             Optional[int]: None/0 on success, non-zero on failure.
         """
-        raise NotImplementedError("Subclasses must implement _execute()")
+        raise NotImplementedError("Subclasses must implement execute()")
 
     def _transition_to(self, issue, transition_name, comment=None):
         """

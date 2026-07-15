@@ -40,7 +40,7 @@ class IssueClose(JiraIssueCommand):
         )
         return parser
 
-    def _execute(self, args):
+    def execute(self, args):
         self.log.debug("Closing Jira issue %s", args.issue)
         issue = self.jira_client.issue(args.issue)
         if not issue:

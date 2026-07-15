@@ -48,7 +48,7 @@ class TestIssueDelete:
         """Test issue deletion with user confirmation."""
         args = argparse.Namespace(issue="TEST-123", force=False, output="table")
 
-        issue_delete_command.execute(args)
+        issue_delete_command._execute(args)
 
         # Verify confirmation was requested
         mock_input.assert_called_once()
@@ -61,7 +61,7 @@ class TestIssueDelete:
         """Test cancellation of issue deletion."""
         args = argparse.Namespace(issue="TEST-123", force=False, output="table")
 
-        issue_delete_command.execute(args)
+        issue_delete_command._execute(args)
 
         # Verify confirmation was requested
         mock_input.assert_called_once()
@@ -76,7 +76,7 @@ class TestIssueDelete:
         """Test issue deletion with force flag."""
         args = argparse.Namespace(issue="TEST-123", force=True, output="table")
 
-        issue_delete_command.execute(args)
+        issue_delete_command._execute(args)
 
         # Verify confirmation was not requested
         mock_input.assert_not_called()
@@ -91,7 +91,7 @@ class TestIssueDelete:
         """Without an interactive terminal, confirmation fails cleanly."""
         args = argparse.Namespace(issue="TEST-123", force=False, output="table")
 
-        result = issue_delete_command.execute(args)
+        result = issue_delete_command._execute(args)
 
         assert result == 1
         mock_client.delete_issue.assert_not_called()
