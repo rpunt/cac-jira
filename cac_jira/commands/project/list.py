@@ -36,6 +36,18 @@ class ProjectList(JiraProjectCommand):
             parser: The argument parser to add arguments to
         """
         super().define_arguments(parser)
+        parser.add_argument(
+            "-n",
+            "--name",
+            help="Filter projects by name (case-insensitive, partial match)",
+            default=None,
+        )
+        parser.add_argument(
+            "-k",
+            "--key",
+            help="Filter projects by key (case-insensitive, partial match)",
+            default=None,
+        )
         return parser
 
     def get_projects(self, args):
@@ -83,7 +95,7 @@ class ProjectList(JiraProjectCommand):
 
         if not projects:
             self.log.error("No projects found")
-            return
+            return 1
 
         # Convert to models for display
         models = []
@@ -95,3 +107,4 @@ class ProjectList(JiraProjectCommand):
 
         printer = cac.output.Output(args)
         printer.print_models(models)
+        return 0

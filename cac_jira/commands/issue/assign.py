@@ -39,3 +39,4 @@ class IssueAssign(JiraIssueCommand):
         )
         self.jira_client.assign_issue(args.issue, self.config.username)
         self.log.info("Issue assigned")
+        return 0

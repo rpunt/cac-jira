@@ -80,7 +80,7 @@ class TestIssueUpdate:
             issue="TEST-123", title="New Title", description=None, output="table"
         )
 
-        issue_update_command.execute(args)
+        issue_update_command.run(args)
 
         # Verify issue was updated with correct fields
         mock_issue.update.assert_called_once()
@@ -100,7 +100,7 @@ class TestIssueUpdate:
             issue="TEST-123", title=None, description="New Description", output="table"
         )
 
-        issue_update_command.execute(args)
+        issue_update_command.run(args)
 
         # Verify issue was updated with correct fields
         mock_issue.update.assert_called_once()
@@ -121,7 +121,7 @@ class TestIssueUpdate:
             output="table",
         )
 
-        issue_update_command.execute(args)
+        issue_update_command.run(args)
 
         # Verify issue was updated with correct fields
         mock_issue.update.assert_called_once()
@@ -132,15 +132,47 @@ class TestIssueUpdate:
         assert call_kwargs["description"] == "New Description"
 
     @patch("cac_jira.JIRA_CLIENT")
+    def test_update_empty_string_clears_field(
+        self, mock_client, issue_update_command, mock_issue
+    ):
+        """An explicit empty string is a value (clears the field), not 'missing'."""
+        mock_client.issue.return_value = mock_issue
+
+        args = argparse.Namespace(
+            issue="TEST-123", title=None, description="", output="table"
+        )
+
+        issue_update_command.run(args)
+
+        mock_issue.update.assert_called_once()
+        call_kwargs = mock_issue.update.call_args[1]
+        assert call_kwargs["description"] == ""
+        assert "summary" not in call_kwargs
+
+    @patch("cac_jira.JIRA_CLIENT")
     def test_update_no_fields(self, mock_client, issue_update_command):
         """Test execution with no fields to update."""
         args = argparse.Namespace(
             issue="TEST-123", title=None, description=None, output="table"
         )
 
-        issue_update_command.execute(args)
+        issue_update_command.run(args)
 
         # Verify issue was not updated
         mock_client.issue.return_value.update.assert_not_called()
         # Verify warning was logged
         issue_update_command.log.warning.assert_called_once()
+
+    @patch("cac_jira.JIRA_CLIENT")
+    def test_update_lookup_error(self, mock_client, issue_update_command):
+        """A lookup failure is reported and returns a non-zero exit code."""
+        mock_client.issue.side_effect = Exception("does not exist")
+
+        args = argparse.Namespace(
+            issue="TEST-123", title="New Title", description=None, output="table"
+        )
+
+        result = issue_update_command.run(args)
+
+        assert result == 1
+        issue_update_command.log.error.assert_called()

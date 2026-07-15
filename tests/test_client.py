@@ -52,3 +52,40 @@ class TestJiraClientAuth:
 
         assert client.client is mock_client
         mock_client.myself.assert_called_once()
+
+
+@patch("jira.JIRA")
+class TestJiraClientAddLabels:
+    def _client(self, mock_jira_class):
+        mock_client = MagicMock()
+        mock_client.myself.return_value = {"accountId": "123"}
+        mock_jira_class.return_value = mock_client
+        return JiraClient("test.atlassian.net", "user@example.com", "token")
+
+    def test_add_labels_success_preserves_and_strips(self, mock_jira_class):
+        client = self._client(mock_jira_class)
+        issue = MagicMock()
+        client.client.issue.return_value = issue
+
+        result = client.add_labels("TEST-1", "a, b")
+
+        # Uses the "add" verb (preserving existing labels) and strips whitespace.
+        issue.update.assert_called_once_with(
+            update={"labels": [{"add": "a"}, {"add": "b"}]}
+        )
+        assert result is issue.update.return_value
+
+    def test_add_labels_empty_raises_value_error(self, mock_jira_class):
+        client = self._client(mock_jira_class)
+
+        with pytest.raises(ValueError):
+            client.add_labels("TEST-1", " , ")
+        # Validation happens before any lookup/update is attempted.
+        client.client.issue.assert_not_called()
+
+    def test_add_labels_lookup_error_propagates(self, mock_jira_class):
+        client = self._client(mock_jira_class)
+        client.client.issue.side_effect = JIRAError(status_code=404, text="nope")
+
+        with pytest.raises(JIRAError):
+            client.add_labels("TEST-1", "bug")

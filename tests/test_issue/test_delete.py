@@ -48,7 +48,7 @@ class TestIssueDelete:
         """Test issue deletion with user confirmation."""
         args = argparse.Namespace(issue="TEST-123", force=False, output="table")
 
-        issue_delete_command.execute(args)
+        issue_delete_command.run(args)
 
         # Verify confirmation was requested
         mock_input.assert_called_once()
@@ -61,7 +61,7 @@ class TestIssueDelete:
         """Test cancellation of issue deletion."""
         args = argparse.Namespace(issue="TEST-123", force=False, output="table")
 
-        issue_delete_command.execute(args)
+        issue_delete_command.run(args)
 
         # Verify confirmation was requested
         mock_input.assert_called_once()
@@ -76,9 +76,23 @@ class TestIssueDelete:
         """Test issue deletion with force flag."""
         args = argparse.Namespace(issue="TEST-123", force=True, output="table")
 
-        issue_delete_command.execute(args)
+        issue_delete_command.run(args)
 
         # Verify confirmation was not requested
         mock_input.assert_not_called()
         # Verify issue was deleted
         mock_client.delete_issue.assert_called_once_with("TEST-123")
+
+    @patch("cac_jira.JIRA_CLIENT")
+    @patch("builtins.input", side_effect=EOFError)
+    def test_delete_non_interactive(
+        self, mock_input, mock_client, issue_delete_command
+    ):
+        """Without an interactive terminal, confirmation fails cleanly."""
+        args = argparse.Namespace(issue="TEST-123", force=False, output="table")
+
+        result = issue_delete_command.run(args)
+
+        assert result == 1
+        mock_client.delete_issue.assert_not_called()
+        issue_delete_command.log.error.assert_called()

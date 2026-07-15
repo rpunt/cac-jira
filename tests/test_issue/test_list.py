@@ -27,13 +27,26 @@ class TestIssueList:
             command.log = MagicMock()
             return command
 
+    @staticmethod
+    def _make_issue(key, summary):
+        """Build a mock issue exposing the fields IssueList.execute reads."""
+        issue = MagicMock()
+        issue.key = key
+        issue.fields.summary = summary
+        issue.fields.assignee = None
+        issue.fields.resolutiondate = None
+        issue.fields.status.name = "To Do"
+        issue.fields.issuetype.name = "Task"
+        issue.fields.labels = []
+        return issue
+
     @pytest.fixture
     def mock_issues(self):
         """Create mock issues for testing."""
         return [
-            MagicMock(key="TEST-1", fields=MagicMock(summary="Test Issue 1")),
-            MagicMock(key="TEST-2", fields=MagicMock(summary="Test Issue 2")),
-            MagicMock(key="TEST-3", fields=MagicMock(summary="Test Issue 3")),
+            self._make_issue("TEST-1", "Test Issue 1"),
+            self._make_issue("TEST-2", "Test Issue 2"),
+            self._make_issue("TEST-3", "Test Issue 3"),
         ]
 
     def test_define_arguments(self, issue_list_command):
@@ -64,7 +77,7 @@ class TestIssueList:
         args = argparse.Namespace(
             project="TEST", mine=False, done=False, output="table"
         )
-        issue_list_command.execute(args)
+        issue_list_command.run(args)
 
         # Verify search_issues was called
         mock_client.search_issues.assert_called()
@@ -83,7 +96,7 @@ class TestIssueList:
 
         # Mine filter
         args = argparse.Namespace(project="TEST", mine=True, done=False, output="table")
-        issue_list_command.execute(args)
+        issue_list_command.run(args)
 
         # Verify and safely extract JQL
         mock_client.search_issues.assert_called()
@@ -96,7 +109,7 @@ class TestIssueList:
 
         # Done filter
         args = argparse.Namespace(project="TEST", mine=False, done=True, output="table")
-        issue_list_command.execute(args)
+        issue_list_command.run(args)
 
         # Verify and safely extract JQL
         mock_client.search_issues.assert_called()
@@ -116,16 +129,29 @@ class TestIssueList:
         args = argparse.Namespace(
             project="TEST", mine=False, done=False, output="table"
         )
-        issue_list_command.execute(args)
+        issue_list_command.run(args)
 
         # Verify Output class was initialized with correct format
         mock_output.assert_called_once()
         mock_output_instance = mock_output.return_value
         mock_output_instance.print_models.assert_called_once()
 
-        # Check models passed to print_models
+        # Check models passed to print_models (issue key is exposed as "ID")
         models = mock_output_instance.print_models.call_args[0][0]
         assert len(models) == 3
-        assert models[0].key == "TEST-1"
-        assert models[1].key == "TEST-2"
-        assert models[2].key == "TEST-3"
+        assert models[0].ID == "TEST-1"
+        assert models[1].ID == "TEST-2"
+        assert models[2].ID == "TEST-3"
+
+    @patch("cac_jira.JIRA_CLIENT")
+    def test_search_error(self, mock_client, issue_list_command):
+        """A search failure is reported and returns a non-zero exit code."""
+        mock_client.search_issues.side_effect = Exception("boom")
+
+        args = argparse.Namespace(
+            project="TEST", mine=False, done=False, output="table"
+        )
+        result = issue_list_command.run(args)
+
+        assert result == 1
+        issue_list_command.log.error.assert_called()

@@ -44,7 +44,7 @@ class IssueCreate(JiraIssueCommand):
 
         parser.add_argument(
             "--assign",
-            help="'Assign the issue to yourself?",
+            help="Assign the issue to yourself",
             action="store_true",
             default=False,
         )
@@ -143,13 +143,10 @@ class IssueCreate(JiraIssueCommand):
             self.log.error("Project key is required for issue creation")
             return 1
 
-        # validate project
-        try:
-            project = self.jira_client.project(args.project)
-            self.log.debug("Project %s found", project.key)
-        except Exception as e:
-            self.log.error("Failed to find project %s: %s", args.project, e)
-            return 1
+        # validate project (a bad key raises JIRAError, which run() maps to a
+        # non-zero exit)
+        project = self.jira_client.project(args.project)
+        self.log.debug("Project %s found", project.key)
 
         # validate issue type
         matching_issuetype = None
@@ -170,22 +167,30 @@ class IssueCreate(JiraIssueCommand):
             return 1
 
         # Prepare the issue data
+        # Note: reporter is intentionally not set here. It defaults to the
+        # creating user, and setting it explicitly requires the project-level
+        # "Modify Reporter" permission that ordinary users lack, which would
+        # cause create_issue to be rejected.
         fieldset = {
             "project": args.project,
             "summary": args.title,
             "description": args.description,
             "issuetype": matching_issuetype,
-            "reporter": {"accountId": self.jira_client.current_user()},
         }
 
         if args.labels:
             self.log.debug("Adding labels: %s", args.labels)
-            fieldset["labels"] = args.labels.split(",")
+            fieldset["labels"] = [
+                label.strip() for label in args.labels.split(",") if label.strip()
+            ]
 
         if args.epic:
-            epic = self.jira_client.issue(args.epic).key
-            self.log.debug("Adding to epic: %s", epic)
-            fieldset["parent"] = {"key": epic}
+            epic_issue = self.jira_client.issue(args.epic)
+            if not epic_issue:
+                self.log.error("Epic %s not found", args.epic)
+                return 1
+            self.log.debug("Adding to epic: %s", epic_issue.key)
+            fieldset["parent"] = {"key": epic_issue.key}
 
         # if args.assignee:
         #     issue_data["assignee"] = args.assignee
@@ -224,9 +229,12 @@ class IssueCreate(JiraIssueCommand):
                 # First check if this is a field name
                 field_id = field_name_or_id
 
-                # Try to match the field name (case-insensitive)
-                if field_name_or_id.lower() in field_name_to_id:
-                    field_id = field_name_to_id[field_name_or_id.lower()]
+                # Try to match the field name (case-insensitive). Normalize spaces
+                # to underscores so the lookup matches how field_name_to_id keys
+                # were built (e.g. "Story Points" -> "story_points").
+                normalized_name = field_name_or_id.lower().replace(" ", "_")
+                if normalized_name in field_name_to_id:
+                    field_id = field_name_to_id[normalized_name]
                     self.log.debug(
                         f"Mapped field name '{field_name_or_id}' to ID '{field_id}'"
                     )
@@ -278,6 +286,9 @@ class IssueCreate(JiraIssueCommand):
             issue.update(assignee={"accountId": self.jira_client.current_user()})
             self.log.info("Issue %s assigned to you", issue.key)
 
+        # The issue is created at this point; track whether the optional begin
+        # step succeeded so its failure is reflected in the exit code.
+        begin_result = 0
         if args.begin:
             try:
                 # Import the begin command module
@@ -292,10 +303,14 @@ class IssueCreate(JiraIssueCommand):
 
                 begin_args = Namespace(issue=issue.key)
 
-                # Execute the begin command with our constructed args
-                begin_cmd.execute(begin_args)
+                # Execute the begin command with our constructed args (through
+                # the error-handling wrapper) and propagate its exit code.
+                begin_result = begin_cmd.run(begin_args) or 0
             except Exception as e:
                 self.log.error("Failed to transition issue to In Progress: %s", str(e))
+                begin_result = 1
 
         if args.browse:
             webbrowser.open(issue.permalink())
+
+        return begin_result

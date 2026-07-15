@@ -9,8 +9,10 @@ command actions.
 """
 
 import abc
+import logging
 
 from cac_core.command import Command
+from jira.exceptions import JIRAError
 
 import cac_jira
 from cac_jira import log
@@ -27,13 +29,28 @@ class JiraCommand(Command):
 
     def __init__(self):
         """
-        Initialize the command with a logger and Jira client.
+        Initialize the command with a logger and configuration.
+
+        Configuration is loaded eagerly (it is network-free and needed for
+        argument defaults), but the Jira client is connected lazily on first
+        access via the ``jira_client`` property so that argument parsing and
+        ``--help`` do not require network access or credentials.
         """
         super().__init__()
-        cac_jira._initialize()
         self.log = log
-        self.jira_client = cac_jira.JIRA_CLIENT
         self.config = cac_jira.CONFIG
+        self._jira_client = None
+
+    @property
+    def jira_client(self):
+        """The Jira client, connected on first access."""
+        if self._jira_client is None:
+            self._jira_client = cac_jira.JIRA_CLIENT
+        return self._jira_client
+
+    @jira_client.setter
+    def jira_client(self, value):
+        self._jira_client = value
 
     @abc.abstractmethod
     def define_arguments(self, parser):
@@ -52,14 +69,61 @@ class JiraCommand(Command):
         super().define_arguments(parser)
         return parser
 
-    @abc.abstractmethod
-    def execute(self, args):
+    def run(self, args):
         """
-        Execute the command with the provided arguments.
+        Run the command and map failures to an exit code.
 
-        This method must be implemented by subclasses.
+        This is the template method invoked by the CLI entry point. It calls the
+        subclass's ``execute()`` and turns any error raised by the Jira client
+        into a logged, non-zero exit code. Centralizing the error handling here
+        means individual commands do not need their own try/except around client
+        calls -- they implement ``execute()`` as straight-line logic and may
+        raise freely (or return an explicit non-zero code for their own
+        validation failures).
 
         Args:
             args: The parsed arguments
+
+        Returns:
+            int: The exit code (0 on success, non-zero on failure).
+        """
+        try:
+            result = self.execute(args)
+        except JIRAError as e:
+            # python-jira raises this for not-found/auth/permission/JQL errors;
+            # its ``text`` is the human-readable Jira message.
+            self.log.error(
+                "%s failed: %s", type(self).__name__, getattr(e, "text", None) or e
+            )
+            return 1
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            # Unexpected error: include the traceback when debug logging is on
+            # (e.g. --verbose) so it's diagnosable, while keeping normal output
+            # clean.
+            self.log.error(
+                "%s failed: %s",
+                type(self).__name__,
+                e,
+                exc_info=self.log.isEnabledFor(logging.DEBUG),
+            )
+            return 1
+        return 0 if result is None else result
+
+    @abc.abstractmethod
+    def execute(self, args):
+        """
+        Perform the command's work.
+
+        Subclasses implement this as straight-line logic. Errors raised by the
+        Jira client propagate to ``run()``, which logs them and returns a
+        non-zero exit code, so ``execute()`` does not need to wrap client calls
+        in try/except. Return ``None``/``0`` on success, or a non-zero int for
+        command-specific validation failures.
+
+        Args:
+            args: The parsed arguments
+
+        Returns:
+            Optional[int]: ``None``/``0`` on success, non-zero on failure.
         """
         raise NotImplementedError("Command subclasses must implement execute()")

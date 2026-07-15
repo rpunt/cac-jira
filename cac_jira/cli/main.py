@@ -96,6 +96,14 @@ def setup_logging(log: logging.Logger, verbose: bool) -> None:
     """Configure logging based on command line arguments"""
     if verbose:
         log.setLevel(logging.DEBUG)
+        # The commands and client emit their debug messages through the
+        # "cac_jira" package logger and its children (e.g. cac_jira.core.client).
+        # Each is created with an explicit INFO level and propagate=False, so
+        # raising only the parent won't reach them — set every cac_jira* logger.
+        logging.getLogger("cac_jira").setLevel(logging.DEBUG)
+        for name, logger in logging.root.manager.loggerDict.items():
+            if name.startswith("cac_jira") and isinstance(logger, logging.Logger):
+                logger.setLevel(logging.DEBUG)
 
 
 def main():
@@ -181,14 +189,6 @@ def main():
     setup_logging(log, args.verbose)
     log.debug("Parsed arguments: %s", args)
 
-    # Add to main function, after argument parsing but before execution
-    if args.command is None:
-        parser.print_help()
-        print("\nAvailable commands:")
-        for cmd in sorted(commands):
-            print(f"  {cmd}")
-        sys.exit(1)
-
     # Execute the appropriate action
     try:
         # Get the action class from the parser defaults
@@ -206,10 +206,21 @@ def main():
             sys.exit(1)
 
         log.debug("Executing action: %s %s", args.command, args.action)
-        action_instance.execute(args)
+        exit_code = action_instance.run(args)
 
     except Exception as e:  # pylint: disable=broad-except
-        log.error("Error executing command: %s", e)
+        # Include the traceback under --verbose (debug) so an error that escapes
+        # the command wrapper is diagnosable, while keeping normal output clean.
+        log.error(
+            "Error executing command: %s", e, exc_info=log.isEnabledFor(logging.DEBUG)
+        )
+        sys.exit(1)
+
+    # Propagate a non-zero exit code so scripts/CI can detect failures. A None
+    # or 0 return means success; don't sys.exit(0) so direct callers of main()
+    # (e.g. tests) aren't forced to handle SystemExit on the happy path.
+    if exit_code:
+        sys.exit(exit_code)
 
 
 if __name__ == "__main__":

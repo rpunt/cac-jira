@@ -25,6 +25,13 @@ class IssueDelete(JiraIssueCommand):
             default=None,
             required=True,
         )
+        parser.add_argument(
+            "-f",
+            "--force",
+            help="Delete without confirmation",
+            action="store_true",
+            default=False,
+        )
         return parser
 
     def execute(self, args):
@@ -34,10 +41,25 @@ class IssueDelete(JiraIssueCommand):
         Args:
             args: The parsed arguments
         """
-        self.log.debug("Deleting Jira issue")
-        try:
-            self.jira_client.delete_issue(args.issue)
-        except Exception as e:
-            self.log.error("Failed to find issue %s: %s", args.issue, e)
-            return
+        self.log.debug("Deleting Jira issue %s", args.issue)
+
+        # Deletion is irreversible, so confirm unless --force was given.
+        if not args.force:
+            try:
+                response = input(
+                    f"Delete issue {args.issue}? This cannot be undone [y/N]: "
+                )
+            except EOFError:
+                # No interactive stdin (piped input, CI, etc.).
+                self.log.error(
+                    "Cannot confirm deletion without an interactive terminal; "
+                    "pass --force to delete non-interactively"
+                )
+                return 1
+            if response.strip().lower() not in ("y", "yes"):
+                self.log.info("Delete operation cancelled.")
+                return 0
+
+        self.jira_client.delete_issue(args.issue)
         self.log.info("Issue %s deleted", args.issue)
+        return 0

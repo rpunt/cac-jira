@@ -33,31 +33,21 @@ class JiraProjectCommand(JiraCommand):
             The modified parser
         """
         super().define_arguments(parser)
-        # Add project-specific common arguments
-        parser.add_argument(
-            "-n",
-            "--name",
-            help="Filter projects by name (case-insensitive, partial match)",
-            default=None,
-        )
-        parser.add_argument(
-            "-k",
-            "--key",
-            help="Filter projects by key (case-insensitive, partial match)",
-            default=None,
-        )
+        # Note: filtering options (--name/--key) are specific to listing and are
+        # defined by ProjectList, not here, so commands like `project show` don't
+        # advertise filters that have no effect.
         return parser
 
     @abc.abstractmethod
     def execute(self, args):
         """
-        Execute the command with the provided arguments.
+        Perform the command's work (see JiraCommand.execute).
 
         Args:
             args: The parsed command line arguments
 
         Returns:
-            Command result
+            Optional[int]: None/0 on success, non-zero on failure.
         """
         # This method is meant to be overridden by specific project commands
         raise NotImplementedError("Subclasses must implement execute()")
