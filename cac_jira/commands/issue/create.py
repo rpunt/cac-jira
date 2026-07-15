@@ -44,7 +44,7 @@ class IssueCreate(JiraIssueCommand):
 
         parser.add_argument(
             "--assign",
-            help="'Assign the issue to yourself?",
+            help="Assign the issue to yourself",
             action="store_true",
             default=False,
         )
@@ -170,17 +170,22 @@ class IssueCreate(JiraIssueCommand):
             return 1
 
         # Prepare the issue data
+        # Note: reporter is intentionally not set here. It defaults to the
+        # creating user, and setting it explicitly requires the project-level
+        # "Modify Reporter" permission that ordinary users lack, which would
+        # cause create_issue to be rejected.
         fieldset = {
             "project": args.project,
             "summary": args.title,
             "description": args.description,
             "issuetype": matching_issuetype,
-            "reporter": {"accountId": self.jira_client.current_user()},
         }
 
         if args.labels:
             self.log.debug("Adding labels: %s", args.labels)
-            fieldset["labels"] = args.labels.split(",")
+            fieldset["labels"] = [
+                label.strip() for label in args.labels.split(",") if label.strip()
+            ]
 
         if args.epic:
             epic = self.jira_client.issue(args.epic).key
@@ -224,9 +229,12 @@ class IssueCreate(JiraIssueCommand):
                 # First check if this is a field name
                 field_id = field_name_or_id
 
-                # Try to match the field name (case-insensitive)
-                if field_name_or_id.lower() in field_name_to_id:
-                    field_id = field_name_to_id[field_name_or_id.lower()]
+                # Try to match the field name (case-insensitive). Normalize spaces
+                # to underscores so the lookup matches how field_name_to_id keys
+                # were built (e.g. "Story Points" -> "story_points").
+                normalized_name = field_name_or_id.lower().replace(" ", "_")
+                if normalized_name in field_name_to_id:
+                    field_id = field_name_to_id[normalized_name]
                     self.log.debug(
                         f"Mapped field name '{field_name_or_id}' to ID '{field_id}'"
                     )
@@ -299,3 +307,5 @@ class IssueCreate(JiraIssueCommand):
 
         if args.browse:
             webbrowser.open(issue.permalink())
+
+        return 0

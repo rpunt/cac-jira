@@ -35,10 +35,16 @@ class JiraIssueCommand(JiraCommand):
         # Add issue-specific common arguments
         has_project = any(action.dest == "project" for action in parser._actions)
         if not has_project:
+            # If the user never configured a default project, the config still
+            # holds the "INVALID_DEFAULT" sentinel from the template; treat that
+            # as "no default" so it never leaks into a JQL/create call.
+            default_project = self.config.project  # pylint: disable=no-member
+            if default_project == "INVALID_DEFAULT":
+                default_project = None
             parser.add_argument(
                 "--project",
                 help="Project key for the issue",
-                default=self.config.project,  # pylint: disable=no-member
+                default=default_project,
             )
         return parser
 

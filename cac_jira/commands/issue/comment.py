@@ -44,3 +44,4 @@ class IssueComment(JiraIssueCommand):
         self.log.debug("Commenting on Jira issue %s", args.issue)
         self.jira_client.add_comment(args.issue, args.comment)
         self.log.info("Added comment to %s", args.issue)
+        return 0

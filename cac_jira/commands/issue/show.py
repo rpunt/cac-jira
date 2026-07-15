@@ -36,12 +36,17 @@ class IssueShow(JiraIssueCommand):
 
     def execute(self, args):
         self.log.debug("Showing Jira issue %s", args.issue)
-        issue = self.jira_client.issue(args.issue)
+        try:
+            issue = self.jira_client.issue(args.issue)
+        except Exception as e:
+            self.log.error("Failed to find issue %s: %s", args.issue, e)
+            return 1
         if args.output == "json":
             # skip the model JSON output and just print the raw issue
             print(json.dumps(issue.raw, indent=4))
-            return
+            return 0
         else:
+            priority = getattr(issue.fields, "priority", None)
             models = []
             model = cac.model.Model(
                 {
@@ -50,9 +55,10 @@ class IssueShow(JiraIssueCommand):
                     "Summary": issue.fields.summary,
                     "Status": issue.fields.status.name,
                     "Type": issue.fields.issuetype.name,
-                    "Priority": issue.fields.priority.name,
+                    "Priority": priority.name if priority else "None",
                 }
             )
             models.append(model)
             printer = cac.output.Output(args)
             printer.print_models(models)
+            return 0

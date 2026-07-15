@@ -45,5 +45,5 @@ class IssueClose(JiraIssueCommand):
         issue = self.jira_client.issue(args.issue)
         if not issue:
             self.log.error("Issue not found")
-            return
-        self._transition_to(issue, "Done", comment=args.comment)
+            return 1
+        return 0 if self._transition_to(issue, "Done", comment=args.comment) else 1

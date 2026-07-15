@@ -53,6 +53,12 @@ class IssueList(JiraIssueCommand):
         """
         self.log.debug("Listing Jira issues")
 
+        if not args.project:
+            self.log.error(
+                "No project specified; pass --project or configure a default project"
+            )
+            return 1
+
         # Build JQL query based on provided filters
         jql_parts = [f"project = {args.project}"]
         # if args.assignee:
@@ -62,7 +68,10 @@ class IssueList(JiraIssueCommand):
         if args.mine:
             jql_parts.append("assignee = currentUser()")
         if not args.done:
-            jql_parts.append("status != Done")
+            # Filter on resolution rather than a literal status name, so issues
+            # are excluded once resolved regardless of the project's specific
+            # "done" status name ("Done"/"Closed"/"Resolved"/etc.).
+            jql_parts.append("resolution = Unresolved")
 
         # TODO: add start and end date filters
         # if args.start_date:
@@ -75,6 +84,9 @@ class IssueList(JiraIssueCommand):
         jql = " AND ".join(jql_parts) if jql_parts else ""
         self.log.debug("JQL query: %s", jql)
         total_issues = self.jira_client.search_issues(jql)
+        if not total_issues:
+            self.log.info("No issues found")
+            return 0
 
         models = []
         for issue in total_issues:
@@ -106,3 +118,4 @@ class IssueList(JiraIssueCommand):
 
         printer = cac.output.Output(args)
         printer.print_models(models)
+        return 0

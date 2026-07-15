@@ -139,7 +139,10 @@ class JiraClient:
         if not issue:
             log.error("Issue not found")
             return
-        return issue.update(fields={"labels": labels.split(",")})
+        # Use the "add" update verb so existing labels are preserved rather than
+        # overwritten, and strip whitespace since Jira labels cannot contain spaces.
+        label_list = [label.strip() for label in labels.split(",") if label.strip()]
+        return issue.update(update={"labels": [{"add": label} for label in label_list]})
 
     def create_issue(self, **kwargs):
         """

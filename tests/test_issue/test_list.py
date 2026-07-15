@@ -27,13 +27,26 @@ class TestIssueList:
             command.log = MagicMock()
             return command
 
+    @staticmethod
+    def _make_issue(key, summary):
+        """Build a mock issue exposing the fields IssueList.execute reads."""
+        issue = MagicMock()
+        issue.key = key
+        issue.fields.summary = summary
+        issue.fields.assignee = None
+        issue.fields.resolutiondate = None
+        issue.fields.status.name = "To Do"
+        issue.fields.issuetype.name = "Task"
+        issue.fields.labels = []
+        return issue
+
     @pytest.fixture
     def mock_issues(self):
         """Create mock issues for testing."""
         return [
-            MagicMock(key="TEST-1", fields=MagicMock(summary="Test Issue 1")),
-            MagicMock(key="TEST-2", fields=MagicMock(summary="Test Issue 2")),
-            MagicMock(key="TEST-3", fields=MagicMock(summary="Test Issue 3")),
+            self._make_issue("TEST-1", "Test Issue 1"),
+            self._make_issue("TEST-2", "Test Issue 2"),
+            self._make_issue("TEST-3", "Test Issue 3"),
         ]
 
     def test_define_arguments(self, issue_list_command):
@@ -123,9 +136,9 @@ class TestIssueList:
         mock_output_instance = mock_output.return_value
         mock_output_instance.print_models.assert_called_once()
 
-        # Check models passed to print_models
+        # Check models passed to print_models (issue key is exposed as "ID")
         models = mock_output_instance.print_models.call_args[0][0]
         assert len(models) == 3
-        assert models[0].key == "TEST-1"
-        assert models[1].key == "TEST-2"
-        assert models[2].key == "TEST-3"
+        assert models[0].ID == "TEST-1"
+        assert models[1].ID == "TEST-2"
+        assert models[2].ID == "TEST-3"

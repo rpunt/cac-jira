@@ -41,6 +41,7 @@ class IssueLabel(JiraIssueCommand):
         Args:
             args: The parsed arguments
         """
-        self.log.debug("Adding lables to Jira issue %s", args.issue)
+        self.log.debug("Adding labels to Jira issue %s", args.issue)
         self.jira_client.add_labels(args.issue, args.labels)
         self.log.info("Issue %s labels updated", args.issue)
+        return 0

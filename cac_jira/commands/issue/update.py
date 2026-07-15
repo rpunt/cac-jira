@@ -67,11 +67,17 @@ class IssueUpdate(JiraIssueCommand):
         """
         self.log.debug("Updating Jira issue %s", args.issue)
 
-        # Assign the issue to the user
+        # Nothing to do if the caller didn't provide any fields to change.
+        if not args.title and not args.description:
+            self.log.warning(
+                "No fields to update; specify --title and/or --description"
+            )
+            return 1
+
         issue = self.jira_client.issue(args.issue)
         if not issue:
             self.log.error("Issue not found")
-            return
+            return 1
         if args.title and args.description:
             issue.update(summary=args.title, description=args.description)
             self.log.info("Issue %s updated with new title and description", issue.key)
@@ -81,3 +87,4 @@ class IssueUpdate(JiraIssueCommand):
         elif args.description:
             issue.update(description=args.description)
             self.log.info("Issue %s updated with new description", issue.key)
+        return 0

@@ -27,13 +27,28 @@ class JiraCommand(Command):
 
     def __init__(self):
         """
-        Initialize the command with a logger and Jira client.
+        Initialize the command with a logger and configuration.
+
+        Configuration is loaded eagerly (it is network-free and needed for
+        argument defaults), but the Jira client is connected lazily on first
+        access via the ``jira_client`` property so that argument parsing and
+        ``--help`` do not require network access or credentials.
         """
         super().__init__()
-        cac_jira._initialize()
         self.log = log
-        self.jira_client = cac_jira.JIRA_CLIENT
         self.config = cac_jira.CONFIG
+        self._jira_client = None
+
+    @property
+    def jira_client(self):
+        """The Jira client, connected on first access."""
+        if self._jira_client is None:
+            self._jira_client = cac_jira.JIRA_CLIENT
+        return self._jira_client
+
+    @jira_client.setter
+    def jira_client(self, value):
+        self._jira_client = value
 
     @abc.abstractmethod
     def define_arguments(self, parser):

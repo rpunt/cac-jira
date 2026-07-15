@@ -83,7 +83,7 @@ class ProjectList(JiraProjectCommand):
 
         if not projects:
             self.log.error("No projects found")
-            return
+            return 1
 
         # Convert to models for display
         models = []
@@ -95,3 +95,4 @@ class ProjectList(JiraProjectCommand):
 
         printer = cac.output.Output(args)
         printer.print_models(models)
+        return 0
