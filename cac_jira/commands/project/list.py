@@ -36,6 +36,18 @@ class ProjectList(JiraProjectCommand):
             parser: The argument parser to add arguments to
         """
         super().define_arguments(parser)
+        parser.add_argument(
+            "-n",
+            "--name",
+            help="Filter projects by name (case-insensitive, partial match)",
+            default=None,
+        )
+        parser.add_argument(
+            "-k",
+            "--key",
+            help="Filter projects by key (case-insensitive, partial match)",
+            default=None,
+        )
         return parser
 
     def get_projects(self, args):

@@ -63,6 +63,15 @@ class TestIssueBegin:
         assert result == 1
         cmd.jira_client.transitions.assert_not_called()
 
+    def test_begin_lookup_error(self, cmd):
+        cmd.jira_client.issue.side_effect = Exception("boom")
+
+        result = cmd.execute(argparse.Namespace(issue="TEST-1"))
+
+        assert result == 1
+        cmd.jira_client.transitions.assert_not_called()
+        cmd.log.error.assert_called()
+
 
 class TestIssueClose:
     @pytest.fixture

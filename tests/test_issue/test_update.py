@@ -144,3 +144,17 @@ class TestIssueUpdate:
         mock_client.issue.return_value.update.assert_not_called()
         # Verify warning was logged
         issue_update_command.log.warning.assert_called_once()
+
+    @patch("cac_jira.JIRA_CLIENT")
+    def test_update_lookup_error(self, mock_client, issue_update_command):
+        """A lookup failure is reported and returns a non-zero exit code."""
+        mock_client.issue.side_effect = Exception("does not exist")
+
+        args = argparse.Namespace(
+            issue="TEST-123", title="New Title", description=None, output="table"
+        )
+
+        result = issue_update_command.execute(args)
+
+        assert result == 1
+        issue_update_command.log.error.assert_called()

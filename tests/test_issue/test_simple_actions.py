@@ -57,6 +57,12 @@ class TestIssueLabel:
         assert result == 0
         cmd.jira_client.add_labels.assert_called_once_with("TEST-1", "bug,urgent")
 
+    def test_label_rejects_empty(self, cmd):
+        result = cmd.execute(argparse.Namespace(issue="TEST-1", labels=" , "))
+
+        assert result == 1
+        cmd.jira_client.add_labels.assert_not_called()
+
 
 class TestIssueBrowse:
     @pytest.fixture

@@ -42,6 +42,9 @@ class IssueLabel(JiraIssueCommand):
             args: The parsed arguments
         """
         self.log.debug("Adding labels to Jira issue %s", args.issue)
+        if not [label.strip() for label in args.labels.split(",") if label.strip()]:
+            self.log.error("No valid labels provided")
+            return 1
         self.jira_client.add_labels(args.issue, args.labels)
         self.log.info("Issue %s labels updated", args.issue)
         return 0

@@ -74,7 +74,11 @@ class IssueUpdate(JiraIssueCommand):
             )
             return 1
 
-        issue = self.jira_client.issue(args.issue)
+        try:
+            issue = self.jira_client.issue(args.issue)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.log.error("Failed to find issue %s: %s", args.issue, e)
+            return 1
         if not issue:
             self.log.error("Issue not found")
             return 1

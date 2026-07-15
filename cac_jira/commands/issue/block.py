@@ -49,7 +49,11 @@ class IssueBlock(JiraIssueCommand):
             args: The parsed arguments
         """
         self.log.debug("Transitioning Jira issue %s to Blocked", args.issue)
-        issue = self.jira_client.issue(args.issue)
+        try:
+            issue = self.jira_client.issue(args.issue)
+        except Exception as e:
+            self.log.error("Failed to find issue %s: %s", args.issue, e)
+            return 1
         if not issue:
             self.log.error("Issue not found")
             return 1
