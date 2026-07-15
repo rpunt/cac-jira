@@ -142,3 +142,16 @@ class TestIssueList:
         assert models[0].ID == "TEST-1"
         assert models[1].ID == "TEST-2"
         assert models[2].ID == "TEST-3"
+
+    @patch("cac_jira.JIRA_CLIENT")
+    def test_search_error(self, mock_client, issue_list_command):
+        """A search failure is reported and returns a non-zero exit code."""
+        mock_client.search_issues.side_effect = Exception("boom")
+
+        args = argparse.Namespace(
+            project="TEST", mine=False, done=False, output="table"
+        )
+        result = issue_list_command.execute(args)
+
+        assert result == 1
+        issue_list_command.log.error.assert_called()

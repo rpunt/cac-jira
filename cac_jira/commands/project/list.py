@@ -91,7 +91,11 @@ class ProjectList(JiraProjectCommand):
         Args:
             args: The parsed arguments
         """
-        projects = self.get_projects(args)
+        try:
+            projects = self.get_projects(args)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.log.error("Failed to list projects: %s", e)
+            return 1
 
         if not projects:
             self.log.error("No projects found")

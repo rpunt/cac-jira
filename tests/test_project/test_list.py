@@ -60,3 +60,12 @@ class TestProjectList:
 
         assert result == 1
         cmd.log.error.assert_called()
+
+    def test_list_error(self, cmd):
+        """A client failure is reported and returns a non-zero exit code."""
+        cmd.jira_client.projects.side_effect = Exception("boom")
+
+        result = cmd.execute(argparse.Namespace(name=None, key=None, output="table"))
+
+        assert result == 1
+        cmd.log.error.assert_called()

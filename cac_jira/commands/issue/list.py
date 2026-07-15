@@ -83,7 +83,11 @@ class IssueList(JiraIssueCommand):
 
         jql = " AND ".join(jql_parts) if jql_parts else ""
         self.log.debug("JQL query: %s", jql)
-        total_issues = self.jira_client.search_issues(jql)
+        try:
+            total_issues = self.jira_client.search_issues(jql)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.log.error("Failed to search issues: %s", e)
+            return 1
         if not total_issues:
             self.log.info("No issues found")
             return 0
