@@ -34,11 +34,16 @@ jira <command> <action> [options]
 
 ### Global Options
 
-- `--verbose`: Enable debug output
+- `--verbose`: Enable debug output (includes a traceback for unexpected errors)
 - `--output [table|json]`: Control output format (default table)
 - `--help`: Show command help
 <!-- --suppress-output: Hide command output -->
 <!-- --version: Display version information -->
+
+Commands exit `0` on success and non-zero on failure (invalid input, a
+not-found issue/project, or a Jira API error), so they compose safely in
+scripts. `--help` and argument parsing work offline and do not require
+credentials — the Jira connection is only established when a command runs.
 
 ### Examples
 
@@ -50,10 +55,11 @@ List issues in a project:
 jira issue list --project PROJ
 ```
 
-List issues with additional filtering:
+List only issues assigned to you (and optionally include completed ones):
 
 ```bash
-jira issue list --project PROJ
+jira issue list --project PROJ --mine
+jira issue list --project PROJ --done   # include issues that are resolved
 ```
 
 Create a new issue:
@@ -102,7 +108,15 @@ Transition an issue:
 
 ```bash
 jira issue begin --issue ISSUE_KEY    # Start work
+jira issue block --issue ISSUE_KEY    # Mark as blocked
 jira issue close --issue ISSUE_KEY    # Mark as complete
+```
+
+Delete an issue (prompts for confirmation; pass `--force` to skip it, e.g. in scripts):
+
+```bash
+jira issue delete --issue ISSUE_KEY
+jira issue delete --issue ISSUE_KEY --force
 ```
 
 #### Project Commands
@@ -113,10 +127,17 @@ List all projects:
 jira project list
 ```
 
-Show a project:
+Filter projects by name or key (case-insensitive, partial match):
 
 ```bash
-jira project show --name PROJ-123
+jira project list --name "Core"
+jira project list --key COR
+```
+
+Show a single project by its key:
+
+```bash
+jira project show PROJ
 ```
 
 #### Advanced Examples
@@ -154,8 +175,6 @@ source .venv/bin/activate
 uv run pytest
 ```
 
-Please note that tests are still WIP
-
 ### Project Structure
 
 - `cac_jira/commands/` - Command implementations
@@ -168,3 +187,8 @@ Please note that tests are still WIP
 1. Create a new action module in the appropriate command directory.
 2. Define a class that inherits from the command's base class.
 3. Implement `define_arguments()` and `execute()` methods.
+
+`execute()` contains the command's logic and returns an exit code (`0`/`None`
+for success, non-zero for validation failures). It does not need to wrap Jira
+calls in try/except: the base class's `run()` wrapper catches client errors,
+logs them, and maps them to a non-zero exit code.

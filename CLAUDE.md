@@ -48,9 +48,24 @@ Command (cac_core)
 
 Each action must implement two abstract methods: `define_arguments(parser)` and `execute(args)`.
 
+### Command Execution & Error Handling
+
+`JiraCommand` uses a template method: the CLI entry point calls `command.run(args)` (a concrete method on `JiraCommand`), which invokes the subclass's `execute(args)` and maps any exception raised by the Jira client (`JIRAError` or otherwise) to a logged, non-zero exit code. Because of this:
+
+- Actions implement `execute(args)` as straight-line logic. They may let client calls raise; they do **not** need their own try/except around `JiraClient` calls.
+- `execute()` returns an int exit code — `0`/`None` for success, non-zero for the command's own validation failures (e.g. missing/invalid input, not-found guards).
+- `main()` propagates that exit code, so `$?` reflects success/failure.
+
+`JiraClient` (`cac_jira/core/client.py`) is a thin passthrough: each method returns the underlying `jira-python` result or **raises** (`JIRAError`, or `ValueError` for invalid arguments). It does not return sentinel values or swallow exceptions — the command layer decides how to present errors.
+
 ### Module Initialization
 
-`cac_jira/__init__.py` runs at import time and handles first-run setup (prompting for server, username, project) and creates three global singletons: `JIRA_CLIENT`, `CONFIG`, and `log`. These are imported by `JiraCommand` and available to all actions.
+`cac_jira/__init__.py` exposes three module-level attributes used by `JiraCommand` and all actions: `CONFIG`, `JIRA_CLIENT`, and `log`. Initialization is split and lazy (via module `__getattr__`):
+
+- `CONFIG` triggers `_initialize_config()` — loads the config file and runs first-run prompts (server, username, project). This is **network-free** and cheap, so it runs during argument parsing (including `--help`).
+- `JIRA_CLIENT` triggers `_initialize_client()` — fetches the API token and connects to Jira. This only happens the first time a command actually needs the client (i.e. at execution time), so `--help` and argument parsing work offline without credentials.
+
+`JiraCommand.__init__` loads `CONFIG` eagerly but exposes `jira_client` as a lazy property, so constructing a command (which the discovery loop does for every action) does not open a connection.
 
 ### Key Dependencies
 
@@ -62,7 +77,7 @@ Each action must implement two abstract methods: `define_arguments(parser)` and 
 1. Create a new `.py` file in the appropriate command directory (e.g., `cac_jira/commands/issue/myaction.py`)
 2. Define a class following the naming convention (e.g., `IssueMyaction`)
 3. Inherit from the command's base class (e.g., `JiraIssueCommand`)
-4. Implement `define_arguments()` and `execute()`
+4. Implement `define_arguments()` and `execute()` — `execute()` returns an exit code (`0`/`None` on success, non-zero on failure) and may let `JiraClient` calls raise; the base `run()` wrapper handles the error mapping. Do not override `run()`.
 
 ### Configuration & Credentials
 
