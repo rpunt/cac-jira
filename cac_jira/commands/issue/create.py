@@ -188,9 +188,16 @@ class IssueCreate(JiraIssueCommand):
             ]
 
         if args.epic:
-            epic = self.jira_client.issue(args.epic).key
-            self.log.debug("Adding to epic: %s", epic)
-            fieldset["parent"] = {"key": epic}
+            try:
+                epic_issue = self.jira_client.issue(args.epic)
+            except Exception as e:
+                self.log.error("Failed to find epic %s: %s", args.epic, e)
+                return 1
+            if not epic_issue:
+                self.log.error("Epic %s not found", args.epic)
+                return 1
+            self.log.debug("Adding to epic: %s", epic_issue.key)
+            fieldset["parent"] = {"key": epic_issue.key}
 
         # if args.assignee:
         #     issue_data["assignee"] = args.assignee

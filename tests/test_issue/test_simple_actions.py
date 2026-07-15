@@ -117,3 +117,13 @@ class TestIssueBrowse:
         assert result == 1
         mock_open.assert_not_called()
         cmd.log.error.assert_called()
+
+    def test_browse_issue_none(self, cmd):
+        cmd.jira_client.issue.return_value = None
+
+        with patch("webbrowser.open") as mock_open:
+            result = cmd.execute(argparse.Namespace(issue="TEST-1"))
+
+        assert result == 1
+        mock_open.assert_not_called()
+        cmd.log.error.assert_called()

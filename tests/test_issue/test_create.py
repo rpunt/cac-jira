@@ -107,6 +107,12 @@ class TestIssueCreateExecution:
         fields = cmd.jira_client.create_issue.call_args[1]["fields"]
         assert fields["parent"] == {"key": "TEST-99"}
 
+    def test_creation_epic_not_found(self, cmd):
+        cmd.jira_client.issue.side_effect = Exception("no such epic")
+        result = cmd.execute(make_args(epic="TEST-99"))
+        assert result == 1
+        cmd.jira_client.create_issue.assert_not_called()
+
     def test_creation_with_assign(self, cmd):
         cmd.execute(make_args(assign=True))
         created_issue = cmd.jira_client.create_issue.return_value

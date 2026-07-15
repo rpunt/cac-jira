@@ -45,9 +45,17 @@ class IssueDelete(JiraIssueCommand):
 
         # Deletion is irreversible, so confirm unless --force was given.
         if not args.force:
-            response = input(
-                f"Delete issue {args.issue}? This cannot be undone [y/N]: "
-            )
+            try:
+                response = input(
+                    f"Delete issue {args.issue}? This cannot be undone [y/N]: "
+                )
+            except EOFError:
+                # No interactive stdin (piped input, CI, etc.).
+                self.log.error(
+                    "Cannot confirm deletion without an interactive terminal; "
+                    "pass --force to delete non-interactively"
+                )
+                return 1
             if response.strip().lower() not in ("y", "yes"):
                 self.log.info("Delete operation cancelled.")
                 return 0

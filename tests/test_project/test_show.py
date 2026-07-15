@@ -62,3 +62,14 @@ class TestProjectShow:
 
         assert result == 1
         project_show_command.log.error.assert_called()
+
+    def test_show_project_none(self, project_show_command):
+        """A falsy project is handled without an AttributeError."""
+        project_show_command.jira_client = MagicMock()
+        project_show_command.jira_client.project.return_value = None
+
+        args = argparse.Namespace(project="NOPE", output="table")
+        result = project_show_command.execute(args)
+
+        assert result == 1
+        project_show_command.log.error.assert_called()

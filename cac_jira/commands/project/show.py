@@ -42,6 +42,9 @@ class ProjectShow(JiraProjectCommand):
         except Exception as e:  # pylint: disable=broad-except
             self.log.error("Failed to find project %s: %s", args.project, e)
             return 1
+        if not project:
+            self.log.error("Project %s not found", args.project)
+            return 1
 
         model = cac.model.Model(
             {"ID": project.id, "Key": project.key, "Name": project.name}

@@ -39,5 +39,8 @@ class IssueBrowse(JiraIssueCommand):
         except Exception as e:
             self.log.error("Failed to find issue %s: %s", args.issue, e)
             return 1
+        if not issue:
+            self.log.error("Issue %s not found", args.issue)
+            return 1
         webbrowser.open(issue.permalink())
         return 0
