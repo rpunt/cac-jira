@@ -52,3 +52,34 @@ class TestJiraClientAuth:
 
         assert client.client is mock_client
         mock_client.myself.assert_called_once()
+
+
+@patch("jira.JIRA")
+class TestJiraClientAddLabels:
+    def _client(self, mock_jira_class):
+        mock_client = MagicMock()
+        mock_client.myself.return_value = {"accountId": "123"}
+        mock_jira_class.return_value = mock_client
+        return JiraClient("test.atlassian.net", "user@example.com", "token")
+
+    def test_add_labels_success_preserves_and_strips(self, mock_jira_class):
+        client = self._client(mock_jira_class)
+        issue = MagicMock()
+        client.client.issue.return_value = issue
+
+        assert client.add_labels("TEST-1", "a, b") is True
+        issue.update.assert_called_once_with(
+            update={"labels": [{"add": "a"}, {"add": "b"}]}
+        )
+
+    def test_add_labels_empty_returns_false(self, mock_jira_class):
+        client = self._client(mock_jira_class)
+        client.client.issue.return_value = MagicMock()
+
+        assert client.add_labels("TEST-1", " , ") is False
+
+    def test_add_labels_lookup_error_returns_false(self, mock_jira_class):
+        client = self._client(mock_jira_class)
+        client.client.issue.side_effect = JIRAError(status_code=404, text="nope")
+
+        assert client.add_labels("TEST-1", "bug") is False

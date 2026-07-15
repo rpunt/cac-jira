@@ -138,7 +138,14 @@ class JiraClient:
         Returns:
             bool: True if the labels were applied, False otherwise.
         """
-        issue = self.issue(issue_id)
+        try:
+            issue = self.issue(issue_id)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            # self.issue() delegates to python-jira, which raises (rather than
+            # returning falsy) on not-found/auth errors; treat that as "not
+            # applied" so callers can rely on the bool return.
+            log.error("Failed to find issue %s: %s", issue_id, e)
+            return False
         if not issue:
             log.error("Issue not found")
             return False
