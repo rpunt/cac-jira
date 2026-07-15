@@ -18,7 +18,14 @@ class JiraAuthenticationError(Exception):
 
 class JiraClient:
     """
-    Jira client class.
+    Thin wrapper around the python-jira client.
+
+    Contract: every method returns the underlying python-jira result on
+    success or raises on failure (typically ``jira.exceptions.JIRAError`` for
+    not-found/auth/network errors, or ``ValueError`` for invalid arguments).
+    Methods do not return sentinel values (e.g. ``None``/``False``) to signal
+    failure and do not swallow exceptions; callers (the command layer) decide
+    how to present errors and map them to exit codes.
     """
 
     def __init__(self, server, username, api_token=None):
@@ -129,34 +136,28 @@ class JiraClient:
 
     def add_labels(self, issue_id, labels):
         """
-        Add labels to an issue.
+        Add labels to an issue, preserving any existing labels.
 
         Args:
-            issue_id: The issue
-            labels: The labels to add
+            issue_id: The issue key or ID
+            labels: A comma-separated string of labels to add
 
         Returns:
-            bool: True if the labels were applied, False otherwise.
+            The response from the underlying issue update.
+
+        Raises:
+            ValueError: if no valid labels remain after normalization.
+            JIRAError: if the issue cannot be found or updated.
         """
-        try:
-            issue = self.issue(issue_id)
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            # self.issue() delegates to python-jira, which raises (rather than
-            # returning falsy) on not-found/auth errors; treat that as "not
-            # applied" so callers can rely on the bool return.
-            log.error("Failed to find issue %s: %s", issue_id, e)
-            return False
-        if not issue:
-            log.error("Issue not found")
-            return False
-        # Use the "add" update verb so existing labels are preserved rather than
-        # overwritten, and strip whitespace since Jira labels cannot contain spaces.
+        # Strip whitespace since Jira labels cannot contain spaces, and drop
+        # empty entries so we never issue an empty (and rejected) update.
         label_list = [label.strip() for label in labels.split(",") if label.strip()]
         if not label_list:
-            log.error("No valid labels provided")
-            return False
-        issue.update(update={"labels": [{"add": label} for label in label_list]})
-        return True
+            raise ValueError("No valid labels provided")
+        # Use the "add" update verb so existing labels are preserved rather than
+        # overwritten. self.issue() raises if the issue does not exist.
+        issue = self.issue(issue_id)
+        return issue.update(update={"labels": [{"add": label} for label in label_list]})
 
     def create_issue(self, **kwargs):
         """
@@ -206,11 +207,12 @@ class JiraClient:
 
         Returns:
             The response from the delete operation
+
+        Raises:
+            JIRAError: if the issue cannot be found or deleted.
         """
+        # self.issue() raises if the issue does not exist.
         issue = self.issue(issue_id)
-        if not issue:
-            log.error("Issue not found")
-            return
         return issue.delete()
 
     def projects(self):

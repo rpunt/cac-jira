@@ -74,7 +74,15 @@ class JiraCommand(Command):
 
         This method must be implemented by subclasses.
 
+        Contract: return an int exit code -- ``0`` on success and a non-zero
+        value on failure. Subclasses should catch exceptions raised by the
+        Jira client and log a command-specific error before returning non-zero,
+        rather than letting them propagate to the top-level handler.
+
         Args:
             args: The parsed arguments
+
+        Returns:
+            int: The exit code (0 on success, non-zero on failure).
         """
         raise NotImplementedError("Command subclasses must implement execute()")

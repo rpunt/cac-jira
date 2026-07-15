@@ -37,6 +37,10 @@ class IssueAssign(JiraIssueCommand):
         self.log.debug(
             "Assigning Jira issue %s to %s", args.issue, self.config.username
         )
-        self.jira_client.assign_issue(args.issue, self.config.username)
+        try:
+            self.jira_client.assign_issue(args.issue, self.config.username)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.log.error("Failed to assign issue %s: %s", args.issue, e)
+            return 1
         self.log.info("Issue assigned")
         return 0

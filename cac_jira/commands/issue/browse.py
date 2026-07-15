@@ -34,6 +34,10 @@ class IssueBrowse(JiraIssueCommand):
 
     def execute(self, args):
         self.log.debug("Opening Jira issue %s in a browser", args.issue)
-        issue = self.jira_client.issue(args.issue)
+        try:
+            issue = self.jira_client.issue(args.issue)
+        except Exception as e:
+            self.log.error("Failed to find issue %s: %s", args.issue, e)
+            return 1
         webbrowser.open(issue.permalink())
         return 0

@@ -279,7 +279,11 @@ class IssueCreate(JiraIssueCommand):
             raise ValueError(f"Missing mandatory fields: {', '.join(missing_fields)}")
 
         self.log.debug("Issue data: %s", fieldset)
-        issue = self.jira_client.create_issue(fields=fieldset)
+        try:
+            issue = self.jira_client.create_issue(fields=fieldset)
+        except Exception as e:
+            self.log.error("Failed to create issue: %s", e)
+            return 1
         self.log.info("Issue %s created successfully", issue.key)
 
         if args.assign:

@@ -67,19 +67,25 @@ class TestJiraClientAddLabels:
         issue = MagicMock()
         client.client.issue.return_value = issue
 
-        assert client.add_labels("TEST-1", "a, b") is True
+        result = client.add_labels("TEST-1", "a, b")
+
+        # Uses the "add" verb (preserving existing labels) and strips whitespace.
         issue.update.assert_called_once_with(
             update={"labels": [{"add": "a"}, {"add": "b"}]}
         )
+        assert result is issue.update.return_value
 
-    def test_add_labels_empty_returns_false(self, mock_jira_class):
+    def test_add_labels_empty_raises_value_error(self, mock_jira_class):
         client = self._client(mock_jira_class)
-        client.client.issue.return_value = MagicMock()
 
-        assert client.add_labels("TEST-1", " , ") is False
+        with pytest.raises(ValueError):
+            client.add_labels("TEST-1", " , ")
+        # Validation happens before any lookup/update is attempted.
+        client.client.issue.assert_not_called()
 
-    def test_add_labels_lookup_error_returns_false(self, mock_jira_class):
+    def test_add_labels_lookup_error_propagates(self, mock_jira_class):
         client = self._client(mock_jira_class)
         client.client.issue.side_effect = JIRAError(status_code=404, text="nope")
 
-        assert client.add_labels("TEST-1", "bug") is False
+        with pytest.raises(JIRAError):
+            client.add_labels("TEST-1", "bug")
