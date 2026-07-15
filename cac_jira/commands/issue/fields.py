@@ -21,7 +21,7 @@ class IssueFields(JiraIssueCommand):
         )
         return parser
 
-    def execute(self, args):
+    def _execute(self, args):
         """List required fields for issue creation"""
         project = args.project
         issuetype = args.type

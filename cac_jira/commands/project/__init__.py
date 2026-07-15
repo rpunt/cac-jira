@@ -39,18 +39,18 @@ class JiraProjectCommand(JiraCommand):
         return parser
 
     @abc.abstractmethod
-    def execute(self, args):
+    def _execute(self, args):
         """
-        Execute the command with the provided arguments.
+        Perform the command's work (see JiraCommand._execute).
 
         Args:
             args: The parsed command line arguments
 
         Returns:
-            Command result
+            Optional[int]: None/0 on success, non-zero on failure.
         """
         # This method is meant to be overridden by specific project commands
-        raise NotImplementedError("Subclasses must implement execute()")
+        raise NotImplementedError("Subclasses must implement _execute()")
 
     def get_project_types(self):
         """

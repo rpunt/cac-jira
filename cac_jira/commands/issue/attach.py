@@ -23,5 +23,5 @@ class IssueAttach(JiraIssueCommand):
         super().define_arguments(parser)
         return parser
 
-    def execute(self, args):
+    def _execute(self, args):
         raise NotImplementedError("This command is not implemented yet.")

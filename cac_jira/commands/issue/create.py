@@ -129,7 +129,7 @@ class IssueCreate(JiraIssueCommand):
             self.log.error(f"Error parsing metadata: {e}")
             return {}
 
-    def execute(self, args):
+    def _execute(self, args):
         """
         Execute the command with the provided arguments.
 
@@ -143,13 +143,9 @@ class IssueCreate(JiraIssueCommand):
             self.log.error("Project key is required for issue creation")
             return 1
 
-        # validate project
-        try:
-            project = self.jira_client.project(args.project)
-            self.log.debug("Project %s found", project.key)
-        except Exception as e:
-            self.log.error("Failed to find project %s: %s", args.project, e)
-            return 1
+        # validate project (a bad key raises and is handled by execute())
+        project = self.jira_client.project(args.project)
+        self.log.debug("Project %s found", project.key)
 
         # validate issue type
         matching_issuetype = None
@@ -188,11 +184,7 @@ class IssueCreate(JiraIssueCommand):
             ]
 
         if args.epic:
-            try:
-                epic_issue = self.jira_client.issue(args.epic)
-            except Exception as e:
-                self.log.error("Failed to find epic %s: %s", args.epic, e)
-                return 1
+            epic_issue = self.jira_client.issue(args.epic)
             if not epic_issue:
                 self.log.error("Epic %s not found", args.epic)
                 return 1
@@ -286,11 +278,7 @@ class IssueCreate(JiraIssueCommand):
             raise ValueError(f"Missing mandatory fields: {', '.join(missing_fields)}")
 
         self.log.debug("Issue data: %s", fieldset)
-        try:
-            issue = self.jira_client.create_issue(fields=fieldset)
-        except Exception as e:
-            self.log.error("Failed to create issue: %s", e)
-            return 1
+        issue = self.jira_client.create_issue(fields=fieldset)
         self.log.info("Issue %s created successfully", issue.key)
 
         if args.assign:

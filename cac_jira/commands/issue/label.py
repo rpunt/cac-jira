@@ -34,7 +34,7 @@ class IssueLabel(JiraIssueCommand):
         )
         return parser
 
-    def execute(self, args):
+    def _execute(self, args):
         """
         Execute the command with the provided arguments.
 
@@ -42,13 +42,6 @@ class IssueLabel(JiraIssueCommand):
             args: The parsed arguments
         """
         self.log.debug("Adding labels to Jira issue %s", args.issue)
-        try:
-            self.jira_client.add_labels(args.issue, args.labels)
-        except ValueError as e:
-            self.log.error("%s", e)
-            return 1
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            self.log.error("Failed to update labels on %s: %s", args.issue, e)
-            return 1
+        self.jira_client.add_labels(args.issue, args.labels)
         self.log.info("Issue %s labels updated", args.issue)
         return 0

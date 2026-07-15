@@ -34,7 +34,7 @@ class IssueBegin(JiraIssueCommand):
         )
         return parser
 
-    def execute(self, args):
+    def _execute(self, args):
         """
         Execute the command with the provided arguments.
 
@@ -42,11 +42,7 @@ class IssueBegin(JiraIssueCommand):
             args: The parsed arguments
         """
         self.log.debug("Transitioning Jira issue %s to In Progress", args.issue)
-        try:
-            issue = self.jira_client.issue(args.issue)
-        except Exception as e:
-            self.log.error("Failed to find issue %s: %s", args.issue, e)
-            return 1
+        issue = self.jira_client.issue(args.issue)
         if not issue:
             self.log.error("Issue not found")
             return 1

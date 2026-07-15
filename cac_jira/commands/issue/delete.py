@@ -34,7 +34,7 @@ class IssueDelete(JiraIssueCommand):
         )
         return parser
 
-    def execute(self, args):
+    def _execute(self, args):
         """
         Execute the command with the provided arguments.
 
@@ -60,10 +60,6 @@ class IssueDelete(JiraIssueCommand):
                 self.log.info("Delete operation cancelled.")
                 return 0
 
-        try:
-            self.jira_client.delete_issue(args.issue)
-        except Exception as e:
-            self.log.error("Failed to delete issue %s: %s", args.issue, e)
-            return 1
+        self.jira_client.delete_issue(args.issue)
         self.log.info("Issue %s deleted", args.issue)
         return 0

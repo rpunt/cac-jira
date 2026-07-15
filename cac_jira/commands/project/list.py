@@ -84,18 +84,14 @@ class ProjectList(JiraProjectCommand):
 
         return filtered_projects
 
-    def execute(self, args):
+    def _execute(self, args):
         """
         Execute the command with the provided arguments.
 
         Args:
             args: The parsed arguments
         """
-        try:
-            projects = self.get_projects(args)
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            self.log.error("Failed to list projects: %s", e)
-            return 1
+        projects = self.get_projects(args)
 
         if not projects:
             self.log.error("No projects found")

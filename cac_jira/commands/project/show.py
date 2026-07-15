@@ -28,7 +28,7 @@ class ProjectShow(JiraProjectCommand):
         )
         return parser
 
-    def execute(self, args):
+    def _execute(self, args):
         """
         Execute the command with the provided arguments.
 
@@ -37,11 +37,7 @@ class ProjectShow(JiraProjectCommand):
         """
         self.log.debug("Showing Jira project %s", args.project)
 
-        try:
-            project = self.jira_client.project(args.project)
-        except Exception as e:  # pylint: disable=broad-except
-            self.log.error("Failed to find project %s: %s", args.project, e)
-            return 1
+        project = self.jira_client.project(args.project)
         if not project:
             self.log.error("Project %s not found", args.project)
             return 1

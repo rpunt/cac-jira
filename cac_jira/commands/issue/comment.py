@@ -34,7 +34,7 @@ class IssueComment(JiraIssueCommand):
         )
         return parser
 
-    def execute(self, args):
+    def _execute(self, args):
         """
         Execute the command with the provided arguments.
 
@@ -42,10 +42,6 @@ class IssueComment(JiraIssueCommand):
             args: The parsed arguments
         """
         self.log.debug("Commenting on Jira issue %s", args.issue)
-        try:
-            self.jira_client.add_comment(args.issue, args.comment)
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            self.log.error("Failed to add comment to %s: %s", args.issue, e)
-            return 1
+        self.jira_client.add_comment(args.issue, args.comment)
         self.log.info("Added comment to %s", args.issue)
         return 0
