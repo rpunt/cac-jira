@@ -71,3 +71,12 @@ class TestIssueShow:
 
         assert result == 1
         cmd.log.error.assert_called()
+
+    def test_show_returns_none(self, cmd):
+        """A falsy issue is handled without an AttributeError."""
+        cmd.jira_client.issue.return_value = None
+
+        result = cmd.execute(argparse.Namespace(issue="NOPE-1", output="table"))
+
+        assert result == 1
+        cmd.log.error.assert_called()

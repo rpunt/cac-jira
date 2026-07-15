@@ -134,18 +134,22 @@ class JiraClient:
         Args:
             issue_id: The issue
             labels: The labels to add
+
+        Returns:
+            bool: True if the labels were applied, False otherwise.
         """
         issue = self.issue(issue_id)
         if not issue:
             log.error("Issue not found")
-            return
+            return False
         # Use the "add" update verb so existing labels are preserved rather than
         # overwritten, and strip whitespace since Jira labels cannot contain spaces.
         label_list = [label.strip() for label in labels.split(",") if label.strip()]
         if not label_list:
             log.error("No valid labels provided")
-            return None
-        return issue.update(update={"labels": [{"add": label} for label in label_list]})
+            return False
+        issue.update(update={"labels": [{"add": label} for label in label_list]})
+        return True
 
     def create_issue(self, **kwargs):
         """

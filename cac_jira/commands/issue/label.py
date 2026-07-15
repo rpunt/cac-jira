@@ -45,6 +45,12 @@ class IssueLabel(JiraIssueCommand):
         if not [label.strip() for label in args.labels.split(",") if label.strip()]:
             self.log.error("No valid labels provided")
             return 1
-        self.jira_client.add_labels(args.issue, args.labels)
+        try:
+            updated = self.jira_client.add_labels(args.issue, args.labels)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            self.log.error("Failed to update labels on %s: %s", args.issue, e)
+            return 1
+        if not updated:
+            return 1
         self.log.info("Issue %s labels updated", args.issue)
         return 0

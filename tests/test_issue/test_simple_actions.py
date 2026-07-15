@@ -63,6 +63,23 @@ class TestIssueLabel:
         assert result == 1
         cmd.jira_client.add_labels.assert_not_called()
 
+    def test_label_reports_failure(self, cmd):
+        """A falsy result from add_labels must not be reported as success."""
+        cmd.jira_client.add_labels.return_value = False
+
+        result = cmd.execute(argparse.Namespace(issue="TEST-1", labels="bug"))
+
+        assert result == 1
+        cmd.log.info.assert_not_called()
+
+    def test_label_update_error(self, cmd):
+        cmd.jira_client.add_labels.side_effect = Exception("boom")
+
+        result = cmd.execute(argparse.Namespace(issue="TEST-1", labels="bug"))
+
+        assert result == 1
+        cmd.log.error.assert_called()
+
 
 class TestIssueBrowse:
     @pytest.fixture

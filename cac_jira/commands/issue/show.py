@@ -41,6 +41,9 @@ class IssueShow(JiraIssueCommand):
         except Exception as e:
             self.log.error("Failed to find issue %s: %s", args.issue, e)
             return 1
+        if not issue:
+            self.log.error("Issue %s not found", args.issue)
+            return 1
         if args.output == "json":
             # skip the model JSON output and just print the raw issue
             print(json.dumps(issue.raw, indent=4))
