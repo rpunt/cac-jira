@@ -132,6 +132,24 @@ class TestIssueUpdate:
         assert call_kwargs["description"] == "New Description"
 
     @patch("cac_jira.JIRA_CLIENT")
+    def test_update_empty_string_clears_field(
+        self, mock_client, issue_update_command, mock_issue
+    ):
+        """An explicit empty string is a value (clears the field), not 'missing'."""
+        mock_client.issue.return_value = mock_issue
+
+        args = argparse.Namespace(
+            issue="TEST-123", title=None, description="", output="table"
+        )
+
+        issue_update_command.run(args)
+
+        mock_issue.update.assert_called_once()
+        call_kwargs = mock_issue.update.call_args[1]
+        assert call_kwargs["description"] == ""
+        assert "summary" not in call_kwargs
+
+    @patch("cac_jira.JIRA_CLIENT")
     def test_update_no_fields(self, mock_client, issue_update_command):
         """Test execution with no fields to update."""
         args = argparse.Namespace(

@@ -143,7 +143,8 @@ class IssueCreate(JiraIssueCommand):
             self.log.error("Project key is required for issue creation")
             return 1
 
-        # validate project (a bad key raises and is handled by execute())
+        # validate project (a bad key raises JIRAError, which run() maps to a
+        # non-zero exit)
         project = self.jira_client.project(args.project)
         self.log.debug("Project %s found", project.key)
 
@@ -285,6 +286,9 @@ class IssueCreate(JiraIssueCommand):
             issue.update(assignee={"accountId": self.jira_client.current_user()})
             self.log.info("Issue %s assigned to you", issue.key)
 
+        # The issue is created at this point; track whether the optional begin
+        # step succeeded so its failure is reflected in the exit code.
+        begin_result = 0
         if args.begin:
             try:
                 # Import the begin command module
@@ -300,12 +304,13 @@ class IssueCreate(JiraIssueCommand):
                 begin_args = Namespace(issue=issue.key)
 
                 # Execute the begin command with our constructed args (through
-                # the error-handling wrapper).
-                begin_cmd.run(begin_args)
+                # the error-handling wrapper) and propagate its exit code.
+                begin_result = begin_cmd.run(begin_args) or 0
             except Exception as e:
                 self.log.error("Failed to transition issue to In Progress: %s", str(e))
+                begin_result = 1
 
         if args.browse:
             webbrowser.open(issue.permalink())
 
-        return 0
+        return begin_result

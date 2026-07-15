@@ -67,8 +67,10 @@ class IssueUpdate(JiraIssueCommand):
         """
         self.log.debug("Updating Jira issue %s", args.issue)
 
-        # Nothing to do if the caller didn't provide any fields to change.
-        if not args.title and not args.description:
+        # Nothing to do if the caller omitted both fields. Use explicit None
+        # checks so an empty string (e.g. --description "") is still treated as
+        # an intentional value that clears the field.
+        if args.title is None and args.description is None:
             self.log.warning(
                 "No fields to update; specify --title and/or --description"
             )
@@ -78,13 +80,13 @@ class IssueUpdate(JiraIssueCommand):
         if not issue:
             self.log.error("Issue not found")
             return 1
-        if args.title and args.description:
+        if args.title is not None and args.description is not None:
             issue.update(summary=args.title, description=args.description)
             self.log.info("Issue %s updated with new title and description", issue.key)
-        elif args.title:
+        elif args.title is not None:
             issue.update(summary=args.title)
             self.log.info("Issue %s updated with new title", issue.key)
-        elif args.description:
+        elif args.description is not None:
             issue.update(description=args.description)
             self.log.info("Issue %s updated with new description", issue.key)
         return 0

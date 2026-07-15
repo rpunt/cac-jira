@@ -122,7 +122,7 @@ class TestIssueCreateExecution:
 
     def test_begin_implies_assign(self, cmd):
         with patch("cac_jira.commands.issue.begin.IssueBegin") as mock_begin_cls:
-            mock_begin_cls.return_value.run = MagicMock()
+            mock_begin_cls.return_value.run = MagicMock(return_value=0)
             cmd.run(make_args(begin=True))
         created_issue = cmd.jira_client.create_issue.return_value
         created_issue.update.assert_called_once_with(
@@ -132,11 +132,19 @@ class TestIssueCreateExecution:
     def test_begin_triggers_transition(self, cmd):
         with patch("cac_jira.commands.issue.begin.IssueBegin") as mock_begin_cls:
             mock_begin_instance = MagicMock()
+            mock_begin_instance.run.return_value = 0
             mock_begin_cls.return_value = mock_begin_instance
             cmd.run(make_args(begin=True))
         mock_begin_instance.run.assert_called_once()
         begin_args = mock_begin_instance.run.call_args[0][0]
         assert begin_args.issue == "TEST-1"
+
+    def test_begin_failure_propagates(self, cmd):
+        """If the begin transition fails, create surfaces the non-zero code."""
+        with patch("cac_jira.commands.issue.begin.IssueBegin") as mock_begin_cls:
+            mock_begin_cls.return_value.run.return_value = 1
+            result = cmd.run(make_args(begin=True))
+        assert result == 1
 
     def test_browse_opens_url(self, cmd):
         with patch("webbrowser.open") as mock_open:
