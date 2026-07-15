@@ -209,7 +209,11 @@ def main():
         exit_code = action_instance.run(args)
 
     except Exception as e:  # pylint: disable=broad-except
-        log.error("Error executing command: %s", e)
+        # Include the traceback under --verbose (debug) so an error that escapes
+        # the command wrapper is diagnosable, while keeping normal output clean.
+        log.error(
+            "Error executing command: %s", e, exc_info=log.isEnabledFor(logging.DEBUG)
+        )
         sys.exit(1)
 
     # Propagate a non-zero exit code so scripts/CI can detect failures. A None

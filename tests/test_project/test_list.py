@@ -53,6 +53,21 @@ class TestProjectList:
         assert len(models) == 1
         assert models[0].Key == "AAA"
 
+    @patch("cac_core.output.Output")
+    def test_filter_by_key(self, mock_output, cmd):
+        cmd.jira_client.projects.return_value = [
+            make_project("1", "AAA", "Alpha"),
+            make_project("2", "BBB", "Beta"),
+        ]
+
+        # Case-insensitive partial match on the project key.
+        result = cmd.run(argparse.Namespace(name=None, key="bb", output="table"))
+
+        assert result == 0
+        models = mock_output.return_value.print_models.call_args[0][0]
+        assert len(models) == 1
+        assert models[0].Key == "BBB"
+
     def test_no_projects_returns_error(self, cmd):
         cmd.jira_client.projects.return_value = []
 

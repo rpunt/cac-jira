@@ -9,6 +9,7 @@ command actions.
 """
 
 import abc
+import logging
 
 from cac_core.command import Command
 from jira.exceptions import JIRAError
@@ -96,7 +97,15 @@ class JiraCommand(Command):
             )
             return 1
         except Exception as e:  # pylint: disable=broad-exception-caught
-            self.log.error("%s failed: %s", type(self).__name__, e)
+            # Unexpected error: include the traceback when debug logging is on
+            # (e.g. --verbose) so it's diagnosable, while keeping normal output
+            # clean.
+            self.log.error(
+                "%s failed: %s",
+                type(self).__name__,
+                e,
+                exc_info=self.log.isEnabledFor(logging.DEBUG),
+            )
             return 1
         return 0 if result is None else result
 
