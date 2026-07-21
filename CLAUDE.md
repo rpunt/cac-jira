@@ -22,7 +22,7 @@ ruff check --target-version=py310 .   # Lint
 ruff format --diff .                  # Check formatting
 
 # Type checking
-mypy cac_jira/
+uv run pyright                 # Type-check (also gated in CI)
 ```
 
 ## Architecture
@@ -95,5 +95,5 @@ The shared `Command.run(args)` template (in `cac-core`) invokes the subclass's `
 ## CI/CD
 
 - Version is derived from git tags via `setuptools-scm` (no static version in `pyproject.toml`); no per-PR version bump is required
-- Tests run on push and PR across Python 3.10–3.14 (`pytest.yaml`)
+- On push and PR (`pytest.yaml`): a `typecheck` job runs `pyright` once on 3.10, and a `pytest` job runs tests across Python 3.10–3.14. Ruff lint, ruff format, pyright, and the 90% coverage gate are all **blocking** — a failure fails CI
 - Releases triggered by version tags (v*), published to PyPI (`create_artifacts_and_publish.yaml`)

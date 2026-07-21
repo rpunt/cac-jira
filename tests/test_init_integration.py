@@ -9,8 +9,10 @@ Tests the successful initialization of the module including:
 
 import importlib
 import sys
+from typing import cast
 
 import pytest
+from cac_core.config import Config
 
 
 class TestModuleInitialization:
@@ -36,7 +38,7 @@ class TestModuleInitialization:
         assert "JIRA_CLIENT" in cac_jira._module_state
 
         # Verify CONFIG object is properly initialized
-        config = cac_jira._module_state["CONFIG"]
+        config = cast(Config, cac_jira._module_state["CONFIG"])
         assert config is not None
         assert config.get("server") == "test.atlassian.net"
         assert config.get("username") == "test@example.com"
@@ -49,13 +51,11 @@ class TestModuleInitialization:
     def test_lazy_attribute_access(self):
         """Test that lazy initialization works when accessing module attributes."""
         # Import cac_jira fresh
-        if "cac_jira" in sys.modules:
-            # Reset module state
-            mod = sys.modules["cac_jira"]
-            mod._initialized = False
-            mod._module_state.clear()
-
         import cac_jira
+
+        # Reset module state so accessing an attribute re-triggers lazy init.
+        cac_jira._initialized = False
+        cac_jira._module_state.clear()
 
         # Accessing JIRA_CLIENT should trigger initialization
         client = cac_jira.JIRA_CLIENT

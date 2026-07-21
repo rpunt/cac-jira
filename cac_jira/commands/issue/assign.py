@@ -35,8 +35,8 @@ class IssueAssign(JiraIssueCommand):
             args: The parsed arguments
         """
         self.log.debug(
-            "Assigning Jira issue %s to %s", args.issue, self.config.username
+            "Assigning Jira issue %s to %s", args.issue, self.config.get("username")
         )
-        self.jira_client.assign_issue(args.issue, self.config.username)
+        self.jira_client.assign_issue(args.issue, self.config.get("username"))
         self.log.info("Issue assigned")
         return 0

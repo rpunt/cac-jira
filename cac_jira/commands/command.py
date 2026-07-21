@@ -9,12 +9,14 @@ command actions.
 """
 
 import abc
+from typing import Optional
 
 from cac_core.command import Command
 from jira.exceptions import JIRAError
 
 import cac_jira
 from cac_jira import log
+from cac_jira.core.client import JiraClient
 
 
 class JiraCommand(Command):
@@ -38,17 +40,17 @@ class JiraCommand(Command):
         super().__init__()
         self.log = log
         self.config = cac_jira.CONFIG
-        self._jira_client = None
+        self._jira_client: Optional[JiraClient] = None
 
     @property
-    def jira_client(self):
+    def jira_client(self) -> JiraClient:
         """The Jira client, connected on first access."""
         if self._jira_client is None:
             self._jira_client = cac_jira.JIRA_CLIENT
         return self._jira_client
 
     @jira_client.setter
-    def jira_client(self, value):
+    def jira_client(self, value: JiraClient) -> None:
         self._jira_client = value
 
     @abc.abstractmethod

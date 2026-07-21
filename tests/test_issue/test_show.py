@@ -10,7 +10,7 @@ import pytest
 from cac_jira.commands.issue.show import IssueShow
 
 
-def make_issue(priority="High"):
+def make_issue(priority: str | None = "High"):
     issue = MagicMock()
     issue.id = "10001"
     issue.key = "TEST-1"

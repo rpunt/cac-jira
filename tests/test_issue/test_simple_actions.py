@@ -44,7 +44,8 @@ class TestIssueAssign:
     @pytest.fixture
     def cmd(self):
         command = make_cmd(IssueAssign)
-        command.config = MagicMock(username="me@example.com")
+        command.config = MagicMock()
+        command.config.get.return_value = "me@example.com"
         return command
 
     def test_assign_to_self(self, cmd):

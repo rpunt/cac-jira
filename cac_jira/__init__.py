@@ -6,14 +6,23 @@ module docstring
 
 import sys
 from importlib import metadata
+from typing import TYPE_CHECKING, cast
 
 import cac_core as cac
 from cac_core.cli import make_main
 
 from cac_jira.core import client
 
+if TYPE_CHECKING:
+    # These module-level attributes are provided lazily via ``__getattr__``;
+    # declare their types so consumers (and ``__all__``) see them statically.
+    from cac_core.config import Config
+
+    CONFIG: Config
+    JIRA_CLIENT: client.JiraClient
+
 try:
-    __version__ = metadata.version(__package__)
+    __version__ = metadata.version(__name__)
 except Exception:
     __version__ = "#N/A"
 
@@ -77,7 +86,7 @@ def _initialize_client():
         return
 
     _initialize_config()
-    config = _module_state["CONFIG"]
+    config = cast(cac.config.Config, _module_state["CONFIG"])
 
     cac.updatechecker.check_package_for_updates(__name__)
 
