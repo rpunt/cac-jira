@@ -64,7 +64,9 @@ def _initialize_config():
             lambda v: v.replace("https://", ""),
         ),
     ]
-    if config.get("auth_method", "basic") != "pat":
+    # Normalize so "PAT"/" pat " match the same branch as "pat".
+    auth_method = (config.get("auth_method") or "basic").strip().lower()
+    if auth_method != "pat":
         keys.append(("username", "Enter your Jira username (email): ", True, None))
     keys.append(
         (
@@ -97,14 +99,19 @@ def _initialize_client():
     cac.updatechecker.check_package_for_updates(__name__)
 
     jira_server = config.get("server", "INVALID_DEFAULT").replace("https://", "")
-    auth_method = config.get("auth_method", "basic")
+    # Normalize so "PAT"/" pat " match the same branch as "pat".
+    auth_method = (config.get("auth_method") or "basic").strip().lower()
 
     credentialmanager = cac.credentialmanager.CredentialManager(__name__)
 
     if auth_method == "pat":
         # PAT (Bearer) auth: the token stands alone; username is optional and
         # the credential is stored under a fixed key rather than per-username.
+        # An unconfigured username still holds the template sentinel, so treat
+        # it as unset rather than leaking "INVALID_DEFAULT" into the client.
         jira_username = config.get("username", None)
+        if jira_username == "INVALID_DEFAULT":
+            jira_username = None
         jira_api_token = credentialmanager.get_credential(
             "_pat_token", "Jira Personal Access Token"
         )

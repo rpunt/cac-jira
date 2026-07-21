@@ -28,7 +28,9 @@ class JiraClient:
     how to present errors and map them to exit codes.
     """
 
-    def __init__(self, server, username, api_token=None, auth_method="basic"):
+    def __init__(
+        self, server, username, api_token=None, auth_method: "str | None" = "basic"
+    ):
         """
         Initialize the Jira client.
 
@@ -42,7 +44,8 @@ class JiraClient:
         self.server = server
         self.username = username
         self.api_token = api_token
-        self.auth_method = auth_method
+        # Normalize so "PAT"/" pat " compare equal to "pat" downstream.
+        self.auth_method = (auth_method or "basic").strip().lower()
         self.client: jira.JIRA
         self.connect()
 
@@ -55,7 +58,9 @@ class JiraClient:
         """
         log.debug("Connecting to Jira server %s", self.server)
         if self.api_token is None:
-            raise ValueError("an API token is required to connect to Jira")
+            raise ValueError("a token is required to connect to Jira")
+        if self.auth_method != "pat" and not self.username:
+            raise ValueError("a username is required for basic authentication")
         try:
             if self.auth_method == "pat":
                 self.client = jira.JIRA(

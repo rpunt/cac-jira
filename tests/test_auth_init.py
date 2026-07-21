@@ -246,6 +246,52 @@ class TestPATAuthInit:
         assert "username" not in _ensure_keys_names(mock_config)
         assert cac_jira.JIRA_CLIENT.username is None
 
+    @patch("jira.JIRA")
+    @patch("cac_core.credentialmanager.CredentialManager")
+    @patch("cac_core.config.Config")
+    @patch("cac_core.updatechecker.check_package_for_updates")
+    def test_sentinel_username_treated_as_unset(
+        self, _mock_update, mock_config_class, mock_cred_class, _mock_jira
+    ):
+        # An unconfigured username still holds the template sentinel; it must not
+        # leak into the client for PAT auth.
+        mock_config_class.return_value = _make_config_mock(
+            {
+                "server": "jira.example.com",
+                "auth_method": "pat",
+                "username": "INVALID_DEFAULT",
+            }
+        )
+        mock_cred_class.return_value = _make_cred_mock("pat-token-456")
+
+        cac_jira = _reimport_cac_jira()
+
+        assert cac_jira.JIRA_CLIENT.username is None
+
+    @patch("jira.JIRA")
+    @patch("cac_core.credentialmanager.CredentialManager")
+    @patch("cac_core.config.Config")
+    @patch("cac_core.updatechecker.check_package_for_updates")
+    def test_auth_method_normalized_selects_pat(
+        self, _mock_update, mock_config_class, mock_cred_class, _mock_jira
+    ):
+        # A case/whitespace-variant PAT value must select the PAT branch:
+        # username is not prompted and the credential is the PAT key.
+        mock_config = _make_config_mock(
+            {"server": "jira.example.com", "auth_method": " PAT "}
+        )
+        mock_config_class.return_value = mock_config
+        mock_cred = _make_cred_mock("pat-token-456")
+        mock_cred_class.return_value = mock_cred
+
+        cac_jira = _reimport_cac_jira()
+
+        assert "username" not in _ensure_keys_names(mock_config)
+        mock_cred.get_credential.assert_called_once_with(
+            "_pat_token", "Jira Personal Access Token"
+        )
+        assert cac_jira.JIRA_CLIENT.auth_method == "pat"
+
     @patch("cac_core.credentialmanager.CredentialManager")
     @patch("cac_core.config.Config")
     @patch("cac_core.updatechecker.check_package_for_updates")
