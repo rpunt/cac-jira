@@ -143,9 +143,10 @@ wheels = [
 
 [[package]]
 name = "cac-core"
-version = "1.0.0"
+version = "2.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "argcomplete" },
     { name = "keyring" },
     { name = "logger" },
     { name = "packaging" },
@@ -153,16 +154,15 @@ dependencies = [
     { name = "requests" },
     { name = "tabulate" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/03/f0/d2a7a662521c0bcd1b751e2896329173de8731ccf6d932402f6a0509f945/cac_core-1.0.0.tar.gz", hash = "sha256:dd246e9c35945df04298bdf1b7909de38a24c30cd0863126ccf244b7f3e77714", size = 107873, upload-time = "2026-07-14T20:43:51.42Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e4/cc/9cf9ba037406c05806555fef557a7d5ec1ba291f2b0f3534e168324fc2cb/cac_core-2.0.0.tar.gz", hash = "sha256:6d18f4b4c19c5956cc8939a116ca6b66bbcee56df56ffeff46225f6951b6a883", size = 120221, upload-time = "2026-07-21T18:41:04.926Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/75/12/0d166a9fc2d66735fb43a471171622b64193688107cd8e81c9829518d3cc/cac_core-1.0.0-py3-none-any.whl", hash = "sha256:1b0e04a3ca1c141fd012712abb7eb6d287d7d170cdae3a2a2e2f6b97f2f2b2de", size = 26372, upload-time = "2026-07-14T20:43:50.182Z" },
+    { url = "https://files.pythonhosted.org/packages/3b/3d/cff64fc3049737ea3c996d15063a23e8a25749645f26e16cbeee56e26b49/cac_core-2.0.0-py3-none-any.whl", hash = "sha256:6c74ec17da4699274399294a7b2e27b901701c9491117616d9934d338f41a6a7", size = 30410, upload-time = "2026-07-21T18:41:03.573Z" },
 ]
 
 [[package]]
 name = "cac-jira"
 source = { editable = "." }
 dependencies = [
-    { name = "argcomplete" },
     { name = "cac-core" },
     { name = "jira" },
     { name = "keyring" },
@@ -208,10 +208,9 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "argcomplete", specifier = ">=3.6.2" },
     { name = "black", marker = "extra == 'all'", specifier = ">=23.3,<27.0" },
     { name = "black", marker = "extra == 'lint'", specifier = ">=23.3,<27.0" },
-    { name = "cac-core", specifier = ">=1.0.0,<2.0.0" },
+    { name = "cac-core", specifier = ">=2.0.0,<3.0.0" },
     { name = "isort", marker = "extra == 'all'", specifier = ">=5.12.0" },
     { name = "isort", marker = "extra == 'lint'", specifier = ">=5.12.0" },
     { name = "jira", specifier = ">=3.10.5,<4.0.0" },

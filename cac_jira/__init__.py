@@ -8,6 +8,7 @@ import sys
 from importlib import metadata
 
 import cac_core as cac
+from cac_core.cli import make_main
 
 from cac_jira.core import client
 
@@ -38,29 +39,27 @@ def _initialize_config():
     config = cac.config.Config(__name__)
     log.debug("user config path: %s", config.config_file)
 
-    jira_server = config.get("server", "INVALID_DEFAULT").replace("https://", "")
-    if jira_server == "INVALID_DEFAULT":
-        jira_server = (
-            input("Enter your Jira server URL: ").strip().replace("https://", "")
-        )
-        config.set("server", jira_server)
-        config.server = jira_server
-        config.save()
-
-    jira_username = config.get("username", "INVALID_DEFAULT")
-    if jira_username == "INVALID_DEFAULT":
-        jira_username = input("Enter your Jira username (email): ").strip()
-        config.set("username", jira_username)
-        config.username = jira_username
-        config.save()
-
-    jira_project = config.get("project", "INVALID_DEFAULT")
-    if jira_project == "INVALID_DEFAULT":
-        jira_project = input("Enter your default Jira project key (optional): ").strip()
-        if jira_project:
-            config.set("project", jira_project)
-            config.project = jira_project
-            config.save()
+    # First-run setup: prompt for any keys still at their sentinel. ensure_keys
+    # skips prompting during shell completion (argcomplete sets ``_ARGCOMPLETE``
+    # and hijacks stdio, so an interactive prompt would hang the shell); the
+    # sentinel is left in place and every consumer treats it as "no value".
+    config.ensure_keys(
+        [
+            (
+                "server",
+                "Enter your Jira server URL: ",
+                True,
+                lambda v: v.replace("https://", ""),
+            ),
+            ("username", "Enter your Jira username (email): ", True, None),
+            (
+                "project",
+                "Enter your default Jira project key (optional): ",
+                False,
+                None,
+            ),
+        ]
+    )
 
     _module_state["CONFIG"] = config
 
@@ -131,4 +130,10 @@ def __getattr__(name):
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
-__all__ = ["JIRA_CLIENT", "CONFIG", "log", "_initialize"]
+# Console-script entry point (see [project.scripts] -> ``jira = cac_jira:main``).
+# The framework owns discovery, argument parsing, completion, and dispatch; this
+# module only supplies the package name, program name, and description.
+main = make_main("cac_jira", "jira", "Jira CLI tool")
+
+
+__all__ = ["JIRA_CLIENT", "CONFIG", "log", "main", "_initialize"]

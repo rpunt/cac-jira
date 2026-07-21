@@ -160,6 +160,42 @@ List all issue IDs matching a label:
 jira issue list --output json | jq -r '.[] | select(.Labels | contains("production")) | .ID'
 ```
 
+## Shell Completion
+
+`jira` supports tab-completion of commands, actions, and options via
+[argcomplete](https://kislyuk.github.io/argcomplete/).
+
+### Enabling completion
+
+The recommended approach is per-command registration. Add the appropriate line
+to your shell startup file:
+
+```bash
+# bash (~/.bashrc) or zsh (~/.zshrc)
+eval "$(register-python-argcomplete jira)"
+```
+
+Then restart your shell (or `source` the file). Tab-completion works
+immediately:
+
+```bash
+jira <TAB>                 # -> issue  project
+jira issue <TAB>           # -> assign attach begin ... show update
+jira issue show --<TAB>    # -> --issue --output --project --verbose
+```
+
+<details>
+<summary>Alternative: global activation</summary>
+
+To enable argcomplete for every marker-tagged program at once (instead of
+per-command), run this once and restart your shell:
+
+```bash
+activate-global-python-argcomplete
+```
+
+</details>
+
 ## Development
 
 ### Setup Development Environment
@@ -177,18 +213,28 @@ uv run pytest
 
 ### Project Structure
 
-- `cac_jira/commands/` - Command implementations
+- `cac_jira/__init__.py` - Module init: the `CONFIG`/`JIRA_CLIENT` globals and
+  the `main` console-script entry point (`main = make_main("cac_jira", "jira", ...)`)
+- `cac_jira/commands/` - Command implementations (auto-discovered at runtime)
   - `issue/` - Issue-related commands
   - `project/` - Project-related commands
-- `cac_jira/cli/` - CLI entry point and argument parsing
+- `cac_jira/core/client.py` - Thin wrapper around the `jira` Python client
+
+Command discovery, argument parsing, shell completion, and dispatch are all
+provided by the shared runner in [`cac-core`](https://github.com/rpunt/cac-core)
+(`cac_core.cli.run` / `make_main`); this project only supplies the `commands/`
+tree and its Jira client.
 
 ### Adding New Commands
 
 1. Create a new action module in the appropriate command directory.
-2. Define a class that inherits from the command's base class.
+2. Define a class that inherits from the command's base class, following the
+   `{Command}{Action}` naming convention (e.g. `commands/issue/create.py` →
+   `IssueCreate`).
 3. Implement `define_arguments()` and `execute()` methods.
 
 `execute()` contains the command's logic and returns an exit code (`0`/`None`
 for success, non-zero for validation failures). It does not need to wrap Jira
-calls in try/except: the base class's `run()` wrapper catches client errors,
-logs them, and maps them to a non-zero exit code.
+calls in try/except: the shared `run()` template (from `cac-core`) catches
+errors and maps them to a non-zero exit code, and `JiraCommand.handle_exception`
+renders `JIRAError`s using their human-readable Jira message.

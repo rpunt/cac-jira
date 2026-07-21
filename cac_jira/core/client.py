@@ -176,7 +176,7 @@ class JiraClient:
         Search for issues.
 
         Args:
-            **kwargs: The search parameters
+            jql: The JQL query string.
 
         Returns:
             The list of issues
