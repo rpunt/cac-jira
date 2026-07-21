@@ -38,7 +38,7 @@ class JiraIssueCommand(JiraCommand):
             # If the user never configured a default project, the config still
             # holds the "INVALID_DEFAULT" sentinel from the template; treat that
             # as "no default" so it never leaks into a JQL/create call.
-            default_project = self.config.project  # pylint: disable=no-member
+            default_project = self.config.get("project")
             if default_project == "INVALID_DEFAULT":
                 default_project = None
             parser.add_argument(

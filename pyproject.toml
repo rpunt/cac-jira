@@ -23,7 +23,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "mypy>=1.3.0",
+    "pyright>=1.1.390",
     "types-pyyaml>=6.0.12",
     "types-tabulate>=0.9.0",
 ]
@@ -42,7 +42,7 @@ docs = [
     "sphinx-rtd-theme>=1.2.0",
 ]
 all = [
-    "mypy>=1.3.0",
+    "pyright>=1.1.390",
     "types-pyyaml>=6.0.12",
     "types-tabulate>=0.9.0",
     "pytest>=7.3.1",
@@ -87,7 +87,9 @@ python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
 
-[tool.mypy]
-python_version = "3.10"
-warn_return_any = true
-warn_unused_configs = true
+[tool.pyright]
+# Resolve imports (cac_core, jira, pytest, ...) against the project virtualenv
+# so Pylance/pyright match the interpreter used at runtime and by mypy.
+venvPath = "."
+venv = ".venv"
+pythonVersion = "3.10"

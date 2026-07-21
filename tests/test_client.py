@@ -2,6 +2,7 @@
 Tests for JiraClient authentication handling.
 """
 
+from typing import cast
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -65,7 +66,7 @@ class TestJiraClientAddLabels:
     def test_add_labels_success_preserves_and_strips(self, mock_jira_class):
         client = self._client(mock_jira_class)
         issue = MagicMock()
-        client.client.issue.return_value = issue
+        cast(MagicMock, client.client).issue.return_value = issue
 
         result = client.add_labels("TEST-1", "a, b")
 
@@ -81,11 +82,13 @@ class TestJiraClientAddLabels:
         with pytest.raises(ValueError):
             client.add_labels("TEST-1", " , ")
         # Validation happens before any lookup/update is attempted.
-        client.client.issue.assert_not_called()
+        cast(MagicMock, client.client).issue.assert_not_called()
 
     def test_add_labels_lookup_error_propagates(self, mock_jira_class):
         client = self._client(mock_jira_class)
-        client.client.issue.side_effect = JIRAError(status_code=404, text="nope")
+        cast(MagicMock, client.client).issue.side_effect = JIRAError(
+            status_code=404, text="nope"
+        )
 
         with pytest.raises(JIRAError):
             client.add_labels("TEST-1", "bug")

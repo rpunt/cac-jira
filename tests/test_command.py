@@ -6,6 +6,7 @@ Commands implement execute() (the work); the CLI entry point invokes the base
 class's run() wrapper, which is what these tests exercise.
 """
 
+from typing import cast
 from unittest.mock import MagicMock
 
 from jira.exceptions import JIRAError
@@ -43,11 +44,11 @@ def test_jira_error_mapped_to_nonzero():
     command = _cmd()
     command.execute = MagicMock(side_effect=JIRAError(status_code=404, text="nope"))
     assert command.run(object()) == 1
-    command.log.error.assert_called()
+    cast(MagicMock, command.log).error.assert_called()
 
 
 def test_unexpected_exception_mapped_to_nonzero():
     command = _cmd()
     command.execute = MagicMock(side_effect=RuntimeError("boom"))
     assert command.run(object()) == 1
-    command.log.error.assert_called()
+    cast(MagicMock, command.log).error.assert_called()
