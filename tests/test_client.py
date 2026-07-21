@@ -92,3 +92,67 @@ class TestJiraClientAddLabels:
 
         with pytest.raises(JIRAError):
             client.add_labels("TEST-1", "bug")
+
+
+@patch("jira.JIRA")
+class TestJiraClientAuthMethods:
+    """The auth_method flag selects basic_auth vs token_auth at connect time."""
+
+    def test_basic_auth_uses_basic_auth_param(self, mock_jira_class):
+        JiraClient("jira.example.com", "user@example.com", "api-token-123")
+
+        mock_jira_class.assert_called_once_with(
+            "https://jira.example.com",
+            basic_auth=("user@example.com", "api-token-123"),
+        )
+
+    def test_pat_auth_uses_token_auth_param(self, mock_jira_class):
+        JiraClient("jira.example.com", None, "pat-token-456", auth_method="pat")
+
+        mock_jira_class.assert_called_once_with(
+            "https://jira.example.com",
+            token_auth="pat-token-456",
+        )
+
+    def test_pat_auth_omits_basic_auth(self, mock_jira_class):
+        JiraClient(
+            "jira.example.com",
+            "user@example.com",
+            "pat-token-456",
+            auth_method="pat",
+        )
+
+        call_kwargs = mock_jira_class.call_args[1]
+        assert "basic_auth" not in call_kwargs
+        assert call_kwargs["token_auth"] == "pat-token-456"
+
+    def test_auth_method_and_username_stored(self, mock_jira_class):
+        client = JiraClient("jira.example.com", None, "pat-token", auth_method="pat")
+
+        assert client.auth_method == "pat"
+        assert client.username is None
+
+    def test_auth_method_is_normalized(self, mock_jira_class):
+        # A case/whitespace-variant PAT value must still select token_auth.
+        client = JiraClient("jira.example.com", None, "pat-token", auth_method=" PAT ")
+
+        assert client.auth_method == "pat"
+        mock_jira_class.assert_called_once_with(
+            "https://jira.example.com",
+            token_auth="pat-token",
+        )
+
+    def test_none_auth_method_defaults_to_basic(self, mock_jira_class):
+        client = JiraClient(
+            "jira.example.com", "user@example.com", "api-token", auth_method=None
+        )
+
+        assert client.auth_method == "basic"
+
+    def test_basic_auth_requires_username(self, mock_jira_class):
+        with pytest.raises(ValueError, match="username is required"):
+            JiraClient("jira.example.com", None, "api-token")
+
+    def test_missing_token_raises(self, mock_jira_class):
+        with pytest.raises(ValueError, match="token is required"):
+            JiraClient("jira.example.com", "user@example.com", None)

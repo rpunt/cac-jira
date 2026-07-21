@@ -6,7 +6,7 @@ module docstring
 
 import sys
 from importlib import metadata
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Callable, Optional, cast
 
 import cac_core as cac
 from cac_core.cli import make_main
@@ -52,23 +52,31 @@ def _initialize_config():
     # skips prompting during shell completion (argcomplete sets ``_ARGCOMPLETE``
     # and hijacks stdio, so an interactive prompt would hang the shell); the
     # sentinel is left in place and every consumer treats it as "no value".
-    config.ensure_keys(
-        [
-            (
-                "server",
-                "Enter your Jira server URL: ",
-                True,
-                lambda v: v.replace("https://", ""),
-            ),
-            ("username", "Enter your Jira username (email): ", True, None),
-            (
-                "project",
-                "Enter your default Jira project key (optional): ",
-                False,
-                None,
-            ),
-        ]
+    #
+    # ``username`` is only required for basic auth; PAT authenticates with the
+    # token alone, so it is left out of the prompts when ``auth_method`` is
+    # ``pat`` (the user opts in by setting that key in their config file).
+    keys: list[tuple[str, str, bool, Optional[Callable[[str], str]]]] = [
+        (
+            "server",
+            "Enter your Jira server URL: ",
+            True,
+            lambda v: v.replace("https://", ""),
+        ),
+    ]
+    # Normalize so "PAT"/" pat " match the same branch as "pat".
+    auth_method = (config.get("auth_method") or "basic").strip().lower()
+    if auth_method != "pat":
+        keys.append(("username", "Enter your Jira username (email): ", True, None))
+    keys.append(
+        (
+            "project",
+            "Enter your default Jira project key (optional): ",
+            False,
+            None,
+        )
     )
+    config.ensure_keys(keys)
 
     _module_state["CONFIG"] = config
 
@@ -90,23 +98,43 @@ def _initialize_client():
 
     cac.updatechecker.check_package_for_updates(__name__)
 
-    jira_username = config.get("username", "INVALID_DEFAULT")
     jira_server = config.get("server", "INVALID_DEFAULT").replace("https://", "")
+    # Normalize so "PAT"/" pat " match the same branch as "pat".
+    auth_method = (config.get("auth_method") or "basic").strip().lower()
 
     credentialmanager = cac.credentialmanager.CredentialManager(__name__)
-    jira_api_token = credentialmanager.get_credential(jira_username, "Jira API key")
 
-    if not jira_api_token:
-        log.error(
-            "API token not found for %s; see https://github.com/rpunt/%s/blob/main/README.md#authentication",
-            jira_username,
-            __name__.replace("_", "-"),
+    if auth_method == "pat":
+        # PAT (Bearer) auth: the token stands alone; username is optional and
+        # the credential is stored under a fixed key rather than per-username.
+        # An unconfigured username still holds the template sentinel, so treat
+        # it as unset rather than leaking "INVALID_DEFAULT" into the client.
+        jira_username = config.get("username", None)
+        if jira_username == "INVALID_DEFAULT":
+            jira_username = None
+        jira_api_token = credentialmanager.get_credential(
+            "_pat_token", "Jira Personal Access Token"
         )
-        sys.exit(1)
+        if not jira_api_token:
+            log.error(
+                "Personal Access Token not found; see https://github.com/rpunt/%s/blob/main/README.md#authentication",
+                __name__.replace("_", "-"),
+            )
+            sys.exit(1)
+    else:
+        jira_username = config.get("username", "INVALID_DEFAULT")
+        jira_api_token = credentialmanager.get_credential(jira_username, "Jira API key")
+        if not jira_api_token:
+            log.error(
+                "API token not found for %s; see https://github.com/rpunt/%s/blob/main/README.md#authentication",
+                jira_username,
+                __name__.replace("_", "-"),
+            )
+            sys.exit(1)
 
     try:
         _module_state["JIRA_CLIENT"] = client.JiraClient(
-            jira_server, jira_username, jira_api_token
+            jira_server, jira_username, jira_api_token, auth_method=auth_method
         )
     except client.JiraAuthenticationError as e:
         log.error("%s", e)
