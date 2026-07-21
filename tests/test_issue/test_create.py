@@ -150,3 +150,101 @@ class TestIssueCreateExecution:
         with patch("webbrowser.open") as mock_open:
             cmd.run(make_args(browse=True))
         mock_open.assert_called_once_with("https://test.atlassian.net/browse/TEST-1")
+
+
+def _createmeta(fields):
+    """Wrap a fields dict in the createmeta response shape."""
+    return {"projects": [{"issuetypes": [{"fields": fields}]}]}
+
+
+class TestIssueCreateMandatoryFields:
+    """get_mandatory_fields parsing and the --field / missing-field handling."""
+
+    def test_get_mandatory_fields_parses_required_only(self, cmd):
+        cmd.jira_client.createmeta.return_value = _createmeta(
+            {
+                "customfield_1": {
+                    "name": "Points",
+                    "required": True,
+                    "schema": {"type": "number"},
+                },
+                "customfield_2": {"name": "Optional", "required": False},
+            }
+        )
+        result = cmd.get_mandatory_fields("TEST", "Task")
+        assert "customfield_1" in result
+        assert "customfield_2" not in result
+        assert result["customfield_1"]["name"] == "Points"
+
+    def test_get_mandatory_fields_bad_metadata_returns_empty(self, cmd):
+        cmd.jira_client.createmeta.return_value = {"projects": []}  # IndexError
+        assert cmd.get_mandatory_fields("TEST", "Task") == {}
+        cmd.log.error.assert_called()
+
+    def test_custom_field_mapped_by_name(self, cmd):
+        cmd.jira_client.createmeta.return_value = _createmeta(
+            {
+                "customfield_101": {
+                    "name": "Story Points",
+                    "required": True,
+                    "schema": {"type": "number"},
+                }
+            }
+        )
+        cmd.run(make_args(custom_fields=[["Story Points", "5"]]))
+        fields = cmd.jira_client.create_issue.call_args.kwargs["fields"]
+        # Name resolved to the field id, value passed through.
+        assert fields["customfield_101"] == "5"
+
+    def test_custom_field_array_type_split(self, cmd):
+        cmd.jira_client.createmeta.return_value = _createmeta(
+            {
+                "customfield_200": {
+                    "name": "Components",
+                    "required": True,
+                    "schema": {"type": "array"},
+                }
+            }
+        )
+        cmd.run(make_args(custom_fields=[["customfield_200", "a,b,c"]]))
+        fields = cmd.jira_client.create_issue.call_args.kwargs["fields"]
+        assert fields["customfield_200"] == ["a", "b", "c"]
+
+    def test_custom_field_option_type_wrapped(self, cmd):
+        cmd.jira_client.createmeta.return_value = _createmeta(
+            {
+                "customfield_300": {
+                    "name": "Severity",
+                    "required": True,
+                    "schema": {"type": "option"},
+                }
+            }
+        )
+        cmd.run(make_args(custom_fields=[["customfield_300", "High"]]))
+        fields = cmd.jira_client.create_issue.call_args.kwargs["fields"]
+        assert fields["customfield_300"] == {"value": "High"}
+
+    def test_custom_field_non_customfield_id_passthrough(self, cmd):
+        cmd.jira_client.createmeta.return_value = _createmeta(
+            {"duedate": {"name": "Due Date", "required": True, "schema": {}}}
+        )
+        cmd.run(make_args(custom_fields=[["duedate", "2026-01-01"]]))
+        fields = cmd.jira_client.create_issue.call_args.kwargs["fields"]
+        assert fields["duedate"] == "2026-01-01"
+
+    def test_missing_mandatory_field_fails(self, cmd):
+        cmd.jira_client.createmeta.return_value = _createmeta(
+            {"customfield_999": {"name": "Required Thing", "required": True}}
+        )
+        # No --field supplied -> ValueError in execute -> run() maps to exit 1.
+        assert cmd.run(make_args()) == 1
+        cmd.jira_client.create_issue.assert_not_called()
+
+    def test_builtin_mandatory_fields_not_flagged(self, cmd):
+        # A required field the command already supplies (summary) must not be
+        # reported as missing.
+        cmd.jira_client.createmeta.return_value = _createmeta(
+            {"summary": {"name": "Summary", "required": True}}
+        )
+        assert cmd.run(make_args()) == 0
+        cmd.jira_client.create_issue.assert_called_once()

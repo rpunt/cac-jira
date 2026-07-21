@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import pytest
 
-from cac_jira.cli.main import main
+from cac_jira import main
 from cac_jira.commands.issue.show import IssueShow
 
 

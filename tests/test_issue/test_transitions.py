@@ -72,6 +72,18 @@ class TestIssueBegin:
         cmd.jira_client.transitions.assert_not_called()
         cmd.log.error.assert_called()
 
+    def test_transition_api_failure_returns_one(self, cmd):
+        # The transition matches, but transition_issue raises: _transition_to
+        # catches it, logs, and returns False -> the command exits non-zero.
+        cmd.jira_client.issue.return_value = make_issue()
+        cmd.jira_client.transitions.return_value = [{"id": "31", "name": "In Progress"}]
+        cmd.jira_client.transition_issue.side_effect = Exception("api error")
+
+        result = cmd.run(argparse.Namespace(issue="TEST-1"))
+
+        assert result == 1
+        cmd.log.error.assert_called()
+
 
 class TestIssueClose:
     @pytest.fixture
@@ -107,6 +119,14 @@ class TestIssueClose:
 
         assert result == 1
 
+    def test_close_issue_not_found(self, cmd):
+        cmd.jira_client.issue.return_value = None
+
+        result = cmd.run(argparse.Namespace(issue="NOPE-1", comment=None))
+
+        assert result == 1
+        cmd.log.error.assert_called()
+
 
 class TestIssueBlock:
     @pytest.fixture
@@ -132,3 +152,11 @@ class TestIssueBlock:
 
         assert result == 0
         cmd.jira_client.transition_issue.assert_called_once_with(issue, "51")
+
+    def test_block_issue_not_found(self, cmd):
+        cmd.jira_client.issue.return_value = None
+
+        result = cmd.run(argparse.Namespace(issue="NOPE-1", comment=None))
+
+        assert result == 1
+        cmd.log.error.assert_called()

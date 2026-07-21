@@ -10,7 +10,7 @@ invoking different commands and actions.
 import argparse
 import sys
 
-from cac_jira.cli.main import main
+from cac_jira import main
 from cac_jira.commands.issue.list import IssueList
 from cac_jira.commands.project.list import ProjectList
 

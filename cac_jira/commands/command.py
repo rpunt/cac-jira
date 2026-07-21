@@ -9,7 +9,6 @@ command actions.
 """
 
 import abc
-import logging
 
 from cac_core.command import Command
 from jira.exceptions import JIRAError
@@ -69,45 +68,28 @@ class JiraCommand(Command):
         super().define_arguments(parser)
         return parser
 
-    def run(self, args):
+    def handle_exception(self, exc):
         """
-        Run the command and map failures to an exit code.
+        Give python-jira errors a friendly message; defer the rest to the base.
 
-        This is the template method invoked by the CLI entry point. It calls the
-        subclass's ``execute()`` and turns any error raised by the Jira client
-        into a logged, non-zero exit code. Centralizing the error handling here
-        means individual commands do not need their own try/except around client
-        calls -- they implement ``execute()`` as straight-line logic and may
-        raise freely (or return an explicit non-zero code for their own
-        validation failures).
+        ``JIRAError`` is raised for not-found/auth/permission/JQL errors; its
+        ``text`` is the human-readable Jira message. Everything else falls back
+        to the base template (logged with a traceback under ``--verbose``).
 
         Args:
-            args: The parsed arguments
+            exc: The exception raised by ``execute()``.
 
         Returns:
-            int: The exit code (0 on success, non-zero on failure).
+            int: A non-zero exit code.
         """
-        try:
-            result = self.execute(args)
-        except JIRAError as e:
-            # python-jira raises this for not-found/auth/permission/JQL errors;
-            # its ``text`` is the human-readable Jira message.
-            self.log.error(
-                "%s failed: %s", type(self).__name__, getattr(e, "text", None) or e
-            )
-            return 1
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            # Unexpected error: include the traceback when debug logging is on
-            # (e.g. --verbose) so it's diagnosable, while keeping normal output
-            # clean.
+        if isinstance(exc, JIRAError):
             self.log.error(
                 "%s failed: %s",
                 type(self).__name__,
-                e,
-                exc_info=self.log.isEnabledFor(logging.DEBUG),
+                getattr(exc, "text", None) or exc,
             )
             return 1
-        return 0 if result is None else result
+        return super().handle_exception(exc)
 
     @abc.abstractmethod
     def execute(self, args):
