@@ -20,7 +20,7 @@ except Exception:
 log = cac.logger.new(__name__)
 
 _initialized = False
-_module_state = {}
+_module_state: dict[str, object] = {}
 
 
 def _initialize_config():
