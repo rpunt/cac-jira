@@ -1,3 +1,4 @@
 server: INVALID_DEFAULT
 project: INVALID_DEFAULT
 username: INVALID_DEFAULT
+auth_method: basic

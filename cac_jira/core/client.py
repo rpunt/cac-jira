@@ -28,33 +28,45 @@ class JiraClient:
     how to present errors and map them to exit codes.
     """
 
-    def __init__(self, server, username, api_token=None):
+    def __init__(self, server, username, api_token=None, auth_method="basic"):
         """
         Initialize the Jira client.
 
         Args:
             server: The Jira server
             username: The Jira username
-            api_token: The Jira API token
+            api_token: The Jira API token (or Personal Access Token for ``pat``)
+            auth_method: Authentication method — ``"basic"`` (username + API
+                token) or ``"pat"`` (Bearer token, for Jira Server/Data Center)
         """
         self.server = server
         self.username = username
         self.api_token = api_token
+        self.auth_method = auth_method
         self.client: jira.JIRA
         self.connect()
 
     def connect(self):
         """
         Connect to the Jira server.
+
+        Uses ``token_auth`` (Bearer) when ``auth_method`` is ``"pat"`` and
+        ``basic_auth`` (username + API token) otherwise.
         """
         log.debug("Connecting to Jira server %s", self.server)
         if self.api_token is None:
             raise ValueError("an API token is required to connect to Jira")
         try:
-            self.client = jira.JIRA(
-                f"https://{self.server}",
-                basic_auth=(self.username, self.api_token),
-            )
+            if self.auth_method == "pat":
+                self.client = jira.JIRA(
+                    f"https://{self.server}",
+                    token_auth=self.api_token,
+                )
+            else:
+                self.client = jira.JIRA(
+                    f"https://{self.server}",
+                    basic_auth=(self.username, self.api_token),
+                )
             self.client.myself()
         except JIRAError as e:
             response = getattr(e, "response", None)
