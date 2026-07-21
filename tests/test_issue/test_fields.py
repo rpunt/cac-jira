@@ -77,17 +77,18 @@ class TestIssueFields:
         assert cmd.run(make_args(issue_type="bug")) == 0
         assert "Required fields for bug in TEST" in capsys.readouterr().out
 
-    def test_type_not_found(self, cmd, capsys):
+    def test_type_not_found_exits_nonzero(self, cmd, capsys):
+        # A not-found guard is a validation failure -> non-zero exit.
         cmd.jira_client.createmeta.return_value = {
             "projects": [{"issuetypes": [{"name": "Bug"}]}]
         }
 
-        assert cmd.run(make_args(issue_type="Nonexistent")) == 0
+        assert cmd.run(make_args(issue_type="Nonexistent")) == 1
         assert "not found in project TEST" in capsys.readouterr().out
 
-    def test_metadata_error_is_handled(self, cmd, capsys):
-        # Malformed metadata (no projects) -> IndexError, caught and reported.
+    def test_metadata_error_exits_nonzero(self, cmd, capsys):
+        # Malformed metadata (no projects) -> IndexError, reported as a failure.
         cmd.jira_client.createmeta.return_value = {"projects": []}
 
-        assert cmd.run(make_args(issue_type="Bug")) == 0
+        assert cmd.run(make_args(issue_type="Bug")) == 1
         assert "Error retrieving field information" in capsys.readouterr().out

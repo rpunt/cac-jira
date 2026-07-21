@@ -41,7 +41,7 @@ class IssueFields(JiraIssueCommand):
                 print(f"\nAvailable issue types for {project}:")
                 for it in project_meta["issuetypes"]:
                     print(f"  {it['name']}")
-                return
+                return 0
 
             # Find specific issue type
             issuetype_meta = None
@@ -52,7 +52,7 @@ class IssueFields(JiraIssueCommand):
 
             if not issuetype_meta:
                 print(f"Issue type '{issuetype}' not found in project {project}")
-                return
+                return 1
 
             print(f"\nRequired fields for {issuetype} in {project}:")
             for field_id, field in issuetype_meta["fields"].items():
@@ -72,5 +72,8 @@ class IssueFields(JiraIssueCommand):
                 if not field.get("required", False):
                     print(f"  {field['name']} ({field_id})")
 
+            return 0
+
         except (IndexError, KeyError) as e:
             print(f"Error retrieving field information: {e}")
+            return 1
