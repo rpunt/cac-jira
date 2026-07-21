@@ -87,3 +87,51 @@ class TestModuleInitialization:
         assert cac_jira._initialized is True
         assert "CONFIG" in cac_jira._module_state
         assert "JIRA_CLIENT" in cac_jira._module_state
+
+
+class TestClientInitErrors:
+    """Error paths in _initialize_client (credentials / authentication)."""
+
+    @pytest.fixture
+    def reset_client_state(self):
+        """Force _initialize_client to re-run and clean up afterward."""
+        import cac_jira
+
+        cac_jira._module_state.pop("JIRA_CLIENT", None)
+        cac_jira._initialized = False
+        yield
+        cac_jira._module_state.pop("JIRA_CLIENT", None)
+        cac_jira._initialized = False
+
+    def test_missing_token_exits(self, reset_client_state, monkeypatch):
+        import cac_core as cac
+        import cac_jira
+
+        # No stored credential and no prompt -> hard exit with a clear message.
+        monkeypatch.setattr(
+            cac.credentialmanager.CredentialManager,
+            "get_credential",
+            lambda self, *a, **k: None,
+        )
+        with pytest.raises(SystemExit) as exc:
+            cac_jira._initialize_client()
+        assert exc.value.code == 1
+
+    def test_authentication_error_exits(self, reset_client_state, monkeypatch):
+        import cac_core as cac
+        import cac_jira
+        from cac_jira.core import client
+
+        monkeypatch.setattr(
+            cac.credentialmanager.CredentialManager,
+            "get_credential",
+            lambda self, *a, **k: "a-token",
+        )
+
+        def _raise_auth(*_args, **_kwargs):
+            raise client.JiraAuthenticationError("bad token")
+
+        monkeypatch.setattr(client, "JiraClient", _raise_auth)
+        with pytest.raises(SystemExit) as exc:
+            cac_jira._initialize_client()
+        assert exc.value.code == 1
