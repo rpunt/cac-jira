@@ -98,7 +98,7 @@ class JiraIssueCommand(JiraCommand):
                 self.log.info('Added comment: "%s"', comment)
             self.log.info('Issue %s transitioned to "%s"', issue.key, matched_name)
             return True
-        except Exception as e:  # pylint: disable=broad-exception-caught
+        except Exception as e:  # noqa: BLE001  # pylint: disable=broad-exception-caught
             self.log.error("Failed to transition issue: %s", str(e))
             return False
 

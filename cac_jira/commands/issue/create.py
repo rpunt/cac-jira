@@ -305,7 +305,7 @@ class IssueCreate(JiraIssueCommand):
                 # Execute the begin command with our constructed args (through
                 # the error-handling wrapper) and propagate its exit code.
                 begin_result = begin_cmd.run(begin_args) or 0
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001  # pylint: disable=broad-exception-caught
                 self.log.error("Failed to transition issue to In Progress: %s", str(e))
                 begin_result = 1
 
