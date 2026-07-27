@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Command module for showing a single Jira project.
 """

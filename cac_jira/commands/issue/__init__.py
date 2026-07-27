@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Base module for all issue-related commands.
 
