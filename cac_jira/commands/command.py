@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 """
 Base class for all Jira CLI commands.
 

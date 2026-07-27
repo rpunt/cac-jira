@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # pylint: disable=line-too-long, import-outside-toplevel, broad-exception-caught
 
 """
