@@ -91,13 +91,13 @@ def main_test():
     try:
         # Test using the CLI main function
         test_cli_direct()
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"Error testing via CLI main(): {e}")
 
     try:
         # Test using direct class instantiation
         test_command_classes()
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"Error testing via direct class instantiation: {e}")
 
     print("\nTest completed.")

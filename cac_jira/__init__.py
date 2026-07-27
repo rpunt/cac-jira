@@ -1,12 +1,13 @@
-# pylint: disable=broad-except, line-too-long
+# pylint: disable=line-too-long
 
 """
 module docstring
 """
 
 import sys
+from collections.abc import Callable
 from importlib import metadata
-from typing import TYPE_CHECKING, Callable, Optional, cast
+from typing import TYPE_CHECKING, cast
 
 import cac_core as cac
 from cac_core.cli import make_main
@@ -23,7 +24,7 @@ if TYPE_CHECKING:
 
 try:
     __version__ = metadata.version(__name__)
-except Exception:
+except metadata.PackageNotFoundError:
     __version__ = "#N/A"
 
 log = cac.logger.new(__name__)
@@ -56,7 +57,7 @@ def _initialize_config():
     # ``username`` is only required for basic auth; PAT authenticates with the
     # token alone, so it is left out of the prompts when ``auth_method`` is
     # ``pat`` (the user opts in by setting that key in their config file).
-    keys: list[tuple[str, str, bool, Optional[Callable[[str], str]]]] = [
+    keys: list[tuple[str, str, bool, Callable[[str], str] | None]] = [
         (
             "server",
             "Enter your Jira server URL: ",
@@ -173,4 +174,4 @@ def __getattr__(name):
 main = make_main("cac_jira", "jira", "Jira CLI tool")
 
 
-__all__ = ["JIRA_CLIENT", "CONFIG", "log", "main", "_initialize"]
+__all__ = ["CONFIG", "JIRA_CLIENT", "_initialize", "log", "main"]

@@ -105,6 +105,7 @@ class TestClientInitErrors:
 
     def test_missing_token_exits(self, reset_client_state, monkeypatch):
         import cac_core as cac
+
         import cac_jira
 
         # No stored credential and no prompt -> hard exit with a clear message.
@@ -119,6 +120,7 @@ class TestClientInitErrors:
 
     def test_authentication_error_exits(self, reset_client_state, monkeypatch):
         import cac_core as cac
+
         import cac_jira
         from cac_jira.core import client
 

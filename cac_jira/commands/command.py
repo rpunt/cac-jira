@@ -7,7 +7,6 @@ command actions.
 """
 
 import abc
-from typing import Optional
 
 from cac_core.command import Command
 from jira.exceptions import JIRAError
@@ -38,7 +37,7 @@ class JiraCommand(Command):
         super().__init__()
         self.log = log
         self.config = cac_jira.CONFIG
-        self._jira_client: Optional[JiraClient] = None
+        self._jira_client: JiraClient | None = None
 
     @property
     def jira_client(self) -> JiraClient:

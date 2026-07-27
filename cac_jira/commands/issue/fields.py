@@ -57,7 +57,7 @@ class IssueFields(JiraIssueCommand):
             for field_id, field in issuetype_meta["fields"].items():
                 if field.get("required", False):
                     allowed = ""
-                    if "allowedValues" in field and field["allowedValues"]:
+                    if field.get("allowedValues"):
                         values = [
                             v.get("name", v.get("value", "Unknown"))
                             for v in field["allowedValues"][:5]

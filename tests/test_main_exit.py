@@ -17,17 +17,21 @@ class TestMainExitCodes:
     def test_nonzero_return_causes_exit(self, monkeypatch):
         """A truthy return value from execute() becomes the process exit code."""
         monkeypatch.setattr(sys, "argv", ["jira", "issue", "show", "-i", "TEST-1"])
-        with patch.object(IssueShow, "execute", return_value=1):
-            with pytest.raises(SystemExit) as exc:
-                main()
+        with (
+            patch.object(IssueShow, "execute", return_value=1),
+            pytest.raises(SystemExit) as exc,
+        ):
+            main()
         assert exc.value.code == 1
 
     def test_exception_causes_exit(self, monkeypatch):
         """An exception raised by execute() results in a non-zero exit."""
         monkeypatch.setattr(sys, "argv", ["jira", "issue", "show", "-i", "TEST-1"])
-        with patch.object(IssueShow, "execute", side_effect=RuntimeError("boom")):
-            with pytest.raises(SystemExit) as exc:
-                main()
+        with (
+            patch.object(IssueShow, "execute", side_effect=RuntimeError("boom")),
+            pytest.raises(SystemExit) as exc,
+        ):
+            main()
         assert exc.value.code == 1
 
     def test_success_does_not_exit(self, monkeypatch):
