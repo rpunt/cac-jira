@@ -89,7 +89,7 @@ The shared `Command.run(args)` template (in `cac-core`) invokes the subclass's `
 
 - Python >=3.10 required (CI tests 3.10–3.14)
 - Black formatting with 88-char line length
-- isort with black-compatible profile
+- Import sorting and linting via Ruff
 - Output formatting uses `cac_core.output.Output` (supports table and JSON formats)
 
 ## CI/CD
